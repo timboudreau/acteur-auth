@@ -2,6 +2,13 @@
 var fs = require ( 'fs' ), path = require ( 'path' ), util = require ( 'util' ),
         child_process = require ( 'child_process' );
 
+/*
+
+THIS IS THE CONTINUOUS DEPLOYMENT SCRIPT WHICH RUNS ON tweak.mine.nu
+EDIT CAREFULLY
+
+ */
+
 console.log ( "Starting continuous deployer in " + process.cwd () );
 
 var args = process.argv.slice ( 2 );
