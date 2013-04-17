@@ -1,7 +1,166 @@
 #!/usr/bin/env node
+var fs = require ( 'fs' ), path = require ( 'path' ), util = require ( 'util' ),
+        child_process = require ( 'child_process' );
 
-var fs = require('fs'), path = require('path'), util = require('util'),
-    child_process = require('child_process');
+console.log ( "Starting continuous deployer in " + process.cwd () );
 
-console.log("Hey");
+var args = process.argv.slice ( 2 );
+
+if (args.length < 3) {
+    console.log ( "Usage: deployer [jardir] [tmpdir] [filename]" );
+    process.exit ( 1 );
+}
+
+var quietPeriod = 30 * 1000; //30 seconds after jar is replaced, restart
+var jarsDir = args[0]
+var tmpDir = args[1];
+var jarFileName = args[2]
+var exiting = false;
+
+var jarFile = path.join ( jarsDir, jarFileName );
+
+if (!fs.existsSync ( jarsDir )) {
+    console.log ( "No such jar dir: '" + jarsDir + "'" );
+    process.exit ( 1 );
+}
+
+if (!fs.existsSync ( tmpDir )) {
+    console.log ( "No such tmp dir: " + tmpDir + "" );
+    process.exit ( 1 )
+}
+
+var watcher = fs.watch ( jarsDir, dirWatcher );
+
+var redeployTimeout;
+
+function dirWatcher ( event, filename ) {
+    console.log ( "WATCH EVENT " + filename + " - " + util.inspect ( event ) );
+    if (!filename || filename === jarFileName) {
+        if ('change' === event) {
+            redeploy ();
+        }
+    }
+}
+
+function redeploy ( immediate ) {
+    if (immediate) {
+        launchJar ();
+    } else {
+        if (!redeployTimeout) {
+            console.log ( "Start redepoy timeout for 30 seconds" );
+            redeployTimeout = setTimeout ( launchJar, quietPeriod );
+        } else {
+            console.log ( "Timeout already scheudled, don't reschedule" );
+        }
+    }
+}
+
+function twoDigit ( what ) {
+    var result = what + '';
+    if (what.length == 1) {
+        result = '0' + what;
+    }
+    return result;
+}
+
+var runningProcess;
+function launchJar () {
+    if (exiting) {
+        console.log ( "Exiting - not redeploying" );
+        return;
+    }
+    console.log ( "Redeploy" );
+    if (redeployTimeout) {
+        try {
+            console.log ( "Clear old timeout" );
+            clearTimeout ( redeployTimeout );
+        } catch ( err ) {
+            console.log ( err.stack || err )
+        }
+    }
+    redeployTimeout = null;
+    var now = new Date ();
+
+    var when = now.getFullYear () + "-" + ( now.getMonth () + 1 ) + "-" + ( now.getDate () ) + '--' + twoDigit ( now.getHours () ) + "-" + twoDigit ( now.getMinutes () );
+
+    console.log ( "Create new jar file copy " + tempJarFile );
+    var tempJarFile = path.join ( tmpDir, path.basename ( jarFileName, '.jar' ) + '-' + when + ".jar" );
+
+    copyFile ( jarFile, tempJarFile, function ( err ) {
+        if (err) {
+            console.log ( "Error copying JAR - reschedule redeploy due to " + err );
+            return redeploy ();
+        }
+        console.log ( "JAR file copied" );
+        var outLog = tempJarFile + '.log';
+        var errLog = tempJarFile + '.err';
+        if (runningProcess) {
+            console.log ( "Kill existing process " + runningProcess.pid );
+            runningProcess.kill ( 'SIGINT' );
+            runningProcess = null;
+        }
+        console.log ( "LOG to " + outLog + " and " + errLog );
+        var outStream = fs.createWriteStream ( outLog );
+        var errStream = fs.createWriteStream ( errLog );
+        runningProcess = child_process.exec ( 'java -jar ' + tempJarFile );
+        runningProcess.stdout.pipe ( outStream );
+        runningProcess.stderr.pipe ( errStream );
+        var pid = runningProcess.pid;
+        runningProcess.on ( 'error', function ( err ) {
+            console.log ( err.stack || err );
+        } )
+        runningProcess.on ( 'exit', function ( code, signal ) {
+            console.log ( "Process " + pid + " exited." );
+            runningProcess = null;
+        } );
+    } );
+}
+
+function copyFile ( from, to, callback ) {
+    var inStream = fs.createReadStream ( from );
+    var outStream = fs.createWriteStream ( to );
+    var error = null;
+    function checkError ( err ) {
+        console.log ( "Error in stream" );
+        var wasNull = error === null;
+        error = err;
+        if (wasNull) {
+            callback ( err );
+        }
+    }
+    inStream.on ( 'error', checkError );
+    outStream.on ( 'error', checkError );
+    console.log ( "Copy " + from + " to " + to );
+    inStream.pipe ( outStream );
+    outStream.on ( 'close', function () {
+        if (!error) {
+            callback ();
+        }
+    } );
+}
+
+function onExit () {
+    console.log ( "Exit on signal; killing processes and cleaning up." );
+    exiting = true;
+    try {
+        if (redeployTimeout) {
+            clearTimeout ( redeployTimeout );
+        }
+    } catch ( err ) {
+        console.log ( err );
+    } finally {
+        try {
+            if (runningProcess) {
+                runningProcess.kill ( 'SIGINT' );
+            }
+        } catch ( err ) {
+            console.log ( err )
+        }
+        process.exit ( 0 );
+    }
+}
+process.on ( 'SIGINT', onExit );
+process.on ( 'SIGHUP', onExit );
+
+redeploy ( true );
 
