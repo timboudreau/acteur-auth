@@ -164,3 +164,9 @@ process.on ( 'SIGHUP', onExit );
 
 redeploy ( true );
 
+process.on ( 'uncaughtException', function ( err ) {
+    console.log ( err );
+    if (err.stack) {
+        console.log ( err.stack );
+    }
+} );
