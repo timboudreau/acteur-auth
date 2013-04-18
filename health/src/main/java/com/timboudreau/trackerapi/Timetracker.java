@@ -77,6 +77,7 @@ public class Timetracker extends Application {
     Timetracker(DB db) {
         // These are our request handlers:
         super(SignUpResource.class,
+                WhoAmIResource.class,
                 SetsResource.class,
                 CORSResource.class,
                 GetSurveysResource.class,
@@ -89,7 +90,6 @@ public class Timetracker extends Application {
                 TotalTimeResource.class,
                 ModifyEventsResource.class,
                 AdjustTimeResource.class,
-                WhoAmIResource.class,
                 SkewResource.class,
                 SetPasswordResource.class,
                 AuthorizeResource.class,
