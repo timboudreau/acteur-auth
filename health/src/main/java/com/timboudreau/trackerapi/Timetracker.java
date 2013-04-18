@@ -24,20 +24,26 @@ import com.mastfrog.settings.SettingsBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.timboudreau.questions.AddSurveyResource;
+import com.timboudreau.questions.GetSurveyResource;
+import com.timboudreau.questions.GetSurveysResource;
+import com.timboudreau.questions.UpdateSurveyResource;
 import com.timboudreau.trackerapi.ModifyEventsResource.Body;
 import io.netty.handler.codec.http.HttpResponse;
 import java.io.IOException;
+import org.bson.types.ObjectId;
 import org.joda.time.Interval;
 
 /**
  * The Timetracker main class
- * 
+ *
  * @author Tim Boudreau
  */
 // Classes which are injected:
 @ImplicitBindings({TTUser.class, DBCollection.class, CreateCollectionPolicy.class,
-    DBCursor.class, Interval.class, Body.class, AdjustTimeResource.AdjustParameters.class})
-// Some default values for things
+    DBCursor.class, Interval.class, Body.class, String.class, DBObject.class,
+    ObjectId.class, AdjustTimeResource.AdjustParameters.class})// Some default values for things
 @Defaults(namespace =
         @Namespace(Timetracker.TIMETRACKER),
         value = {"periodicLiveWrites=true", "port=7739"})
@@ -73,6 +79,10 @@ public class Timetracker extends Application {
         super(SignUpResource.class,
                 SetsResource.class,
                 CORSResource.class,
+                GetSurveysResource.class,
+                GetSurveyResource.class,
+                AddSurveyResource.class,
+                UpdateSurveyResource.class,
                 AddTimeResource.class,
                 GetTimeResource.class,
                 DeleteTimeResource.class,
