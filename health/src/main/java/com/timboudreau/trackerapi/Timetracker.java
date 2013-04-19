@@ -28,6 +28,7 @@ import com.mongodb.DBObject;
 import com.timboudreau.questions.AddSurveyResource;
 import com.timboudreau.questions.GetSurveyResource;
 import com.timboudreau.questions.GetSurveysResource;
+import com.timboudreau.questions.TestLogin;
 import com.timboudreau.questions.UpdateSurveyResource;
 import com.timboudreau.trackerapi.ModifyEventsResource.Body;
 import io.netty.handler.codec.http.HttpResponse;
@@ -52,6 +53,8 @@ public class Timetracker extends Application {
 
     public static final String TIMETRACKER = "timetracker";
     public static final String URL_PATTERN_TIME = "^users/(.*?)/time/(.*?)$";
+    
+    public static final String REALM_NAME = "Survey";
 
     public static void main(String[] args) throws IOException, InterruptedException {
         // Set up our defaults - can be overridden in 
@@ -78,6 +81,7 @@ public class Timetracker extends Application {
         // These are our request handlers:
         super(SignUpResource.class,
                 WhoAmIResource.class,
+                TestLogin.class,
                 SetsResource.class,
                 CORSResource.class,
                 GetSurveysResource.class,

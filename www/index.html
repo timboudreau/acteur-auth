@@ -3,11 +3,9 @@
 <html lang="en">
     <head>
         <title>Surveys</title>
-        <meta name="DC.author" content="Tim Boudreau" />
-        <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
-        <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-        <link href="default.css" rel="stylesheet">
-        <link href="js/jquery-ui/css/smoothness/jquery-ui-1.10.2.custom.min.css" rel="stylesheet">
+        <link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
+        <link href="/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+        <link href="/default.css" rel="stylesheet">
         <!--[if lte IE 8]>
             <script>
             // The ieshiv takes care of our ui.directives, bootstrap module directives and
@@ -26,123 +24,86 @@
         <![endif]-->
 
         <!-- Le fav and touch icons -->
-        <link rel="shortcut icon" href="/blog/ico/favicon.ico">
         <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/blog/ico/apple-touch-icon-144-precomposed.png">
         <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/blog/ico/apple-touch-icon-114-precomposed.png">
         <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/blog/ico/apple-touch-icon-72-precomposed.png">
         <link rel="apple-touch-icon-precomposed" href="/blog/ico/apple-touch-icon-57-precomposed.png">
+        <script lang="text/javascript">
+            var req = new XMLHttpRequest();
+            req.open('GET', document.location, false);
+            req.send(null);
+            var headers = req.getAllResponseHeaders().toLowerCase();
+            console.log("HEADERS: ", req.getAllResponseHeaders());
+        </script>
     </head>
-    <body ng-app="surveys">
-        <div ng-controller="Surveys">
-            <div>
-                <div id="topNav" class="navbar navbar-fixed-top">
-                    <div class="navbar-inner">
-                        <div class="container-fluid">
-                            <div class="row-fluid">
-                                <div class="span12 topSearch pull-right">
-                                    <a class="homeLink" href="/">
-                                        Surveys
-                                    </a>
-                                    <span class="pull-right">
-                                        <form class="form-inline css-form miniForm" ng-show="!user" novalidate>
-                                            <input required ng-model="username" type="text" class="input-small" placeholder="Email">
-                                            <input required ng-model="password" type="password" class="input-small" placeholder="Password">
-                                            <button href="#" type="submit" ng-click="login()" class="btn">Sign in</button>
-                                        </form>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <body ng-app>
+        <div ng-controller="Login">
+            <div id='' class='mainPage container mainlogin'>
+                <div class='loading' ng-show='loading'>
+                    <img src='images/loading-large-transparent.gif' width='66' height='66'></img>
                 </div>
-
-                <div id='contentBody' class='contentBody container'>
-                    <div class='loading' ng-show='loading'>
-                        <img src='images/loading-large-transparent.gif' width='66' height='66'></img>
+                <center><img src="/images/logo.svg" width="120px" height="120px"></img></center>
+                <h1 style="text-align: center">Welcome to Thingamabob</h1>
+                <div class='row'>
+                    <div class="offset1 well span5">
+                        <h2>Sign Up</h2>
+                        <form class="form-horizontal loginForm css-form">
+                            <span class="control-group">
+                                <label class="control-label">Your Name</label>
+                                <input ng-model="userDisplayName" type="text" id="signupName" 
+                                       placeholder="Your name" required></input>
+                            </span>
+                            <span class="control-group">
+                                <label class="control-label">Username</label>
+                                <input ng-model="username" type="text" id="signupUsername" 
+                                       placeholder="Username" required></input>
+                            </span>
+                            <span class="control-group">
+                                <label class="control-label">Password</label>
+                                <input ng-model="password" type="password" id="signupPassword" 
+                                       placeholder="Password" required></input>
+                            </span>
+                            <!--<div class="pull-right">-->
+                                <input type="submit" href="#" data-dismiss="modal" type="submit" 
+                                   ng-disabled="!userDisplayName || !username || !password"
+                                   class="btn btn-primary loginButton" ng-click="signUp()" value="Sign Up"></input>
+                            <!--</div>-->
+                        </form>
                     </div>
-                    <div class='row'>
-                        <div class="span10 offset2 alert alert-error errorBox" ng-show='problem'>
-                            <div  ng-bind-html-unsafe="problem">
-                                {{problem}}
-                            </div>
-                            <div class='pull-right'>
-                                <a href='#' ng-click='enqueue()' class='btn'>Reload</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="hero-unit">
-                        <h1>Surveys</h1>
-                        <header>There is stuff here. Isn't that cool?
-                            <a ng-show="!user" href="#" data-toggle="modal" data-target="#signUp" class='btn btn-primary btn-large'>Sign Up</a>
-                        </header>
-                    </div>
+                    <div class="well span5">
+                        <h2>Log In</h2>
+                        <form class="form-horizontal loginForm">
+                            <span class="control-group">
+                                <label class="control-label">Username</label>
+                                <input ng-model="username" type="text" id="signupUsername" 
+                                       placeholder="Username" required></input>
+                            </span>
+                            <span class="control-group">
+                                <label class="control-label">Password</label>
+                                <input ng-model="password" type="password" id="signupPassword" 
+                                       placeholder="Password" required></input>
+                            </span>
+                            <div class="filler"></div>
+                            <!--<div class="pull-right">-->
+                                <input data-dismiss="modal" type="submit" 
+                                   ng-disabled="!username || !password"
+                                   class="btn btn-primary loginButton" value="Log In" ng-click="login()"></input>
+                            <!--</div>-->
+                        </form>
+                    </div>                    
                 </div>
-
-                <div id="signUp" class="modal signup fade">
-                    <form class="form-horizontal css-form" novalidate>
-                        <fieldset>
-                            <legend>Sign Up
-                                <a href="#" class="close pull-right" data-dismiss="modal">×&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
-                            </legend>
-                            <div class="loginForm">
-                                <span class="control-group">
-                                    <label class="control-label">Your Name</label>
-                                    <input ng-model="userDisplayName" type="text" id="signupName" 
-                                           placeholder="Your name" required></input>
-                                </span>
-                                <span class="control-group">
-                                    <label class="control-label">Username</label>
-                                    <input ng-model="username" type="text" id="signupUsername" 
-                                           placeholder="Username" required></input>
-                                </span>
-                                <span class="control-group">
-                                    <label class="control-label">Password</label>
-                                    <input ng-model="password" type="password" id="signupPassword" 
-                                           placeholder="Password" required></input>
-                                </span>
-                                <div class="pull-right">
-                                    <a href="#" data-dismiss="modal" type="submit" 
-                                       class="btn btn-primary" ng-click="signUp()">Sign Up</a>
-                                </div>
-                            </div>
-                        </fieldset>
-                    </form>
-                </div>
-
-                <div id="footer" class="footer">
-                    <hr>
-                    &copy; 2013, Tim Boudreau,
-                    all rights reserved. Reuse governed by the Creative Commons
-                    <a style="color: #BBBBFF;" target="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a>
-                    License
-                </div>
+                <!--<ng-include src='"/partials/bottom.html"'></ng-include>-->
             </div>
-            <div id="serverLog" class="modal thumbnailDetail hide" ng-controller="ServerLog">
-                <span class="modal-header">
-                    <b>Server Log</b> <span class="pull-right"><a href="#" class="close" data-dismiss="modal">×&nbsp;&nbsp;</a></span>
-                </span>
-                <pre class="log">{{log}}</pre>
-                <div class="logFooter modal-footer">
-                    <div class="logStatus">
-                        <span ng-repeat="val in status" class="statusItem">
-                            <b>{{val.name}}</b> Running: {{val.running}} Queued: {{val.enqueued}}
-                        </span>
-                    </div>
-                    <a href="#" class="btn btn-primary" data-dismiss="modal">Close</a>
+            <div class="alert alert-error errorBox" ng-show='problem' style="position: fixed; top: 2em; right: 3em;">
+                <div ng-bind-html-unsafe="problem">
+                    {{problem}}
                 </div>
-            </div>
-
-            <div class="eventsMinimized">
-                <a href="#" data-toggle="modal" data-target="#serverLog">Server</a>
-            </div>
-        </div>
-        <script src="bootstrap/js/jquery.min.js"></script>
-        <script src="bootstrap/js/bootstrap-modal.min.js"></script>
-        <script src="js/jquery-ui/js/jquery-ui-1.10.2.custom.min.js"></script>
-        <script src="angular/angular.min.js"></script>
-        <script src="js/angular-ui.js"></script>
-        <script src="js/base64.js"></script>
-        <script src="surveys.js"></script>
+            </div>                
+            <script src="/bootstrap/js/jquery.min.js"></script>
+            <script src="/bootstrap/js/bootstrap-modal.min.js"></script>
+            <script src="/js/jquery-ui/js/jquery-ui-1.10.2.custom.min.js"></script>
+            <script src="/angular/angular.min.js"></script>
+            <script src="/js/base64.js"></script>
+            <script src="/scripts/login.js"></script>
     </body>
 </html>

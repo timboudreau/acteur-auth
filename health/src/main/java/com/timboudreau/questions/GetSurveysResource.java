@@ -57,7 +57,7 @@ public class GetSurveysResource extends Page {
         static class ResultsWriter implements ChannelFutureListener {
 
             private final DBCursor cursor;
-            private volatile boolean first;
+            private volatile boolean first = true;
             private final ObjectMapper mapper;
             private final boolean close;
 

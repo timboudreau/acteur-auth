@@ -33,7 +33,7 @@ public class AddSurveyResource extends Page {
     @Inject
     AddSurveyResource(ActeurFactory af) {
         add(af.matchPath(QUESTION_PATTERN));
-        add(af.matchMethods(Method.PUT));
+        add(af.matchMethods(Method.PUT, Method.POST));
         add(Auth.class);
         add(SurveyWriter.class);
     }
@@ -59,7 +59,7 @@ public class AddSurveyResource extends Page {
             BasicDBObject ob = new BasicDBObject(m);
             collection.save(ob);
             URI uri = new URI(pf.toExternalPath(Path.parse("users/"
-                    + user.name + "/surveys/"
+                    + user.name + "/survey/"
                     + ob.getString("_id"))).toStringWithLeadingSlash());
             add(Headers.LOCATION, uri);
             setState(new RespondWith(HttpResponseStatus.SEE_OTHER, "Created "

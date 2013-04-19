@@ -1,0 +1,28 @@
+<div id="topNav" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span12 topSearch pull-right">
+                    <a class="homeLink" href="/">
+                        Surveys
+                    </a>
+                    <span class="pull-right">
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class='loading' ng-show='loading'>
+    <img src='/images/loading-large-transparent.gif' width='66' height='66'></img>
+</div>
+<div class='row'>
+    <div class="span10 offset2 alert alert-error errorBox" ng-show='problem'>
+        <div  ng-bind-html-unsafe="problem">
+            {{problem}}
+        </div>
+        <div class='pull-right'>
+            <a href='#' ng-click='enqueue()' class='btn'>Reload</a>
+        </div>
+    </div>
+</div>

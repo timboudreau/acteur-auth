@@ -55,20 +55,24 @@
 }
 
 h1 {
-    font-family: 'Raleway';
+    font-family: 'Montserrat';
+    color: #88AA88;
 }
 
 h2 {
-    font-family: 'Raleway';
+    font-family: 'Montserrat';
     font-size: 2em;
+    color: #88AA88;
 }
 
 h3 {
-    font-family: 'Raleway';
+    font-family: 'Montserrat';
+    color: #88AA88;
 }
 
 h4 {
-    font-family: 'Raleway';
+    font-family: 'Montserrat';
+    color: #88AA88;
 }
 .navbar {
     font-family: 'Karla';
@@ -78,12 +82,24 @@ h4 {
     font-family: 'Karla';
 }
 
+.well h2 {
+    color: #119900;
+}
+
+.well h3 {
+    color: #119900;
+}
+
+.well h4 {
+    color: #119900;
+}
+
 body {
     font-family: 'Montserrat', 'Verdana', 'Trebuchet MS', 'Arial';
     line-height: 1.65em;
-    color: #000000;
+    color: #114400;
     background-repeat: repeat;
-    background-image: url('images/pat3.png');
+    background-image: url('/images/pat5.png');
     height: 100%;
     width: 100%;
 }
@@ -99,15 +115,41 @@ body {
 }
 
 .loginForm {
-    margin: 1.5em;
 }
 
+.filler {
+    height: 1.25em;
+}
+
+.loginButton {
+    float: right;
+    bottom: 0;
+}
+
+.loginForm div {
+    margin-top: 1.5em;
+    margin-right: 1.5em;
+}
+
+.mainPage {
+    vertical-align: middle;
+    height: 100%;
+}
+
+.mainPage h1 {
+    margin-bottom: 1em;
+    text-align: middle;
+}
+
+.mainlogin {
+    margin-top: 3em;
+}
 .loginForm label {
-    margin: 0.5em;
+    margin-top: 0.5em;
 }
 
 .loginForm input {
-    margin: 0.5em;
+    margin-top: 0.5em;
 }
 
 .signup legend {
@@ -494,6 +536,63 @@ a {
     vertical-align: bottom;
 }
 
+.controls {
+    position: fixed;
+    top: 6em;
+    right: 5em;
+    background-color: white;
+}
+
+.question {
+    padding-left: 2em;
+    vertical-align: middle;
+}
+
+.questionContainer {
+    width: 50%;
+}
+
+.questionRow {
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.questionRow input {
+    margin-bottom: 0px;
+}
+
+.questionRow select {
+    margin-bottom: 0px;
+}
+
+.control-label {
+    margin-right: 1em;
+}
+
+.questionText {
+    margin-bottom: 0.5em;
+    color: #117400;
+    display: inline-block;
+}
+
+.help {
+    /*margin-left: 2em;*/
+    font-size: 0.8em;
+    /*float: right;*/
+}
+
+.survey {
+    margin-left: 4em;
+    margin-top: 2em;
+    padding-left: 1em;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
+.well {
+    background-color: rgba(68, 133, 107, 0.0625);
+}
+
 .synopsis {
     display: inline;
 }
@@ -501,6 +600,17 @@ a {
 .footer {
     color: #BBBBBB;
     text-align: center;
+    vertical-align: middle;
+    padding: 0px;
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+    margin: 0px;
+    min-height: 20px;
+}
+
+.hero-unit {
+    vertical-align: middle;
 }
 
 .footer a {

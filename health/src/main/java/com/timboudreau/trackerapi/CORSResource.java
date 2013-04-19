@@ -33,6 +33,7 @@ final class CORSResource extends Page {
             add(Headers.stringHeader("Access-Control-Allow-Origin"), "*");
             add(Headers.ACCESS_CONTROL_ALLOW, new Method[]{Method.GET, Method.POST, Method.PUT, Method.DELETE, Method.OPTIONS});
             add(Headers.stringHeader("Access-Control-Allow-Headers"), "content-type, accept, X-Requested-With");
+            add(Headers.stringHeader("Access-Control-Allow-Credentials"), "true");
             add(Headers.stringHeader("Access-Control-Allow-Max-Age"), "600");
             add(Headers.CACHE_CONTROL, CacheControl.$(CacheControlTypes.Public).add(CacheControlTypes.max_age, Duration.standardDays(365)));
             setState(new RespondWith(HttpResponseStatus.NO_CONTENT));

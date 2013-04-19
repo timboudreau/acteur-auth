@@ -66,7 +66,7 @@ final class MongoModule extends AbstractModule {
         } catch (UnknownHostException ex) {
             Exceptions.chuck(ex);
         }
-        bind(Realm.class).toInstance(Realm.createSimple("Timetracker"));
+        bind(Realm.class).toInstance(Realm.createSimple(Timetracker.REALM_NAME));
         
         install(new QuestionsModule());
     }
