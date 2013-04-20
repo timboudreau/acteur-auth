@@ -1,16 +1,28 @@
 <div id="topNav" class="navbar navbar-fixed-top">
     <div class="navbar-inner">
-        <div class="container-fluid">
-            <div class="row-fluid">
-                <div class="span12 topSearch pull-right">
-                    <a class="homeLink" href="/">
-                        Surveys
+        <ul class="nav">
+            <a class="homeLink" href="./"><img class="navlogo" width="32" height="32" src="/images/logo.svg"/>Thingamabob</a>
+            <li>
+                <a href="surveys.html">
+                    My Surveys
+                </a>
+            </li>
+            <li>
+                <a href="newsurvey.html">
+                    New Survey
+                </a>
+            </li>
+        </ul>
+        <span class="pull-right">
+            <ul class="nav">
+                <li>
+                    <a href="profile.html" class="pull-right">
+                        Joe Blow
+                        <i class="icon-cog"></i>
                     </a>
-                    <span class="pull-right">
-                    </span>
-                </div>
-            </div>
-        </div>
+                </li>
+            </ul>
+        </span>
     </div>
 </div>
 <div class='loading' ng-show='loading'>
@@ -20,9 +32,6 @@
     <div class="span10 offset2 alert alert-error errorBox" ng-show='problem'>
         <div  ng-bind-html-unsafe="problem">
             {{problem}}
-        </div>
-        <div class='pull-right'>
-            <a href='#' ng-click='enqueue()' class='btn'>Reload</a>
         </div>
     </div>
 </div>

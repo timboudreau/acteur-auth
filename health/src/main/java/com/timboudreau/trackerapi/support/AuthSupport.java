@@ -112,8 +112,9 @@ public final class AuthSupport implements Provider<AuthSupport.Result> {
         }
         List<ObjectId> authorizes = (List<ObjectId>) u.get("authorizes");
         Number userVersion = (Number) u.get(Properties.version);
+        String displayName = (String) u.get(Properties.displayName);
         int version = userVersion == null ? 0 : userVersion.intValue();
-        TTUser user = new TTUser(credentials.username, (ObjectId) u.get("_id"), version, authorizes);
+        TTUser user = new TTUser(credentials.username, (ObjectId) u.get("_id"), version, displayName, authorizes);
         return new Result(user, u, credentials.username, hashedPassword, ResultType.SUCCESS, false);
     }
 
@@ -214,17 +215,30 @@ public final class AuthSupport implements Provider<AuthSupport.Result> {
         return result;
     }
 
-    private String findCookie() {
+    public String findCookie() {
+        return findCookie(COOKIE_NAME);
+    }
+
+    public String findCookie(String name) {
         String cookie = evt.getHeader(HttpHeaders.Names.COOKIE);
         if (cookie != null) {
             Set<Cookie> cookies = CookieDecoder.decode(cookie);
             for (Cookie ck : cookies) {
-                if (COOKIE_NAME.equals(ck.getName())) {
+                if (name.equals(ck.getName())) {
                     return ck.getValue();
                 }
             }
         }
         return null;
+    }
+    
+    public Cookie encodeDisplayNameCookie(String displayName) {
+        DefaultCookie ck = new DefaultCookie("dn", displayName);
+        ck.setDomain(getHost());
+        ck.setMaxAge(Duration.standardDays(365).getMillis());
+        ck.setPorts(80, 7739);//XXX get port from settings?
+        ck.setVersion(1);
+        return ck;
     }
 
     public Result getCookieResult() {
@@ -256,7 +270,8 @@ public final class AuthSupport implements Provider<AuthSupport.Result> {
                             List<ObjectId> authorizes = (List<ObjectId>) u.get("authorizes");
                             Number ver = (Number) u.get(Properties.version);
                             int version = ver == null ? 0 : ver.intValue();
-                            TTUser user = new TTUser(parts[0], (ObjectId) u.get("_id"), version, authorizes);
+                            String displayName = (String) u.get(Properties.displayName);
+                            TTUser user = new TTUser(parts[0], (ObjectId) u.get(Properties._id), version, displayName, authorizes);
                             return new Result(user, u, parts[0], pass, ResultType.SUCCESS, true);
                         }
                     }

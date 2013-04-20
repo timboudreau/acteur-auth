@@ -19,6 +19,11 @@ function Login($scope, $http) {
     var htt = getHTTPObject();
 
     $scope.signUp = function() {
+        if ($scope.password2 !== $scope.password) {
+            $scope.problem = "Passwords do not match"
+            return;
+        }
+        $scope.problem = null;
 
         $http.post('/time/users/' + $scope.username + '/signup?displayName=' + $scope.displayName, $scope.password).success(function(user) {
             $scope.user = user;

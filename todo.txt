@@ -1,0 +1,10 @@
+
+ - Activity feeds & audit table
+ - Login user rather than user name in path used for /surveys.html
+ - User prefs page w/ delegation
+ - Delete survey functionality
+ - User home page is rather empty
+ - Auto-login not working
+ - Detect un-logged-in user arriving on user page and sign them up or something
+ - OpenID / Google / Facebook?
+

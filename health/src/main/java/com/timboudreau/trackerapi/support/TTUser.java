@@ -13,13 +13,15 @@ public final class TTUser {
 
     public final String name;
     public final ObjectId id;
-    private final int version;
-    private final List<ObjectId> authorizes;
+    public final int version;
+    public final String displayName;
+    public final List<ObjectId> authorizes;
 
-    public TTUser(String name, ObjectId id, int version, List<ObjectId> authorizes) {
+    public TTUser(String name, ObjectId id, int version, String displayName, List<ObjectId> authorizes) {
         this.name = name;
         this.id = id;
         this.version = version;
+        this.displayName = displayName;
         this.authorizes = authorizes == null ? Collections.<ObjectId>emptyList()
                 : Collections.unmodifiableList(new ArrayList<>(authorizes));
     }

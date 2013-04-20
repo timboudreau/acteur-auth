@@ -14,6 +14,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
+import com.mongodb.WriteResult;
 import com.timboudreau.trackerapi.support.UserCollectionFinder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -29,6 +30,9 @@ import java.util.Map;
 import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
 import static com.timboudreau.trackerapi.Properties.*;
+import com.timboudreau.trackerapi.support.AuthSupport;
+import io.netty.handler.codec.http.Cookie;
+import io.netty.handler.codec.http.ServerCookieEncoder;
 
 /**
  *
@@ -63,7 +67,7 @@ class SignUpResource extends Page {
         private final ObjectMapper mapper;
 
         @Inject
-        SignerUpper(DBCollection coll, Event evt, PasswordHasher crypto, ObjectMapper mapper) throws UnsupportedEncodingException, IOException {
+        SignerUpper(DBCollection coll, Event evt, PasswordHasher crypto, ObjectMapper mapper, AuthSupport supp) throws UnsupportedEncodingException, IOException {
             this.mapper = mapper;
             this.evt = evt;
             add(Headers.CONTENT_TYPE, MediaType.JSON_UTF_8);
@@ -88,7 +92,7 @@ class SignUpResource extends Page {
             }
             if (userName.length() < MIN_USERNAME_LENGTH) {
                 setState(new RespondWith(HttpResponseStatus.REQUEST_URI_TOO_LONG,
-                        "Max username length " + MAX_USERNAME_LENGTH));
+                        "Minium username length " + MIN_USERNAME_LENGTH));
                 return;
             }
             DBObject existing = coll.findOne(new BasicDBObject("name", userName));
@@ -123,9 +127,17 @@ class SignUpResource extends Page {
             String encrypted = crypto.encryptPassword(password);
             nue.put(pass, encrypted);
             nue.put(origPass, encrypted);
-            coll.save(nue, WriteConcern.FSYNCED);
-            setState(new RespondWith(HttpResponseStatus.CREATED));
-            setResponseBodyWriter(this);
+            WriteResult res = coll.save(nue, WriteConcern.FSYNCED);
+//            if (res.getN() != 0) {
+                Cookie key = supp.encodeDisplayNameCookie(evt.getParameter(displayName));
+                add(Headers.SET_COOKIE, ServerCookieEncoder.encode(key));
+                setState(new RespondWith(HttpResponseStatus.CREATED));
+                setResponseBodyWriter(this);
+                
+                add(Headers.SET_COOKIE, supp.encodeLoginCookie(nue, userName, encrypted));
+//            } else {
+//                setState(new RespondWith(HttpResponseStatus.INTERNAL_SERVER_ERROR, "No write"));
+//            }
         }
 
         @Override

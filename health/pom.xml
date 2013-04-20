@@ -8,7 +8,7 @@
     <name>trackerapi</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mastfrog.version>1.3.4</mastfrog.version>
+        <mastfrog.version>1.3.5</mastfrog.version>
     </properties>
     <dependencies>
         <dependency>

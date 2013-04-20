@@ -89,6 +89,7 @@ public class Timetracker extends Application {
                 AddSurveyResource.class,
                 UpdateSurveyResource.class,
                 AddTimeResource.class,
+                EditUserResource.class,
                 GetTimeResource.class,
                 DeleteTimeResource.class,
                 TotalTimeResource.class,

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Surveys</title>
+        <meta name="DC.author" content="Tim Boudreau" />
+        <link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
+        <link href="/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+        <link href="/default.css" rel="stylesheet">
+        <link href="/js/jquery-ui/css/smoothness/jquery-ui-1.10.2.custom.min.css" rel="stylesheet">
+        <!--[if lte IE 8]>
+            <script>
+            // The ieshiv takes care of our ui.directives, bootstrap module directives and
+            // AngularJS's ng-view, ng-include, ng-pluralize and ng-switch directives.
+            // However, IF you have custom directives (yours or someone else's) then
+            // enumerate the list of tags in window.myCustomTags
+
+            window.myCustomTags = [ 'yourDirective', 'somebodyElsesDirective' ]; // optional
+            </script>
+            <script src="/js/angular-ui-ieshiv.js"></script>
+        <![endif]-->
+
+        <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+          <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+
+        <!-- Le fav and touch icons -->
+        <link rel="shortcut icon" href="/ico/favicon.ico">
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/ico/apple-touch-icon-144-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/ico/apple-touch-icon-114-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/ico/apple-touch-icon-72-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" href="/ico/apple-touch-icon-57-precomposed.png">
+        <!--        <script lang="text/javascript">
+                    var req = new XMLHttpRequest();
+                    req.open('GET', '/time/testLogin?auth=true&respondWith=401', false);
+                    req.send(null);
+                    var headers = req.getAllResponseHeaders().toLowerCase();
+                    console.log("HEADERS: ", req.getAllResponseHeaders());
+                </script>        -->
+    </head>
+    <body ng-app>
+    <ng-include src="'/partials/topNav.html'"></ng-include>
+    <div class='contentBody' ng-controller="UserProfile">
+        <form class="form-horizontal css-form">
+            <div class="control-group">
+                <label class='span2'>
+                    User Name
+                </label class="span5">
+                <span ng-repeat="name in user.name">
+                    <span>{{name}}</span>
+                </span>
+            </div>
+            <div class="control-group">
+                <label class='span2'>
+                    Created
+                </label class="span5">
+                <span>{{user.date | date}}</span>
+            </div>
+            <div class="control-group">
+                <label class='span2'>
+                    Display Name
+                </label class="span5">
+                <input type="text" ng-model="user.displayName"></input>
+            </div>
+            <div class="control-group">
+                <label class='span2'>
+                    &nbsp;
+                </label class="span5">
+                <input ng-click="save()" type="submit" class="btn btn-primary offset1" value="Save"></input>
+            </div>
+        </form>
+        <div class="row">
+            <div class="offset2 span6">
+                <div class="alert alert-success" ng-show="success">
+                    {{success}}
+                </div>
+            </div>
+        </div>
+    </div>
+    <ng-include src='"/partials/bottom.html"'></ng-include>
+    <script src="/bootstrap/js/jquery.min.js"></script>
+    <script src="/bootstrap/js/bootstrap-modal.min.js"></script>
+    <script src="/js/jquery-ui/js/jquery-ui-1.10.2.custom.min.js"></script>
+    <script src="/angular/angular.min.js"></script>
+    <script src="/angular/angular-cookies.min.js"></script>
+    <script src="/js/angular-ui.js"></script>
+    <script src="/js/base64.js"></script>
+    <script lang="text/javascript">
+        function UserProfile($scope, $http) {
+            $http.get("/time/whoami").success(function(user) {
+                $scope.user = user;
+                if (user.created) {
+                    $scope.user.date = new Date(user.created)
+                }
+                console.log("GOT USER", user);
+            }).error(function(err) {
+                
+            });
+            $scope.save = function() {
+                $scope.problem = null;
+                $scope.success = null;
+                $http.post('/time/users/' + $scope.user.name + '?displayName=' + $scope.user.displayName).success(function(res) {
+                    $scope.success = res.updated + " records updated";
+                }).error(function(err) {
+                    $scope.problem = null;
+                    $scope.success = null;
+                });
+            }
+        }
+    </script>
+</body>
+</html>

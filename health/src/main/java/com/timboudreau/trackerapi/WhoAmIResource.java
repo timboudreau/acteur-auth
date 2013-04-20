@@ -51,6 +51,7 @@ public class WhoAmIResource extends Page {
             Map<String, Object> m = new HashMap<>(ob.toMap());
             m.remove(Properties.pass);
             m.remove(Properties.origPass);
+            m.remove("cookieSlug");
             setState(new RespondWith(200, mapper.writeValueAsString(m)));
         }
     }

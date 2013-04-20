@@ -67,7 +67,7 @@ class ListUsersResource extends Page {
                 future = future.channel().write(Unpooled.wrappedBuffer("[\n".getBytes()));
             }
             if (!cursor.hasNext()) {
-                future = future.channel().write(Unpooled.wrappedBuffer("]\n".getBytes()));
+                future = future.channel().write(Unpooled.wrappedBuffer("\n]\n".getBytes()));
                 if (!evt.isKeepAlive()) {
                     future.addListener(CLOSE);
                 }
