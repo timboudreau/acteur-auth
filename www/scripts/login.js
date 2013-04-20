@@ -83,5 +83,5 @@ function Login($scope, $http) {
             $scope.problem = err;
         })
     }
-    $scope.blindLogin();
+//    $scope.blindLogin();
 }

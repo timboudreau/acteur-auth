@@ -65,12 +65,12 @@
                             </span>
                             <span class="control-group">
                                 <label class="control-label">Password</label>
-                                <input ng-model="password2" type="password" id="signupPassword" 
+                                <input ng-model="password2" type="password" id="signupPassword2" 
                                        placeholder="Repeat Password" required></input>
                             </span>
                             <!--<div class="pull-right">-->
-                                <input type="submit" href="#" data-dismiss="modal" type="submit" 
-                                   ng-disabled="!userDisplayName || !username || !password || (password != password2)"
+                                <input type="submit" href="#" type="submit" 
+                                   ng-disabled="!displayName || !password || !username || (password != password2)"
                                    class="btn btn-primary loginButton" ng-click="signUp()" value="Sign Up"></input>
                             <!--</div>-->
                         </form>
@@ -90,7 +90,7 @@
                             </span>
                             <div class="filler"></div>
                             <!--<div class="pull-right">-->
-                                <input data-dismiss="modal" type="submit" 
+                                <input type="submit" 
                                    ng-disabled="!username || !password"
                                    class="btn btn-primary loginButton" value="Log In" ng-click="login()"></input>
                             <!--</div>-->
