@@ -39,46 +39,103 @@
                     console.log("HEADERS: ", req.getAllResponseHeaders());
                 </script>        -->
     </head>
-    <body ng-app>
-    <ng-include src="'/partials/topNav.html'"></ng-include>
-    <div class='contentBody' ng-controller="UserProfile">
-        <form class="form-horizontal css-form">
-            <div class="control-group">
-                <label class='span2'>
-                    User Name
-                </label class="span5">
-                <span ng-repeat="name in user.name">
-                    <span>{{name}}</span>
-                </span>
+    <body ng-app="surveys" ng-controller="Status">
+        <div ng-controller="User">
+            <ng-include src="'/partials/topNav.html'"></ng-include>
+        </div>
+        <div class='contentBody' ng-controller="UserProfile">
+            <div class="row">
+                <div class="span5 well section">
+                    <form class="form-horizontal css-form">
+                        <div>
+                            <input ng-click="save()" type="submit"
+                                   ng-disabled ="!user.displayName || user.displayName.length < 3"
+                                   class="btn btn-primary pull-right rowButton"
+                                   value="Save"></input>
+                            <h3>Basic Info</h3>
+                        </div>
+                        <div class="control-group">
+                            <label class='control-label span2'>
+                                User Name
+                            </label>
+                            <span ng-repeat="name in user.name">
+                                <span>{{name}}</span>
+                            </span>
+                        </div>
+                        <div class="control-group">
+                            <label class='control-label span2'>
+                                Created
+                            </label>
+                            <span>{{user.date | date}}</span>
+                        </div>
+                        <div class="control-group">
+                            <label class='control-label span2'>
+                                Display Name
+                            </label>
+                            <input type="text" ng-model="user.displayName"></input>
+                        </div>
+                    </form>
+                </div>
+                <div class="span5 well section">
+                    <div>
+                        <input ng-click="changePassword()" type="submit"
+                               ng-disabled ="!user.displayName || user.displayName.length < 3"
+                               class="btn btn-primary rowButton pull-right"
+                               value="Change"></input>
+                        <h3>Password</h3>
+                    </div>
+                    <form class="form-horizontal css-form">
+                        <div class="control-group">
+                            <label class='control-label span2'>
+                                New Password
+                            </label>
+                            <input type="password" ng-model="password"></input>
+                        </div>
+                        <div class="control-group">
+                            <label class='control-label span2'>
+                                Repeat New Password
+                            </label>
+                            <input type="password" ng-model="repeatPassword"></input>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="control-group">
-                <label class='span2'>
-                    Created
-                </label class="span5">
-                <span>{{user.date | date}}</span>
-            </div>
-            <div class="control-group">
-                <label class='span2'>
-                    Display Name
-                </label class="span5">
-                <input type="text" ng-model="user.displayName"></input>
-            </div>
-            <div class="control-group">
-                <label class='span2'>
-                    &nbsp;
-                </label class="span5">
-                <input ng-click="save()" type="submit" class="btn btn-primary offset1" value="Save"></input>
-            </div>
-        </form>
-        <div class="row">
-            <div class="offset2 span6">
-                <div class="alert alert-success" ng-show="success">
-                    {{success}}
+            <div class="row">
+                <div class="span5 well section">
+                    <form>
+                        <div>
+                            <input ng-click="authorize()" type="submit"
+                                   class="btn btn-primary pull-right"
+                                   value="Add"></input>
+                            <h3>I Share With</h3>
+                        </div>
+                        <div class="aling">
+                            <input type="text" class="span5 pull-left" auto-complete 
+                                   placeholder="Search for a name..."
+                                   id="addUserName"
+                                   ui-items="users" ng-model="selected"></input>
+                        </div>
+                        <div>
+                            <div class="userItem" ng-repeat="friend in user.authorizes">
+                                {{userForId[friend]}}&nbsp;<span class="close" ng-click="deauthorize(friend)">x</span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="span5 well section">
+                    <div>
+                        <h3>Shared With Me</h3>
+                    </div>
+                    <div>
+                        <div class="userItem" ng-repeat="sharer in sharers">
+                            {{sharer.displayName}}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     <ng-include src='"/partials/bottom.html"'></ng-include>
+
     <script src="/bootstrap/js/jquery.min.js"></script>
     <script src="/bootstrap/js/bootstrap-modal.min.js"></script>
     <script src="/js/jquery-ui/js/jquery-ui-1.10.2.custom.min.js"></script>
@@ -86,27 +143,100 @@
     <script src="/angular/angular-cookies.min.js"></script>
     <script src="/js/angular-ui.js"></script>
     <script src="/js/base64.js"></script>
+    <script src="/scripts/app.js"></script>
+
     <script lang="text/javascript">
-        function UserProfile($scope, $http) {
-            $http.get("/time/whoami").success(function(user) {
+        function UserProfile($scope, user, status, $http) {
+            $scope.allUsers = [];
+            $scope.users = [];
+            $scope.password = '';
+            $scope.repeatPassword = '';
+
+            user.get().success(function(user) {
                 $scope.user = user;
                 if (user.created) {
                     $scope.user.date = new Date(user.created)
                 }
-                console.log("GOT USER", user);
-            }).error(function(err) {
-                
-            });
+            }).error(status.errorHandler);
+
             $scope.save = function() {
-                $scope.problem = null;
-                $scope.success = null;
-                $http.post('/time/users/' + $scope.user.name + '?displayName=' + $scope.user.displayName).success(function(res) {
-                    $scope.success = res.updated + " records updated";
-                }).error(function(err) {
-                    $scope.problem = null;
-                    $scope.success = null;
+                if (!$scope.user.displayName) {
+                    status.problem = "Display name not set";
+                } else if ($scope.user.displayName.length < 3) {
+                    status.problem = "Display name too short";
+                } else {
+                    user.setDisplayName($scope.user.displayName).success(function(res) {
+                        status.success = res.updated + " records updated";
+                    });
+                }
+            }
+
+            $scope.deauthorize = function(whom) {
+                console.log("DEAUTHORIZE " + whom)
+                var name = $scope.selected;
+
+                $http.post(user.path + '/deauthorize/' + whom, '').success(function(upd) {
+                    console.log('DEAUTH RESULT ', upd)
+                    status.success = 'Updated ' + JSON.stringify(upd.updated);
+                    $scope.user.authorizes.push($scope.idForDisplayName[name]);
+                    var ix = $scope.user.authorizes.indexOf($scope.idForDisplayName[name]);
+                    if (ix >= 0) {
+                        remove($scope.user.authorizes, ix, ix);
+                    }
+                    loadSharers();
+                }).error(status.errorHandler).error(function(er) {
+                    console.log(er)
                 });
             }
+
+            $scope.authorize = function() {
+                var name = $scope.selected;
+                var id = $scope.idForDisplayName[name]
+                console.log("AUTHORIZE " + name + " as " + id);
+
+                $http.post(user.path + '/authorize/' + id).success(function(upd) {
+                    status.success = 'Updated ' + JSON.stringify(upd.updated);
+//                    status.success = 'Updated ' + upd.updated;
+                    $scope.user.authorizes.push($scope.idForDisplayName[name]);
+                }).error(status.errorHandler);
+            }
+
+            $scope.changePassword = function() {
+                if ($scope.password !== $scope.repeatPassword) {
+                    return status.problem = 'Passwords do not match';
+                }
+                if ($scope.password.length < 5) {
+                    return status.problem = 'Password too short';
+                }
+                console.log('Set password to "' + $scope.password + "'")
+                user.setPassword($scope.password).success(status.successHandler).error(status.errorHandler);
+            }
+
+            $http.get("/time/all").error(status.errorHandler).success(function(items) {
+                $scope.allUsers = items;
+                $scope.userForId = {};
+                $scope.idForDisplayName = {};
+                items.forEach(function(item) {
+                    $scope.users.push(item.displayName || item.name);
+                    $scope.userForId[item._id] = (item.displayName || item.name);
+                    $scope.idForDisplayName[item.displayName] = item._id;
+                });
+                console.log('USERS: ', $scope.users)
+            });
+
+            $scope.sharers = [];
+            function loadSharers() {
+                $http.get(user.path + '/sharers').success(function(sharers) {
+                    $scope.sharers = sharers;
+                })
+            }
+            loadSharers();
+        }
+
+        function remove(arr, from, to) {
+            var rest = arr.slice((to || from) + 1 || arr.length);
+            arr.length = from < 0 ? arr.length + from : from;
+            return arr.push.apply(this, rest);
         }
     </script>
 </body>

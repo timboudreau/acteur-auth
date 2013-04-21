@@ -32,49 +32,48 @@
         <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/ico/apple-touch-icon-72-precomposed.png">
         <link rel="apple-touch-icon-precomposed" href="/ico/apple-touch-icon-57-precomposed.png">
     </head>
-    <body ng-app>
+    <body ng-app="surveys" ng-controller="Status">
+        <div ng-controller="User">
+            <ng-include src="'/partials/topNav.html'"></ng-include>
+        </div>
         <div ng-controller="Surveys">
-            <div>
-                <ng-include src="'/partials/topNav.html'"></ng-include>
-
-                <div id='contentBody' class='contentBody container'>
-                    <div class='loading' ng-show='loading'>
-                        <img src='/images/loading-large-transparent.gif' width='66' height='66'></img>
-                    </div>
-                    <div class='row'>
-                        <div class="span10 offset2 alert alert-error errorBox" ng-show='problem'>
-                            <div  ng-bind-html-unsafe="problem">
-                                {{problem}}
-                            </div>
-                            <div class='pull-right'>
-                                <a href='#' ng-click='enqueue()' class='btn'>Reload</a>
-                            </div>
+            <div id='contentBody' class='contentBody container'>
+                <div class='loading' ng-show='loading'>
+                    <img src='/images/loading-large-transparent.gif' width='66' height='66'></img>
+                </div>
+                <div class='row'>
+                    <div class="span10 offset2 alert alert-error errorBox" ng-show='problem'>
+                        <div  ng-bind-html-unsafe="problem">
+                            {{problem}}
+                        </div>
+                        <div class='pull-right'>
+                            <a href='#' ng-click='enqueue()' class='btn'>Reload</a>
                         </div>
                     </div>
+                </div>
 
-                    <div class="row" ng-show="surveys">
-                        <div class="survey span8 well" ng-repeat="survey in surveys">
-                            <h3>{{survey.name}}</h3>
-                            <p class="muted" ng-show="survey.description">{{survey.description}}</p>
+                <div class="row" ng-show="surveys">
+                    <div class="survey span8 well" ng-repeat="survey in surveys">
+                        <h3>{{survey.name}}</h3>
+                        <p class="muted" ng-show="survey.description">{{survey.description}}</p>
 
-                            <div class="question" ng-repeat="question in survey.questions">
-                                <form class="css-form" name="{{question.id}}">
-                                    <input type="checkbox" id='{{question.id}}' ng-show="question.answerType.type=='truefalse'" required></input>
-                                    <div class="questionRow">
-                                        <span class="questionText">{{question.description}}</span>
+                        <div class="question" ng-repeat="question in survey.questions">
+                            <form class="css-form" name="{{question.id}}">
+                                <input type="checkbox" id='{{question.id}}' ng-show="question.answerType.type=='truefalse'" required></input>
+                                <div class="questionRow">
+                                    <span class="questionText">{{question.description}}</span>
 
-                                        <select id="{{question.id}}" ng-show="question.answerType.type=='multiplechoice'">
-                                            <option ng-repeat="answer in question.answerType.answers">{{answer}}</option>
-                                        </select>
-                                        <input min="question.answerType.min" max="question.answerType.max" class="input-small"
-                                               type='number' id='{{question.id}}' ng-show="question.answerType.type=='number'"></input>
+                                    <select id="{{question.id}}" ng-show="question.answerType.type=='multiplechoice'">
+                                        <option ng-repeat="answer in question.answerType.answers">{{answer}}</option>
+                                    </select>
+                                    <input min="question.answerType.min" max="question.answerType.max" class="input-small"
+                                           type='number' id='{{question.id}}' ng-show="question.answerType.type=='number'"></input>
 
-                                        <input required type="text" placeholder="{{question.help}}" ng-show="question.answerType.type=='text'"></input>
-                                    </div>
-                                    <br/>
-                                    <span class='muted help' ng-show="question.help && question.answerType.type!='text'">{{question.help}}</span>
-                                </form>
-                            </div>
+                                    <input required type="text" placeholder="{{question.help}}" ng-show="question.answerType.type=='text'"></input>
+                                </div>
+                                <br/>
+                                <span class='muted help' ng-show="question.help && question.answerType.type!='text'">{{question.help}}</span>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -89,6 +88,7 @@
         <script src="/angular/angular-cookies.min.js"></script>
         <script src="/js/angular-ui.js"></script>
         <script src="/js/base64.js"></script>
+        <script src="/scripts/app.js"></script>
         <script src="/scripts/surveys.js"></script>
     </body>
 </html>

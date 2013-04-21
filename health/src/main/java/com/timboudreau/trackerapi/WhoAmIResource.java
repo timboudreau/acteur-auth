@@ -11,9 +11,11 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.timboudreau.trackerapi.support.Auth;
+import com.timboudreau.trackerapi.support.AuthSupport;
 import com.timboudreau.trackerapi.support.TTUser;
 import com.timboudreau.trackerapi.support.UserCollectionFinder;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.ServerCookieEncoder;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +43,7 @@ public class WhoAmIResource extends Page {
     private static class UserInfoActeur extends Acteur {
 
         @Inject
-        UserInfoActeur(TTUser user, DBCollection coll, ObjectMapper mapper) throws IOException {
+        UserInfoActeur(TTUser user, DBCollection coll, ObjectMapper mapper, AuthSupport supp) throws IOException {
             add(Headers.stringHeader("UserID"), user.id.toStringMongod());
             DBObject ob = coll.findOne(new BasicDBObject("_id", user.id));
             if (ob == null) {
@@ -52,6 +54,11 @@ public class WhoAmIResource extends Page {
             m.remove(Properties.pass);
             m.remove(Properties.origPass);
             m.remove("cookieSlug");
+            String dn = (String) m.get(Properties.displayName);
+            if (dn != null) {
+                add(Headers.SET_COOKIE, ServerCookieEncoder.encode(supp.encodeDisplayNameCookie(dn)));
+            }
+            
             setState(new RespondWith(200, mapper.writeValueAsString(m)));
         }
     }

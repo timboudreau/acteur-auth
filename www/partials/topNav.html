@@ -16,8 +16,8 @@
         <span class="pull-right">
             <ul class="nav">
                 <li>
-                    <a href="profile.html" class="pull-right">
-                        Joe Blow
+                    <a href="profile.html" class="pull-right" ng-show="userDisplayName">
+                        {{userDisplayName}}
                         <i class="icon-cog"></i>
                     </a>
                 </li>
@@ -25,13 +25,22 @@
         </span>
     </div>
 </div>
-<div class='loading' ng-show='loading'>
-    <img src='/images/loading-large-transparent.gif' width='66' height='66'></img>
+<div class='loading infoBox' ng-show='loading'>
+    <img src='/images/loading-large-transparent.gif' align="right" width='66' height='66'></img>
 </div>
 <div class='row'>
-    <div class="span10 offset2 alert alert-error errorBox" ng-show='problem'>
-        <div  ng-bind-html-unsafe="problem">
+    <div class="alert alert-error infoBox" ng-show='problem'>
+        <button class="close pull-right" ng-click="clear()">x</button>
+        <i class="icon-thumbs-down" ></i>
+        <span ng-bind-html-unsafe="problem">
             {{problem}}
-        </div>
+        </span>
+    </div>
+    <div class="alert alert-success infoBox" ng-show='success'>
+        <button class="close pull-right" ng-click="clear()">x</button>
+        <i class="icon-ok-sign"></i>
+        <span ng-bind-html-unsafe="success">
+            {{success}}
+        </span>
     </div>
 </div>

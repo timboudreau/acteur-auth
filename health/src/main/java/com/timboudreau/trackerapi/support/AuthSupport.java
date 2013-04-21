@@ -46,13 +46,14 @@ import org.joda.time.Duration;
  */
 public final class AuthSupport implements Provider<AuthSupport.Result> {
 
-    static final String COOKIE_NAME = "uc";
+    static final String COOKIE_NAME = "ac";
 
     private final Event evt;
     private final DBCollection coll;
     private final PasswordHasher crypto;
     private final Settings settings;
     private final Duration slugMaxAge;
+    private final Duration loginCookieMaxAge;
 
     @Inject
     AuthSupport(DB db, Event evt, PasswordHasher crypto, Settings settings) {
@@ -62,6 +63,7 @@ public final class AuthSupport implements Provider<AuthSupport.Result> {
         String userCollectionName = settings.getString("users.collection.name", "ttusers");
         coll = db.getCollection(userCollectionName);
         slugMaxAge = new Duration(settings.getLong("cookieSlugMaxAge", Duration.standardHours(3).getMillis()));
+        loginCookieMaxAge = new Duration(settings.getLong("loginCookieMaxAge", Duration.standardMinutes(5).getMillis()));
     }
 
     public String encodeLoginCookie(AuthSupport.Result res) {
@@ -80,9 +82,8 @@ public final class AuthSupport implements Provider<AuthSupport.Result> {
 
         DefaultCookie lcookie = new DefaultCookie(COOKIE_NAME, rehash);
         lcookie.setDomain(host);
-        lcookie.setMaxAge(Duration.standardMinutes(5).getMillis());
+        lcookie.setMaxAge(loginCookieMaxAge.getMillis());
         lcookie.setPorts(80, 7739);
-        lcookie.setVersion(1);
         lcookie.setPath("/");
         lcookie.setHttpOnly(true);
 
@@ -120,8 +121,7 @@ public final class AuthSupport implements Provider<AuthSupport.Result> {
 
     private String assembleCookieValue(String username, String hashedPass, String slug) {
         String salt = settings.getString("cookieSalt");
-        return crypto.encryptPassword(new StringBuilder(username)
-                .append(':')
+        return username + ':' + crypto.encryptPassword(new StringBuilder()
                 .append(username)
                 .append(salt)
                 .append(hashedPass)
@@ -237,7 +237,8 @@ public final class AuthSupport implements Provider<AuthSupport.Result> {
         ck.setDomain(getHost());
         ck.setMaxAge(Duration.standardDays(365).getMillis());
         ck.setPorts(80, 7739);//XXX get port from settings?
-        ck.setVersion(1);
+        ck.setPath("/");
+        ck.setHttpOnly(false);
         return ck;
     }
 

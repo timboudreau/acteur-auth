@@ -27,7 +27,7 @@ public class DeauthorizeResource extends Page {
     @Inject
     DeauthorizeResource(ActeurFactory af) {
         add(af.matchPath("^users/.*?/deauthorize/.*?"));
-        add(af.matchMethods(Method.PUT));
+        add(af.matchMethods(Method.PUT, Method.POST));
         add(Auth.class);
         add(AuthorizedChecker.class);
         add(UserCollectionFinder.class);
@@ -47,7 +47,12 @@ public class DeauthorizeResource extends Page {
             BasicDBObject findOtherUserQuery = new BasicDBObject("name", otherUserNameOrID);
             DBObject otherUser = coll.findOne(findOtherUserQuery);
             if (otherUser == null) {
-                findOtherUserQuery = new BasicDBObject("_id", new ObjectId(otherUserNameOrID));
+                try {
+                    findOtherUserQuery = new BasicDBObject("_id", new ObjectId(otherUserNameOrID));
+                } catch (IllegalArgumentException e) {
+                    setState(new RespondWith(HttpResponseStatus.GONE, "No such user id or name" + otherUserNameOrID));
+                    return;
+                }
                 otherUser = coll.findOne(findOtherUserQuery);
             }
             if (otherUser == null) {
@@ -56,6 +61,8 @@ public class DeauthorizeResource extends Page {
             }
             BasicDBObject query = new BasicDBObject("_id", user.id);
             BasicDBObject update = new BasicDBObject("$pull", new BasicDBObject(Properties.authorizes, otherUser.get("_id")));
+            BasicDBObject inc = new BasicDBObject("version", 1);
+            update.append("$inc", inc);
             WriteResult res = coll.update(query, update, false, false, WriteConcern.FSYNCED);
             setState(new RespondWith(HttpResponseStatus.ACCEPTED, Timetracker.quickJson("updated", res.getN())));
         }

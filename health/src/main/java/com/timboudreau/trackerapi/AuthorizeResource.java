@@ -5,6 +5,7 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
+import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.Method;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -16,6 +17,8 @@ import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import com.timboudreau.trackerapi.support.TTUser;
 import com.timboudreau.trackerapi.support.UserCollectionFinder;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.bson.types.ObjectId;
 
 /**
@@ -27,7 +30,7 @@ public class AuthorizeResource extends Page {
     @Inject
     AuthorizeResource(ActeurFactory af) {
         add(af.matchPath("^users/.*?/authorize/.*?"));
-        add(af.matchMethods(Method.PUT));
+        add(af.matchMethods(Method.PUT, Method.POST));
         add(Auth.class);
         add(AuthorizedChecker.class);
         add(UserCollectionFinder.class);
@@ -42,12 +45,19 @@ public class AuthorizeResource extends Page {
     private static final class Authorizer extends Acteur {
 
         @Inject
-        Authorizer(TTUser user, Event evt, DBCollection coll) {
+        Authorizer(TTUser user, Event evt, DBCollection coll) throws URISyntaxException {
             String otherUserNameOrID = evt.getPath().getElement(3).toString();
             BasicDBObject findOtherUserQuery = new BasicDBObject("name", otherUserNameOrID);
             DBObject otherUser = coll.findOne(findOtherUserQuery);
             if (otherUser == null) {
-                findOtherUserQuery = new BasicDBObject("_id", new ObjectId(otherUserNameOrID));
+                try {
+                    findOtherUserQuery = new BasicDBObject("_id", new ObjectId(otherUserNameOrID));
+                } catch (IllegalArgumentException ex) {
+                    setState(new RespondWith(HttpResponseStatus.BAD_REQUEST, 
+                            "Cannot parse '" + otherUserNameOrID 
+                            + "' as an ID and it does not match any user name"));
+                    return;
+                }
                 otherUser = coll.findOne(findOtherUserQuery);
             }
             if (otherUser == null) {
@@ -56,8 +66,17 @@ public class AuthorizeResource extends Page {
             }
             BasicDBObject query = new BasicDBObject("_id", user.id);
             BasicDBObject update = new BasicDBObject("$addToSet", new BasicDBObject(Properties.authorizes, otherUser.get("_id")));
-            WriteResult res = coll.update (query, update, false, false, WriteConcern.FSYNCED);
-            setState (new RespondWith(HttpResponseStatus.ACCEPTED, Timetracker.quickJson("updated", res.getN())));
+            BasicDBObject inc = new BasicDBObject("version", 1);
+            update.append("$inc", inc);
+            
+            WriteResult res = coll.update(query, update, false, false, WriteConcern.FSYNCED);
+            HttpResponseStatus status = HttpResponseStatus.ACCEPTED;
+            if (evt.getParameter("redir") != null) {
+                URI uri = new URI(evt.getParameter("redir"));
+                add(Headers.LOCATION, uri);
+                status = HttpResponseStatus.SEE_OTHER;
+            }
+            setState(new RespondWith(status, Timetracker.quickJson("updated", res.getN())));
         }
     }
 }

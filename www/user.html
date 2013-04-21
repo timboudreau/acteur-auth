@@ -39,16 +39,21 @@
             console.log("HEADERS: ", req.getAllResponseHeaders());
         </script>        -->
     </head>
-    <body ng-app>
-        <div class='contentBody'>
+    <body ng-app="surveys" ng-controller="Status">
+        <div class='contentBody' ng-controller="User">
             <ng-include src="'/partials/topNav.html'"></ng-include>
 
             <div id='contentBody' class='container'>
                 <div class='span8 offset2'>
-                    <div class='hero-unit well'>
+                    <div class='hero-unit well' ng-controller="TestController">
                         <h2>Thingamabob</h2>
                         <a class='btn' href='surveys.html'>My Surveys</a>
                         <a class='btn' href='newsurvey.html'>New Survey</a>
+                        
+                        <p/>
+                        <a class='btn' ng-click="bad()" href='#'>Problem</a>
+                        <a class='btn' ng-click="good()" href='#'>Success</a>
+                        <a class='btn' ng-click="clear()" href='#'>Clear</a>
                     </div>
                 </div>
             </div>
@@ -61,6 +66,22 @@
         <script src="/angular/angular-cookies.min.js"></script>
         <script src="/js/angular-ui.js"></script>
         <script src="/js/base64.js"></script>
+        <script src="/scripts/app.js"></script>
         <script src="/scripts/surveys.js"></script>
+        
+        <script lang="text/javascript">
+            function TestController($scope, status) {
+                $scope.bad = function() {
+                    status.problem = "There is a problem, and it will take a lot of space to describe it because it is too complicated to just say something simple about";
+                }
+                $scope.good = function() {
+                    status.success = "We have liftoff";
+                }
+                $scope.clear = function() {
+                    status.problem = null;
+                    status.success = null;
+                }
+            }
+        </script>
     </body>
 </html>

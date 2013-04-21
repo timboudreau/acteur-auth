@@ -1,22 +1,5 @@
-function getHTTPObject() {
-    if (typeof XMLHttpRequest != 'undefined') {
-        return new XMLHttpRequest();
-    }
-    try {
-        return new ActiveXObject("Msxml2.XMLHTTP");
-    } catch (e) {
-        try {
-            return new ActiveXObject("Microsoft.XMLHTTP");
-        } catch (e) {
-        }
-    }
-    return false;
-}
-
 function Login($scope, $http) {
     $scope.problem = false;
-
-    var htt = getHTTPObject();
 
     $scope.signUp = function() {
         if ($scope.password2 !== $scope.password) {

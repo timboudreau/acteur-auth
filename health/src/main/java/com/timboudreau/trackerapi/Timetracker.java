@@ -54,7 +54,7 @@ public class Timetracker extends Application {
     public static final String TIMETRACKER = "timetracker";
     public static final String URL_PATTERN_TIME = "^users/(.*?)/time/(.*?)$";
     
-    public static final String REALM_NAME = "Survey";
+    public static final String REALM_NAME = "Surv";
 
     public static void main(String[] args) throws IOException, InterruptedException {
         // Set up our defaults - can be overridden in 
@@ -89,16 +89,17 @@ public class Timetracker extends Application {
                 AddSurveyResource.class,
                 UpdateSurveyResource.class,
                 AddTimeResource.class,
-                EditUserResource.class,
+                DeauthorizeResource.class,
+                AuthorizeResource.class,
+                SharesWithMeResources.class,
+                SetPasswordResource.class,
                 GetTimeResource.class,
                 DeleteTimeResource.class,
                 TotalTimeResource.class,
                 ModifyEventsResource.class,
+                EditUserResource.class,
                 AdjustTimeResource.class,
                 SkewResource.class,
-                SetPasswordResource.class,
-                AuthorizeResource.class,
-                DeauthorizeResource.class,
                 ListUsersResource.class,
                 RecordTimeConnectionIsOpenResource.class,
                 Application.helpPageType());

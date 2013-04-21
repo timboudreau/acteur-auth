@@ -115,6 +115,14 @@ body {
     transition: all 0.5s ease;
 }
 
+.infoBox {
+    display: block;
+    position: absolute;
+    top: 3.25em;
+    left: 3em;
+    right: 3em;
+}
+
 .loginForm {
 }
 
@@ -145,6 +153,7 @@ body {
 .mainlogin {
     margin-top: 3em;
 }
+
 .loginForm label {
     margin-top: 0.5em;
 }
@@ -158,24 +167,13 @@ body {
     margin-bottom: 1em;
     text-align: center;
 }
+
 .css-form input.ng-invalid.ng-dirty {
     background-color: #FA787E;
 }
 
 .css-form input.ng-valid.ng-dirty {
     background-color: #78FA89;
-}
-
-.miniForm {
-    font-size: 0.5;
-    margin: 0px;
-    padding: 0px;
-    vertical-align: bottom;
-    margin-bottom: 0.5em;
-}
-
-.miniForm a {
-    vertical-align: bottom;
 }
 
 .miniForm input {
@@ -186,144 +184,52 @@ body {
     margin-top: 1em;
 }
 
-.eventMessages {
-    margin: 0.5em;
-    overflow: auto;
-}
-
-.controlButtons {
-    text-align: right;
-    margin-top: 0.35em;
-}
-
-.videoTitle {
-    text-transform: capitalize;
-    display: inline;
-}
-
-.eventsMinimized a{
-    color: #FFFFDD;
-}
-.eventsMinimized {
-    font-family: 'Questrial';
-    font-size: large;
-    background-color: #888888;
-    color: #FFFFDD;
-    position: fixed;
-    right: 0.5em;
-    bottom: 0em;
-    width: auto;
-    height: auto;
-    padding-top: 0.125em;
-    padding-bottom: 0.125em;
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-    vertical-align: middle;
-}
-
-.videos {
-    width: 100%;
-}
-
-.videoRow {
-
-}
-
-.videoTitle {
-    font-weight: bolder;
-}
-
-.videoTitleRow {
-    margin-bottom: 0.5em;
-}
-
-.previewContainer {
-    overflow: auto;
-    width: available;
-}
-
-.thumbnailDetail {
-    margin: 1em;
-    position: fixed;
-    left: 25%;
-    top: 25%;
-    width: 50%;
-}
-
-.thumbnailDetail img {
-    vertical-align: middle;
-    margin: 0.5em;
-    text-align: center;
-}
-
-.videoDetail {
-    font-size: 0.85em;
-}
-
-.videoPreviews {
-    width: 2840px;
-    display: inline-block;
-    background-color: #DDDDDD;
-    padding-left: 0.5em;
-    /*padding: 0.5em;*/
-}
-
-.videoPreviews img {
-    display: inline;
-    width: 160px;
-    height: 90px;
-    margin-right: 0.5em;
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
-}
-
-#serverLog {
-    width: 80%;
-    left: 10%;
-    height: 90%;
-    top: 5%;
-}
-
-.log {
-    height: available;
-    margin-left: 0.5em;
-    margin-right: 0.5em;
-}
-
-.logStatus {
-    font-size: 0.8em;
-    padding-left: 2px;
-    text-align: left;
-}
-
-
-.logFooter {
-    bottom: 0;
-    float: none;
-    width: 97%;
-    position: absolute;
-    /*width: 98%;*/
-    display: inline-block;
-    /*left: 10%;*/
-}
-
-.statusItem {
-    margin-right: 3em;
-}
-
-
 [ng\:cloak], [ng-cloak], .ng-cloak {
     display: none;
     /*    background-image: url('images/loading-large-transparent.png'); */
 }
 
-.formrow {
-    width: 100%;
-    text-align: right;
-}
-
 .homeLink img {
     margin-right: 0.5em;
+}
+
+.rowButton {
+    vertical-align: middle;
+    margin-top: 0.5em;
+}
+
+.section {
+    min-height: 15em;
+}
+
+.aling {
+    vertical-align: baseline;
+}
+.aling input {
+    width: 60%;
+}
+
+.userItem {
+    border: solid 1px #898989;
+    padding-right: 0.5em;
+    padding-left: 0.5em;
+    background-color: #CCFFCC;
+    margin-right: 0.5em;
+    display: inline-block;
+}
+
+.userItem span {
+    display: inline;
+}
+
+.qhead {
+    vertical-align: middle;
+    display:block;
+    margin-bottom: 1em;
+}
+.qhead h4 {
+    display: inline-block;
+    margin-top: 0.2em;
 }
 
 .homeLink {
@@ -331,13 +237,13 @@ body {
     font-size: 1.6em;
     /*color: #000000;*/
     text-shadow: none;
-    margin-top: 0.45em;
+    margin-top: 0.25em;
     margin-left: 0.8em;
     margin-right: 0.8em;
     float: left;
 }
 .contentBody {
-    margin-top: 6em;
+    margin-top: 6.5em;
     margin-left: 2em;
     margin-right: 2em;
 }
@@ -351,24 +257,11 @@ body {
     padding-top: 0.0em;
     padding-bottom: 0.0em;
     vertical-align: middle;
-    margin-top: 1.2em;
+    margin-top: 0.75em;
 }
 
 a {
     color: #30566f;
-}
-
-.header {
-    font-size: 16px;
-    text-decoration: none;
-    border-width: 0px;
-    background-position-x: 0;
-    background-position-y: 0;
-    background-repeat: no-repeat;
-    background-origin: border-box;
-    width: 1112px;
-    height: 211px;
-    vertical-align: bottom;
 }
 
 .controls {
@@ -449,16 +342,7 @@ a {
 }
 
 .footer a {
-    color: #BBBBFF;
-}
-
-.logo {
-    opacity: 0.20;
-    z-index: -1;
-    margin-bottom: 5em;
-    position: absolute;
-    left: 50em;
-    top: 100%;
+    color: #8888FF;
 }
 
 .css-form input.ng-invalid.ng-dirty {
@@ -466,12 +350,6 @@ a {
 }
 .css-form input.ng-valid.ng-dirty {
     background-color: #DFFFDF;
-}
-.noComments {
-    display: none;
-}
-.comments {
-    display : block;
 }
 
 .navbar-inner {
@@ -482,7 +360,7 @@ a {
     position: fixed;
     right: 0.5em;
     top: 4em;
-    z-index: 0;
+    z-index: 10;
 }
 
 pre {
@@ -519,18 +397,4 @@ textarea {
     margin-top: 0.7em;
     text-align: left;
     color: #222218;
-}
-
-.widget {
-    /*    background-color: #dfdfdc; */
-}
-
-.widget_iframe {
-    font-family: 'Karla';
-    width: 95%;
-    height:40em;
-}
-
-.contentBody li {
-    margin-bottom: 1em;
 }

@@ -17,6 +17,8 @@ import io.netty.channel.ChannelFutureListener;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import static com.timboudreau.trackerapi.Properties.*;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  *
@@ -43,10 +45,12 @@ class ListUsersResource extends Page {
         final AtomicBoolean first = new AtomicBoolean(true);
         private final Event evt;
         private final ObjectMapper mapper;
+        private final boolean simple;
 
         @Inject
         UF(DBCollection coll, Event evt, ObjectMapper mapper) {
             this.evt = evt;
+            simple = "true".equals(evt.getParameter("simple"));
             cursor = coll.find();
             evt.getChannel().closeFuture().addListener(new ChannelFutureListener() {
                 @Override
@@ -63,21 +67,43 @@ class ListUsersResource extends Page {
 
         @Override
         public void operationComplete(ChannelFuture future) throws Exception {
+            if (!future.channel().isOpen()) {
+                cursor.close();
+                return;
+            }
             if (first.compareAndSet(true, false)) {
                 future = future.channel().write(Unpooled.wrappedBuffer("[\n".getBytes()));
             }
             if (!cursor.hasNext()) {
                 future = future.channel().write(Unpooled.wrappedBuffer("\n]\n".getBytes()));
+                cursor.close();
                 if (!evt.isKeepAlive()) {
                     future.addListener(CLOSE);
                 }
             } else {
                 DBObject obj = cursor.next();
-                Map<?, ?> m = obj.toMap();
-                m.remove(pass);
-                m.remove(origPass);
-                future = future.channel().write(Unpooled.wrappedBuffer(mapper.writeValueAsBytes(m)));
-                if (cursor.hasNext()) {
+                boolean written = false;
+                if (!simple) {
+                    Map<?, ?> m = obj.toMap();
+                    m.remove(pass);
+                    m.remove(origPass);
+                    m.remove("cookieSlug");
+                    written = true;
+                    future = future.channel().write(Unpooled.wrappedBuffer(mapper.writeValueAsBytes(m)));
+                } else {
+                    Map<String, String> m = new HashMap<String, String>();
+                    if (obj.get("name") instanceof List) {
+                        List<String> l = (List<String>) obj.get("name");
+                        if (!l.isEmpty()) {
+                            String name = l.get(0);
+                            String dn = (String) obj.get("displayName");
+                            m.put(name, dn == null ? name : dn);
+                            written = true;
+                            future = future.channel().write(Unpooled.wrappedBuffer(mapper.writeValueAsBytes(m)));
+                        }
+                    }
+                }
+                if (cursor.hasNext() && written) {
                     future = future.channel().write(Unpooled.wrappedBuffer(",\n".getBytes()));
                 }
                 future.addListener(this);
