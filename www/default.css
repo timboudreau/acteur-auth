@@ -220,6 +220,9 @@ body {
 
 .userItem span {
     display: inline;
+    height: auto;
+    float: none;
+    margin-top: 0.4em;
 }
 
 .qhead {
@@ -230,6 +233,12 @@ body {
 .qhead h4 {
     display: inline-block;
     margin-top: 0.2em;
+}
+.qhead a {
+    margin-top: 1em;
+}
+.qhead h2 {
+    display: inline-block;
 }
 
 .homeLink {
@@ -304,9 +313,7 @@ a {
 }
 
 .help {
-    /*margin-left: 2em;*/
     font-size: 0.8em;
-    /*float: right;*/
 }
 
 .survey {
@@ -318,7 +325,8 @@ a {
 }
 
 .well {
-    background-color: rgba(68, 133, 107, 0.0525);
+    /*background-color: rgba(68, 133, 107, 0.0525);*/
+    background-color: rgba(223, 173, 87, 0.0525);
 }
 
 .synopsis {

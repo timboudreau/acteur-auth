@@ -31,6 +31,7 @@ import com.timboudreau.questions.GetSurveysResource;
 import com.timboudreau.questions.TestLogin;
 import com.timboudreau.questions.UpdateSurveyResource;
 import com.timboudreau.trackerapi.ModifyEventsResource.Body;
+import com.timboudreau.trackerapi.support.CursorWriter.MapFilter;
 import io.netty.handler.codec.http.HttpResponse;
 import java.io.IOException;
 import org.bson.types.ObjectId;
@@ -44,7 +45,7 @@ import org.joda.time.Interval;
 // Classes which are injected:
 @ImplicitBindings({TTUser.class, DBCollection.class, CreateCollectionPolicy.class,
     DBCursor.class, Interval.class, Body.class, String.class, DBObject.class,
-    ObjectId.class, AdjustTimeResource.AdjustParameters.class})// Some default values for things
+    ObjectId.class, AdjustTimeResource.AdjustParameters.class, MapFilter.class})// Some default values for things
 @Defaults(namespace =
         @Namespace(Timetracker.TIMETRACKER),
         value = {"periodicLiveWrites=true", "port=7739"})
@@ -97,11 +98,11 @@ public class Timetracker extends Application {
                 DeleteTimeResource.class,
                 TotalTimeResource.class,
                 ModifyEventsResource.class,
-                EditUserResource.class,
                 AdjustTimeResource.class,
                 SkewResource.class,
                 ListUsersResource.class,
                 RecordTimeConnectionIsOpenResource.class,
+                EditUserResource.class,
                 Application.helpPageType());
         db.getCollection("users");
     }

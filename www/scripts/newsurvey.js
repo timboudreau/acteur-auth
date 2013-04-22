@@ -1,4 +1,4 @@
-function SurveyEditor($scope, $http) {
+function SurveyEditor($scope, $http, user, status) {
 
     $scope.answerTypes = [
         {name: 'Multiple choice', type: 'multiplechoice'},
@@ -12,6 +12,17 @@ function SurveyEditor($scope, $http) {
         _id: null,
         questions: []
     };
+
+    $scope.constraints = [];
+    function ConstraintInfo() {
+        this.minMaxEnable = false;
+        this.nonNegative = false;
+        this.maxLength = 140;
+        this.required = true;
+        this.min = 0;
+        this.max = 100;
+    }
+
     function prototypeQuestion() {
         switch ($scope.questionType) {
             case 'truefalse' :
@@ -49,25 +60,68 @@ function SurveyEditor($scope, $http) {
 
         }
     }
-    $scope.questionType = 'text';
+    $scope.questionType = 'multiplechoice';
     $scope.prototypeQuestion = prototypeQuestion;
-    $scope.addQuestion = function() {
-        $scope.survey.questions.push(prototypeQuestion());
-    }
-    $scope.addMultipleChoiceAnswer = function(question) {
 
+    $scope.addQuestion = function() {
+        var q = prototypeQuestion();
+        $scope.constraints.push(new ConstraintInfo());
+        $scope.survey.questions.push(q);
+        console.log('SURVEY:', $scope.survey)
     }
+
+    $scope.deleteAnswer = function(questionIndex, answerIndex) {
+        var nue = [];
+        var a = $scope.survey.questions[questionIndex].answerType.answers;
+        for (var i = 0; i < a.length; i++) {
+            if (i !== answerIndex) {
+                nue.push($scope.survey.questions[questionIndex].answerType.answers[i]);
+            }
+        }
+        $scope.survey.questions[questionIndex].answerType.answers = nue;
+    }
+
+    $scope.addMultipleChoiceAnswer = function(ix, c) {
+        if (!$scope.survey.questions[ix].answerType.answers) {
+            $scope.survey.questions[ix].answerType.answers = [];
+        }
+        console.log('C is ' + c)
+        $scope.survey.questions[ix].answerType.answers.push(c);
+        console.log('SURVEY:', $scope.survey.questions[ix])
+    }
+
     $scope.save = function() {
-        $scope.loading = true;
-        console.log("WILL POST \n" + JSON.stringify($scope.survey));
-        $http.post('/time/users/tim/surveys', $scope.survey).success(function(saved) {
-            console.log("SAVED ", saved);
-            $scope.loading = false;
+        var surv = angular.copy($scope.survey);
+        for (var i = 0; i < surv.questions.length; i++) {
+            var q = surv.questions[i];
+            var con = $scope.constraints[i];
+            q.answerType.constraints = [];
+            if (con.required) {
+                q.answerType.constraints.push({type: 'required'});
+            }
+            switch (q.answerType.type) {
+                case 'multiplechoice' :
+                    break;
+                case 'number':
+                    if (con.minMaxEnable) {
+                        q.answerType.constraints.push({type: 'allowed-range', min: con.min, max: con.max})
+                    }
+                    if (con.nonNegative) {
+                        q.answerType.constraints.push({type: 'non-negative'})
+                    }
+                    // fall through
+                default :
+                    if (q.answerType.answers) {
+                        delete q.answerType.answers;
+                    }
+            }
+        }
+        
+        console.log('WILL SEND ', surv)
+        $http.post(API_BASE + 'users/' + user.name + '/surveys', surv).success(function(saved) {
+            status.success = "Saved";
             $scope.survey = saved;
-        }).error(function(err) {
-            $scope.problem = err;
-            $scope.loading = false;
-        })
+        }).error(status.errorHandler)
     }
     $scope.addQuestion();
 }

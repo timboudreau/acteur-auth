@@ -70,6 +70,19 @@ public final class AuthSupport implements Provider<AuthSupport.Result> {
         return encodeLoginCookie(res.userObject, res.username, res.hashedPass);
     }
 
+    public String expireLoginCookie() {
+        String host = getHost();
+
+        DefaultCookie lcookie = new DefaultCookie(COOKIE_NAME, "x");
+        lcookie.setDomain(host);
+        lcookie.setDiscard(true);
+        lcookie.setPorts(80, 7739);
+        lcookie.setPath("/");
+
+        String encoded = ServerCookieEncoder.encode(lcookie);
+        return encoded;
+    }
+    
     public String encodeLoginCookie(DBObject user, String username, String hashedPass) {
         Checks.notNull("hashedPass", hashedPass);
         Checks.notNull("user", user);
@@ -85,10 +98,8 @@ public final class AuthSupport implements Provider<AuthSupport.Result> {
         lcookie.setMaxAge(loginCookieMaxAge.getMillis());
         lcookie.setPorts(80, 7739);
         lcookie.setPath("/");
-        lcookie.setHttpOnly(true);
 
         String encoded = ServerCookieEncoder.encode(lcookie);
-        System.out.println("COOKIE: " + encoded);
         return encoded;
     }
 

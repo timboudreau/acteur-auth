@@ -81,6 +81,7 @@ final class AddTimeResource extends Page {
         TimeAdder(Event evt, DBCollection coll, ObjectMapper mapper, TTUser user, Interval interval) throws IOException {
             long startVal = interval.getStartMillis();
             long endVal = interval.getEndMillis();
+            // XXX ability to add for a different user?
             if (endVal - startVal <= 0) {
                 setState(new RespondWith(400, "Start is equal to or after end '"
                         + interval.getStart() + "' and '" + interval.getEnd() + "'"));

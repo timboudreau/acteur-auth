@@ -19,8 +19,8 @@ import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import com.timboudreau.trackerapi.support.TTUser;
 import com.timboudreau.trackerapi.support.UserCollectionFinder;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.ServerCookieEncoder;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 
 /**
@@ -43,7 +43,7 @@ public class SetPasswordResource extends Page {
 
         @Inject
         SetPasswordActeur(DBCollection coll, Event evt, PasswordHasher hasher, AuthSupport supp, TTUser user) throws IOException {
-            String userName = evt.getPath().getElement(1).toString();
+            String userName = URLDecoder.decode(evt.getPath().getElement(1).toString(), "UTF-8");
             String pw = evt.getContent().toString(Charset.forName("UTF-8"));
             if (pw.length() < SignUpResource.SignerUpper.MIN_PASSWORD_LENGTH) {
                 setState(new RespondWith(400, "Password too short"));
@@ -73,8 +73,7 @@ public class SetPasswordResource extends Page {
             String ck = supp.encodeLoginCookie(query, user.name, hashed);
             add(Headers.SET_COOKIE, ck);
 
-//            setState(new RespondWith(200, Timetracker.quickJson("updated", res.getN())));
-            setState(new RespondWith(200, "Password updated."));
+            setState(new RespondWith(200, Timetracker.quickJson("updated", res.getN())));
         }
     }
 }

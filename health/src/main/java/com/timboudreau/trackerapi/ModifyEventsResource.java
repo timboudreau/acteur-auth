@@ -62,7 +62,6 @@ public final class ModifyEventsResource extends Page {
         @Inject
         public Modifier(Event evt, DBCollection collection, BasicDBObject query, Body something) throws IOException {
             query.put(type, time);
-            System.out.println("GOT MODIFY REQUEST " + query.toMap());
             boolean isDelete = evt.getMethod() == Method.DELETE;
             DBObject modification = new BasicDBObject(isDelete ? "$unset"
                     : "$set", new BasicDBObject(evt.getPath().getLastElement().toString(),

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
+import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.Method;
@@ -43,9 +44,12 @@ public class WhoAmIResource extends Page {
     private static class UserInfoActeur extends Acteur {
 
         @Inject
-        UserInfoActeur(TTUser user, DBCollection coll, ObjectMapper mapper, AuthSupport supp) throws IOException {
+        UserInfoActeur(TTUser user, DBCollection coll, ObjectMapper mapper, AuthSupport supp, Event evt) throws IOException {
+            boolean other = evt.getParameter("user") != null && !user.name.equals(evt.getParameter("user"));
             add(Headers.stringHeader("UserID"), user.id.toStringMongod());
-            DBObject ob = coll.findOne(new BasicDBObject("_id", user.id));
+            DBObject ob = other ? coll.findOne(new BasicDBObject("name", evt.getParameter("user")), 
+                    new BasicDBObject("_id", 1).append("name", 1).append("displayName", 1)) 
+                    : coll.findOne(new BasicDBObject("_id", user.id));
             if (ob == null) {
                 setState(new RespondWith(HttpResponseStatus.GONE, "No record of " + user.name));
                 return;
@@ -55,10 +59,9 @@ public class WhoAmIResource extends Page {
             m.remove(Properties.origPass);
             m.remove("cookieSlug");
             String dn = (String) m.get(Properties.displayName);
-            if (dn != null) {
+            if (dn != null && !other) {
                 add(Headers.SET_COOKIE, ServerCookieEncoder.encode(supp.encodeDisplayNameCookie(dn)));
             }
-            
             setState(new RespondWith(200, mapper.writeValueAsString(m)));
         }
     }

@@ -11,6 +11,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.timboudreau.trackerapi.Properties;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import java.net.URLDecoder;
 import java.util.List;
 import org.bson.types.ObjectId;
 
@@ -24,6 +25,7 @@ public class AuthorizedChecker extends Acteur {
     AuthorizedChecker(Event evt, TTUser user, DB db, Settings settings) {
         Path pth = evt.getPath();
         String userNameInURL = pth.getElement(1).toString();
+        userNameInURL = URLDecoder.decode(userNameInURL);
         if (pth.size() >= 2 && "users".equals(pth.getElement(0).toString())) {
             if (!user.name.equals(userNameInURL)) {
                 DBObject query = new BasicDBObject(Properties.name, userNameInURL);

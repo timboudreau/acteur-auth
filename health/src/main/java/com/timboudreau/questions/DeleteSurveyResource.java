@@ -13,7 +13,10 @@ import com.mongodb.DBCollection;
 import com.mongodb.WriteResult;
 import com.timboudreau.trackerapi.Timetracker;
 import com.timboudreau.trackerapi.support.Auth;
+import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import org.bson.types.ObjectId;
 
 /**
@@ -27,6 +30,7 @@ public class DeleteSurveyResource extends Page {
         add(af.matchPath(GetSurveyResource.SURVEY_PATTERN));
         add(af.matchMethods(Method.GET));
         add(Auth.class);
+        add(AuthorizedChecker.class);
         add(FindSurveyActeur.class);
         add(DeleteSurveyActeur.class);
     }
@@ -39,9 +43,11 @@ public class DeleteSurveyResource extends Page {
     private static final class DeleteSurveyActeur extends Acteur {
 
         @Inject
-        DeleteSurveyActeur(Event evt, @Named("surveys") DBCollection surveys) throws JsonProcessingException {
+        DeleteSurveyActeur(Event evt, @Named("surveys") DBCollection surveys) throws JsonProcessingException, UnsupportedEncodingException {
             try {
-                ObjectId id = new ObjectId(evt.getPath().getElement(3).toString());
+                String otherUserNameOrID = evt.getPath().getElement(3).toString();
+                otherUserNameOrID = URLDecoder.decode(otherUserNameOrID, "UTF-8");
+                ObjectId id = new ObjectId(otherUserNameOrID);
                 WriteResult res = surveys.remove(new BasicDBObject("_id", id));
                 setState(new RespondWith(HttpResponseStatus.OK, Timetracker.quickJson("deleted", res.getN())));
             } catch (IllegalArgumentException e) {

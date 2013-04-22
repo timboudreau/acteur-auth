@@ -13,13 +13,17 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import static com.timboudreau.questions.AddSurveyResource.QUESTION_PATTERN;
+import com.timboudreau.trackerapi.Properties;
 import com.timboudreau.trackerapi.support.Auth;
 import com.timboudreau.trackerapi.support.TTUser;
+import com.timboudreau.trackerapi.support.UserCollectionFinder;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.util.CharsetUtil;
+import java.util.List;
+import org.bson.types.ObjectId;
 
 /**
  *
@@ -28,23 +32,45 @@ import io.netty.util.CharsetUtil;
 public class GetSurveysResource extends Page {
 
     @Inject
-    GetSurveysResource(ActeurFactory af) {
+    GetSurveysResource(ActeurFactory af, Event evt) {
         add(af.matchPath(QUESTION_PATTERN));
         add(af.matchMethods(Method.GET));
+        add(UserCollectionFinder.class);
         add(Auth.class);
         add(SurveysActeur.class);
     }
 
     @Override
     protected String getDescription() {
-        return "Get all of the surveys created by the calling user";
+        return "Get all of the surveys created by the calling user or the "
+                + "user name specified by the <code>?user=</code> url parameter";
     }
 
     private static class SurveysActeur extends Acteur {
 
         @Inject
-        SurveysActeur(TTUser user, @Named("surveys") DBCollection coll, ObjectMapper mapper, Event evt) {
-            BasicDBObject query = new BasicDBObject("createdBy", user.id);
+        @SuppressWarnings("element-type-mismatch")
+        SurveysActeur(TTUser user, @Named("surveys") DBCollection coll, DBCollection users, ObjectMapper mapper, Event evt) {
+            String pathId = evt.getPath().getElement(1).toString();
+            BasicDBObject query;
+            if (!pathId.equals(user.name)) {
+                BasicDBObject nameQuery = new BasicDBObject(Properties.name, pathId);
+                DBObject otherUser = users.findOne(nameQuery);
+                if (otherUser == null) {
+                    setState(new RespondWith(HttpResponseStatus.GONE, "No such user'" + pathId + "'\n"));
+                    return;
+                } else {
+                    List<ObjectId> authorized = (List<ObjectId>) otherUser.get(Properties.authorizes);
+                    if (!authorized.contains(user.id)) {
+                        setState(new RespondWith(HttpResponseStatus.FORBIDDEN,
+                                "You don't have permission to access " + otherUser.get(Properties.displayName) + "\n"));
+                        return;
+                    }
+                    query = new BasicDBObject("createdBy", otherUser.get("_id"));
+                }
+            } else {
+                query = new BasicDBObject("createdBy", user.id);
+            }
             DBCursor cursor = coll.find(query);
             if (!cursor.hasNext()) {
                 setState(new RespondWith(HttpResponseStatus.OK, "[]\n"));

@@ -16,6 +16,8 @@ import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import com.timboudreau.trackerapi.support.TTUser;
 import com.timboudreau.trackerapi.support.UserCollectionFinder;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import org.bson.types.ObjectId;
 
 /**
@@ -42,8 +44,9 @@ public class DeauthorizeResource extends Page {
     private static final class Authorizer extends Acteur {
 
         @Inject
-        Authorizer(TTUser user, Event evt, DBCollection coll) {
+        Authorizer(TTUser user, Event evt, DBCollection coll) throws UnsupportedEncodingException {
             String otherUserNameOrID = evt.getPath().getElement(3).toString();
+            otherUserNameOrID = URLDecoder.decode(otherUserNameOrID, "UTF-8");
             BasicDBObject findOtherUserQuery = new BasicDBObject("name", otherUserNameOrID);
             DBObject otherUser = coll.findOne(findOtherUserQuery);
             if (otherUser == null) {

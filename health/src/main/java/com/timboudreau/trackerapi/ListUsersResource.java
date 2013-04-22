@@ -1,24 +1,20 @@
 package com.timboudreau.trackerapi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.util.Method;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 import com.timboudreau.trackerapi.support.UserCollectionFinder;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import static com.timboudreau.trackerapi.Properties.*;
-import java.util.HashMap;
-import java.util.List;
+import com.timboudreau.trackerapi.support.CursorWriter;
+import com.timboudreau.trackerapi.support.CursorWriterActeur;
 
 /**
  *
@@ -32,6 +28,7 @@ class ListUsersResource extends Page {
         add(af.matchPath("^all$"));
         add(UserCollectionFinder.class);
         add(UF.class);
+        add(CursorWriterActeur.class);
     }
 
     @Override
@@ -39,75 +36,27 @@ class ListUsersResource extends Page {
         return "List all users";
     }
 
-    static class UF extends Acteur implements ChannelFutureListener {
+    static class UF extends Acteur {
 
         final DBCursor cursor;
         final AtomicBoolean first = new AtomicBoolean(true);
-        private final Event evt;
-        private final ObjectMapper mapper;
-        private final boolean simple;
 
         @Inject
-        UF(DBCollection coll, Event evt, ObjectMapper mapper) {
-            this.evt = evt;
-            simple = "true".equals(evt.getParameter("simple"));
-            cursor = coll.find();
-            evt.getChannel().closeFuture().addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    cursor.close();
-                }
-            });
-            this.mapper = mapper;
-            setState(new RespondWith(200));
-            if (evt.getMethod() == Method.GET) {
-                setResponseBodyWriter(this);
-            }
-        }
+        UF(DBCollection coll, Event evt) {
+            final boolean simple = "true".equals(evt.getParameter("simple"));
+            cursor = simple ? coll.find(new BasicDBObject(), new BasicDBObject("_id", 1).append("name", 1).append("displayName", 1).append("created", 1)) : coll.find();
+            setState(new ConsumedLockedState(cursor, new CursorWriter.MapFilter() {
 
-        @Override
-        public void operationComplete(ChannelFuture future) throws Exception {
-            if (!future.channel().isOpen()) {
-                cursor.close();
-                return;
-            }
-            if (first.compareAndSet(true, false)) {
-                future = future.channel().write(Unpooled.wrappedBuffer("[\n".getBytes()));
-            }
-            if (!cursor.hasNext()) {
-                future = future.channel().write(Unpooled.wrappedBuffer("\n]\n".getBytes()));
-                cursor.close();
-                if (!evt.isKeepAlive()) {
-                    future.addListener(CLOSE);
-                }
-            } else {
-                DBObject obj = cursor.next();
-                boolean written = false;
-                if (!simple) {
-                    Map<?, ?> m = obj.toMap();
-                    m.remove(pass);
-                    m.remove(origPass);
-                    m.remove("cookieSlug");
-                    written = true;
-                    future = future.channel().write(Unpooled.wrappedBuffer(mapper.writeValueAsBytes(m)));
-                } else {
-                    Map<String, String> m = new HashMap<String, String>();
-                    if (obj.get("name") instanceof List) {
-                        List<String> l = (List<String>) obj.get("name");
-                        if (!l.isEmpty()) {
-                            String name = l.get(0);
-                            String dn = (String) obj.get("displayName");
-                            m.put(name, dn == null ? name : dn);
-                            written = true;
-                            future = future.channel().write(Unpooled.wrappedBuffer(mapper.writeValueAsBytes(m)));
-                        }
+                @Override
+                public Map<String, Object> filter(Map<String, Object> m) {
+                    if (!simple) {
+                        m.remove(pass);
+                        m.remove(origPass);
+                        m.remove("cookieSlug");
                     }
+                    return m;
                 }
-                if (cursor.hasNext() && written) {
-                    future = future.channel().write(Unpooled.wrappedBuffer(",\n".getBytes()));
-                }
-                future.addListener(this);
-            }
+            }));
         }
     }
 }

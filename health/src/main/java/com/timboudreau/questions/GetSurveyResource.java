@@ -8,6 +8,7 @@ import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.util.CacheControlTypes;
 import com.mastfrog.acteur.util.Method;
 import com.timboudreau.trackerapi.support.Auth;
+import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import org.joda.time.Duration;
 
 /**
@@ -23,6 +24,7 @@ public class GetSurveyResource extends Page {
         add(af.matchPath(SURVEY_PATTERN));
         add(af.matchMethods(Method.GET));
         add(Auth.class);
+        add(AuthorizedChecker.class);
         add(FindSurveyActeur.class);
         add(af.sendNotModifiedIfETagHeaderMatches());
         add(af.sendNotModifiedIfIfModifiedSinceHeaderMatches());

@@ -71,7 +71,7 @@ public abstract class AnswerSpec<T> implements Iterable<Constraint<T>> {
         @JsonCreator
         public MultipleChoiceAnswer(@JsonProperty("id") String id, @JsonProperty("answers") String... answers) {
             super(id);
-            this.answers = Arrays.asList(answers);
+            this.answers = answers == null ? new LinkedList<String>() : Arrays.asList(answers);
         }
 
         @Override

@@ -8,23 +8,13 @@ import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.util.BasicCredentials;
 import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.Method;
-import com.mastfrog.acteur.util.PasswordHasher;
 import com.mastfrog.acteur.util.Realm;
-import com.mastfrog.settings.Settings;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import static com.timboudreau.trackerapi.Properties.name;
 import com.timboudreau.trackerapi.Timetracker;
 import com.timboudreau.trackerapi.support.AuthSupport;
 import com.timboudreau.trackerapi.support.UserCollectionFinder;
-import io.netty.handler.codec.http.DefaultCookie;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.ServerCookieEncoder;
 import java.util.HashMap;
 import java.util.Map;
-import org.joda.time.Duration;
 
 /**
  *
@@ -46,7 +36,11 @@ public final class TestLogin extends Page {
 
         @Inject
         CheckIt(Event evt, AuthSupport supp) {
-            System.out.println("REQUEST " + evt.getPath());
+            if ("true".equals(evt.getParameter("logout"))) {
+                add(Headers.SET_COOKIE, supp.expireLoginCookie());
+                setState(new RespondWith(HttpResponseStatus.NO_CONTENT));
+                return;
+            }
             for (String key : evt.getRequest().headers().names()) {
                 System.out.println(key + ':' + evt.getHeader(key));
             }
@@ -62,6 +56,7 @@ public final class TestLogin extends Page {
             result.put("credentialsPresent", credentials != null);
             AuthSupport.Result authResult = supp.get();
             result.put("userFound", authResult.username != null);
+            result.put("success", authResult.isSuccess());
             if (authResult.isSuccess()) {
                 if (!authResult.cookie) {
                     String cookie = supp.encodeLoginCookie(authResult);

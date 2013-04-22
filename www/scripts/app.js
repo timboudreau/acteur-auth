@@ -2,6 +2,7 @@ var app = angular.module('surveys', ['ngCookies', 'ui']);
 
 var USER_DISPLAY_NAME_COOKIE = "dn";
 var USER_COOKIE_NAME = "ac";
+var API_BASE = "/time/"
 
 app.service('status', function($rootScope) {
     function setProblem(err) {
@@ -54,15 +55,30 @@ app.service('status', function($rootScope) {
 app.service('user', function($cookies, $http, $rootScope) {
     var un = window.location.pathname.split('/')[2];
     var self = this;
+
+    // This *is* a potential race condition
+    if ($cookies[USER_COOKIE_NAME]) {
+        un = /"?(.*?):.*/.exec($cookies[USER_COOKIE_NAME])[1];
+        if (un) {
+            self.name = un;
+            console.log('GOT NAME FROM COOKIE: ' + un)
+        } else {
+            console.log('NO USER FROM COOKIE')
+            self.get().success(function(user) {
+                console.log('LOADED ' + user.name)
+                un = user.name;
+            });
+        }
+    }
     this.name = un;
 
-    this.path = '/time/users/' + un;
+    this.path = API_BASE + 'users/' + un;
 
     this.__defineGetter__('displayName', function() {
         if (self.dn) {
             return self.dn;
         }
-        var dn = $cookies['dn'];
+        var dn = $cookies[USER_DISPLAY_NAME_COOKIE];
         if (dn && /"/.test(dn)) {
             dn = dn.replace(/"/g, '');
         }
@@ -84,7 +100,25 @@ app.service('user', function($cookies, $http, $rootScope) {
     }
 
     this.get = function() {
-        return $http.get("/time/whoami");
+        return $http.get(API_BASE + "whoami");
+    }
+});
+
+app.service('lookingAt', function(user, $http, $rootScope) {
+    var un = window.location.pathname.split('/')[2];
+    var self = this;
+    this.name = un;
+    $rootScope.lookingAtUserName = un;
+    console.log('LOOKING AT ' + un)
+    if (user.name === un) {
+        this.get = user.get;
+    } else {
+        this.get = function() {
+            return $http.get(API_BASE + "whoami?user=" + un).success(function(u) {
+                $rootScope.lookingAtUserName = u.name;
+                $rootScope.lookingAtUser = u;
+            });
+        }
     }
 });
 
@@ -124,9 +158,26 @@ function Status($scope, status) {
     $scope.clear = status.clear;
 }
 
-function User($scope, user, $rootScope) {
+function User($scope, user, $rootScope, lookingAt, $http) {
+    console.log('USER ' + user.name);
+    console.log('LOOKING AT ' + lookingAt.name)
+    console.log('DN ' + user.displayName)
+    if (!user.displayName) {
+        user.get().success(function(u) {
+            $scope.userDisplayName = u.displayName;
+        });
+    }
     $scope.userDisplayName = user.displayName;
+    $scope.userName = user.name;
+    $scope.lookingAtUserName = lookingAt.name;
     $rootScope.$on('userDisplayNameChanged', function(evt, name) {
         $scope.userDisplayName = name;
     });
+    
+    $scope.logout = function() {
+        $http.get(API_BASE + 'testLogin?logout=true').success(function() {
+            $rootScope.success = 'Logged out';
+            window.location = '/';
+        })
+    }
 }

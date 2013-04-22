@@ -31,57 +31,67 @@
         <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/ico/apple-touch-icon-114-precomposed.png">
         <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/ico/apple-touch-icon-72-precomposed.png">
         <link rel="apple-touch-icon-precomposed" href="/ico/apple-touch-icon-57-precomposed.png">
-<!--        <script lang="text/javascript">
-            var req = new XMLHttpRequest();
-            req.open('GET', '/time/testLogin?auth=true&respondWith=401', false);
-            req.send(null);
-            var headers = req.getAllResponseHeaders().toLowerCase();
-            console.log("HEADERS: ", req.getAllResponseHeaders());
-        </script>        -->
+        <!--        <script lang="text/javascript">
+                    var req = new XMLHttpRequest();
+                    req.open('GET', '/time/testLogin?auth=true&respondWith=401', false);
+                    req.send(null);
+                    var headers = req.getAllResponseHeaders().toLowerCase();
+                    console.log("HEADERS: ", req.getAllResponseHeaders());
+                </script>        -->
     </head>
     <body ng-app="surveys" ng-controller="Status">
         <div class='contentBody' ng-controller="User">
             <ng-include src="'/partials/topNav.html'"></ng-include>
 
             <div id='contentBody' class='container'>
-                <div class='span8 offset2'>
-                    <div class='hero-unit well' ng-controller="TestController">
-                        <h2>Thingamabob</h2>
-                        <a class='btn' href='surveys.html'>My Surveys</a>
-                        <a class='btn' href='newsurvey.html'>New Survey</a>
-                        
-                        <p/>
-                        <a class='btn' ng-click="bad()" href='#'>Problem</a>
-                        <a class='btn' ng-click="good()" href='#'>Success</a>
-                        <a class='btn' ng-click="clear()" href='#'>Clear</a>
+                <div class="row">
+                    <div class="span3">
+                        <img src="/images/logo.svg" />
+                    </div>
+                    <div class='span9'>
+                        <div class='hero-unit well' ng-controller="TestController">
+                            <h2>Thingamabob</h2>
+                            <p>
+                                That's right, it's a thingamabob.  Whatev.
+                            </p>
+                            <a class='btn' href='surveys.html'>My Surveys</a>
+                            <a class='btn' href='newsurvey.html'>New Survey</a>
+
+                            &nbsp; &nbsp;
+
+                            <a class='btn' ng-click="bad()" href='#'>Test Problem</a>
+                            <a class='btn' ng-click="good()" href='#'>Test Success</a>
+                            <a class='btn' ng-click="clear()" href='#'>Test Clear</a>
+                        </div>
                     </div>
                 </div>
             </div>
-            <ng-include src='"/partials/bottom.html"'></ng-include>
         </div>
-        <script src="/bootstrap/js/jquery.min.js"></script>
-        <script src="/bootstrap/js/bootstrap-modal.min.js"></script>
-        <script src="/js/jquery-ui/js/jquery-ui-1.10.2.custom.min.js"></script>
-        <script src="/angular/angular.min.js"></script>
-        <script src="/angular/angular-cookies.min.js"></script>
-        <script src="/js/angular-ui.js"></script>
-        <script src="/js/base64.js"></script>
-        <script src="/scripts/app.js"></script>
-        <script src="/scripts/surveys.js"></script>
-        
-        <script lang="text/javascript">
-            function TestController($scope, status) {
-                $scope.bad = function() {
-                    status.problem = "There is a problem, and it will take a lot of space to describe it because it is too complicated to just say something simple about";
-                }
-                $scope.good = function() {
-                    status.success = "We have liftoff";
-                }
-                $scope.clear = function() {
-                    status.problem = null;
-                    status.success = null;
-                }
+    <ng-include src='"/partials/bottom.html"'></ng-include>
+    <script src="/bootstrap/js/jquery.min.js"></script>
+    <script src="/bootstrap/js/bootstrap-modal.min.js"></script>
+    <script src="/bootstrap/js/bootstrap-dropdown.min.js"></script>
+    <script src="/js/jquery-ui/js/jquery-ui-1.10.2.custom.min.js"></script>
+    <script src="/angular/angular.min.js"></script>
+    <script src="/angular/angular-cookies.min.js"></script>
+    <script src="/js/angular-ui.js"></script>
+    <script src="/js/base64.js"></script>
+    <script src="/scripts/app.js"></script>
+    <script src="/scripts/surveys.js"></script>
+
+    <script lang="text/javascript">
+        function TestController($scope, status) {
+            $scope.bad = function() {
+                status.problem = "Oh no!";
             }
-        </script>
-    </body>
+            $scope.good = function() {
+                status.success = "We have liftoff";
+            }
+            $scope.clear = function() {
+                status.problem = null;
+                status.success = null;
+            }
+        }
+    </script>
+</body>
 </html>

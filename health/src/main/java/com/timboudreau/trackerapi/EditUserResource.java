@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.ServerCookieEncoder;
 import io.netty.util.CharsetUtil;
 import java.io.IOException;
+import java.net.URLDecoder;
 import org.joda.time.DateTimeUtils;
 
 /**
@@ -33,7 +34,7 @@ public class EditUserResource extends Page {
 
     @Inject
     EditUserResource(ActeurFactory af) {
-        add(af.matchPath("^users/(.*?)/?$"));
+        add(af.matchPath("^users/([^/]*?)/?$"));
         add(af.matchMethods(Method.PUT, Method.POST));
         add(af.banParameters(Properties._id, Properties.name, Properties.pass, Properties.origPass, Properties.authorizes));
         add(af.requireAtLeastOneParameter("displayName"));
@@ -47,7 +48,7 @@ public class EditUserResource extends Page {
 
         @Inject
         UpdateUserActeur(DBCollection coll, Event evt, PasswordHasher hasher, TTUser user, AuthSupport supp) throws IOException {
-            String userName = evt.getPath().getElement(1).toString();
+            String userName = URLDecoder.decode(evt.getPath().getElement(1).toString(), "UTF-8");
             String dn = evt.getParameter(Properties.displayName);
 
             if (!userName.equals(user.name)) {

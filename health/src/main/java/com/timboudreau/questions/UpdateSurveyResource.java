@@ -15,6 +15,8 @@ import com.mongodb.DBObject;
 import com.timboudreau.trackerapi.support.Auth;
 import com.timboudreau.trackerapi.support.TTUser;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 import org.bson.types.ObjectId;
@@ -72,8 +74,9 @@ public class UpdateSurveyResource extends Page {
 
         @Inject
         UpdateSurveyActeur(Event evt, DBObject obj, @Named("surveys") DBCollection surveys,
-                ObjectMapper mapper) throws JsonProcessingException {
-
+                ObjectMapper mapper) throws JsonProcessingException, UnsupportedEncodingException {
+            String userId = evt.getPath().getElement(3).toString();
+            userId = URLDecoder.decode(userId, "UTF-8");
             ObjectId id = new ObjectId(evt.getPath().getElement(3).toString());
             BasicDBObject query = new BasicDBObject("_id", id);
             DBObject ob = surveys.findOne(query);

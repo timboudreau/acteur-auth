@@ -3,12 +3,12 @@
         <ul class="nav">
             <a class="homeLink" href="./"><img class="navlogo" width="32" height="32" src="/images/logo.svg"/>Thingamabob</a>
             <li>
-                <a href="surveys.html">
+                <a href="../{{userName}}/surveys.html">
                     My Surveys
                 </a>
             </li>
             <li>
-                <a href="newsurvey.html">
+                <a href="../{{userName}}/newsurvey.html">
                     New Survey
                 </a>
             </li>
@@ -16,10 +16,16 @@
         <span class="pull-right">
             <ul class="nav">
                 <li>
-                    <a href="profile.html" class="pull-right" ng-show="userDisplayName">
-                        {{userDisplayName}}
-                        <i class="icon-cog"></i>
-                    </a>
+                    <span class="btn-group">
+                        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" style='border-width: 0px; background-image: none; background-color: rgba(255,255,255,0);'>
+                            <i class="icon-cog">&nbsp;</i>{{userDisplayName}}
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="../{{userName}}/profile.html">Settings</a></li>
+                            <li><a ng-click='logout()' href="#">Logout</a></li>
+                        </ul>
+                    </span>                        
                 </li>
             </ul>
         </span>
@@ -31,14 +37,14 @@
 <div class='row'>
     <div class="alert alert-error infoBox" ng-show='problem'>
         <button class="close pull-right" ng-click="clear()">x</button>
-        <i class="icon-thumbs-down" ></i>
+        <i class="icon-exclamation-sign" ></i>
         <span ng-bind-html-unsafe="problem">
             {{problem}}
         </span>
     </div>
     <div class="alert alert-success infoBox" ng-show='success'>
         <button class="close pull-right" ng-click="clear()">x</button>
-        <i class="icon-ok-sign"></i>
+        <i class="icon-ok"></i>
         <span ng-bind-html-unsafe="success">
             {{success}}
         </span>
