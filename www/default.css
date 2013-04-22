@@ -406,3 +406,30 @@ textarea {
     text-align: left;
     color: #222218;
 }
+
+.btn-primary {
+  color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background-color: #006dcc;
+  *background-color: #339922;
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#44AA33), to(#339922));
+  background-image: -webkit-linear-gradient(top, #44AA33, #339922);
+  background-image: -o-linear-gradient(top, #44AA33, #339922);
+  background-image: linear-gradient(to bottom, #44AA33, #339922);
+  background-image: -moz-linear-gradient(top, #44AA33, #339922);
+  background-repeat: repeat-x;
+  border-color: #339922 #339922 #002a80;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff44AA33', endColorstr='#ff339922', GradientType=0);
+  filter: progid:dximagetransform.microsoft.gradient(enabled=false);
+}
+
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary.active,
+.btn-primary.disabled,
+.btn-primary[disabled] {
+  color: #ffffff;
+  background-color: #339922;
+  *background-color: #003bb3;
+}
