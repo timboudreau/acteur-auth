@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.timboudreau.trackerapi.Properties.*;
 import com.timboudreau.trackerapi.support.CursorWriter;
 import com.timboudreau.trackerapi.support.CursorWriterActeur;
+import org.bson.types.ObjectId;
 
 /**
  *
@@ -53,6 +54,11 @@ class ListUsersResource extends Page {
                         m.remove(pass);
                         m.remove(origPass);
                         m.remove("cookieSlug");
+                        Object i = m.get("_id");
+                        if (i instanceof ObjectId) {
+                            i = ((ObjectId) i).toStringMongod();
+                            m.put("_id", i);
+                        }
                     }
                     return m;
                 }

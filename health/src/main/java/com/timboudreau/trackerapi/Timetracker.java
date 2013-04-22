@@ -28,6 +28,7 @@ import com.mongodb.DBObject;
 import com.timboudreau.questions.AddSurveyResource;
 import com.timboudreau.questions.GetSurveyResource;
 import com.timboudreau.questions.GetSurveysResource;
+import com.timboudreau.questions.PushTest;
 import com.timboudreau.questions.TestLogin;
 import com.timboudreau.questions.UpdateSurveyResource;
 import com.timboudreau.trackerapi.ModifyEventsResource.Body;
@@ -81,6 +82,7 @@ public class Timetracker extends Application {
     Timetracker(DB db) {
         // These are our request handlers:
         super(SignUpResource.class,
+                PushTest.class,
                 WhoAmIResource.class,
                 TestLogin.class,
                 SetsResource.class,
