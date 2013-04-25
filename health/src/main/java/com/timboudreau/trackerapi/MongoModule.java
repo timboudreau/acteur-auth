@@ -32,13 +32,14 @@ import org.joda.time.DateTime;
  * @author Tim Boudreau
  */
 final class MongoModule extends AbstractModule {
+
     private final Settings settings;
-    private final Map<String,String> nameForCollection = new HashMap<>();
+    private final Map<String, String> nameForCollection = new HashMap<>();
 
     MongoModule(Settings settings) {
         this.settings = settings;
     }
-    
+
     public MongoModule addNamedCollectionBinding(String collectionName, String bindingName) {
         nameForCollection.put(bindingName, collectionName);
         return this;
@@ -51,14 +52,22 @@ final class MongoModule extends AbstractModule {
             MongoClient mc = new MongoClient(
                     settings.getString("mongoHost", "localhost"),
                     settings.getInt("mongoPort", 27017));
-            
-            
+
             bind(MongoClient.class).toInstance(mc);
             DB db = mc.getDB("timetracker");
-            
+            DBCollection c;
+            try {
+                c = db.createCollection("events", new BasicDBObject("capped", true)
+                        .append("size", 100000).append("max", 30));
+            } catch (com.mongodb.CommandFailureException ce) {
+                c = db.getCollection("events");
+            }
+
+            bind(DBCollection.class).annotatedWith(Names.named("events")).toInstance(c);
+
             bind(DB.class).toInstance(db);
             Provider<DB> dbProvider = binder().getProvider(DB.class);
-            for (Map.Entry<String,String> e : nameForCollection.entrySet()) {
+            for (Map.Entry<String, String> e : nameForCollection.entrySet()) {
                 bind(DBCollection.class).annotatedWith(Names.named(e.getValue()))
                         .toProvider(
                         new CollectionProvider(e.getKey(), dbProvider));
@@ -67,11 +76,12 @@ final class MongoModule extends AbstractModule {
             Exceptions.chuck(ex);
         }
         bind(Realm.class).toInstance(Realm.createSimple(Timetracker.REALM_NAME));
-        
+
         install(new QuestionsModule());
     }
 
     static class CollectionProvider implements Provider<DBCollection> {
+
         private final String name;
         private final Provider<DB> db;
 
@@ -85,9 +95,9 @@ final class MongoModule extends AbstractModule {
             return db.get().getCollection(name);
         }
     }
-    
+
     static class BsonDateSerializer extends StdSerializer<DateTime> {
-        
+
         BsonDateSerializer() {
             super(DateTime.class);
         }
@@ -99,9 +109,8 @@ final class MongoModule extends AbstractModule {
             jgen.writeString(fmt.format(t.toDate()));
         }
     }
-    
+
     static class BsonDateDeserializer extends JsonDeserializer<DateTime> {
-        
 
         @Override
         public DateTime deserialize(JsonParser jp, DeserializationContext dc) throws IOException, JsonProcessingException {
@@ -113,7 +122,6 @@ final class MongoModule extends AbstractModule {
                 throw new IOException("Bad date " + tree.get("$date"));
             }
         }
-        
+
     }
-    
 }

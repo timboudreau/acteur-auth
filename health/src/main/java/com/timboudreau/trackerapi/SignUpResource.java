@@ -15,6 +15,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
+import com.timboudreau.questions.Subscribe.Publisher;
 import com.timboudreau.trackerapi.support.UserCollectionFinder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -67,7 +68,7 @@ class SignUpResource extends Page {
         private final ObjectMapper mapper;
 
         @Inject
-        SignerUpper(DBCollection coll, Event evt, PasswordHasher crypto, ObjectMapper mapper, AuthSupport supp) throws UnsupportedEncodingException, IOException {
+        SignerUpper(DBCollection coll, Event evt, PasswordHasher crypto, ObjectMapper mapper, AuthSupport supp, Publisher publisher) throws UnsupportedEncodingException, IOException {
             this.mapper = mapper;
             this.evt = evt;
             add(Headers.CONTENT_TYPE, MediaType.JSON_UTF_8);
@@ -135,6 +136,7 @@ class SignUpResource extends Page {
                 setResponseBodyWriter(this);
                 
                 add(Headers.SET_COOKIE, supp.encodeLoginCookie(nue, userName, encrypted));
+                publisher.publish("signup", new BasicDBObject("name", evt.getParameter(displayName)));
 //            } else {
 //                setState(new RespondWith(HttpResponseStatus.INTERNAL_SERVER_ERROR, "No write"));
 //            }
