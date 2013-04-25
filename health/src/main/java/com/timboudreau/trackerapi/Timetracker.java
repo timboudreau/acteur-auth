@@ -28,7 +28,7 @@ import com.mongodb.DBObject;
 import com.timboudreau.questions.AddSurveyResource;
 import com.timboudreau.questions.GetSurveyResource;
 import com.timboudreau.questions.GetSurveysResource;
-import com.timboudreau.questions.PushTest;
+import com.timboudreau.questions.Subscribe;
 import com.timboudreau.questions.TestLogin;
 import com.timboudreau.questions.UpdateSurveyResource;
 import com.timboudreau.trackerapi.ModifyEventsResource.Body;
@@ -46,7 +46,7 @@ import org.joda.time.Interval;
 // Classes which are injected:
 @ImplicitBindings({TTUser.class, DBCollection.class, CreateCollectionPolicy.class,
     DBCursor.class, Interval.class, Body.class, String.class, DBObject.class,
-    ObjectId.class, AdjustTimeResource.AdjustParameters.class, MapFilter.class})// Some default values for things
+    ObjectId.class, AdjustTimeResource.AdjustParameters.class, MapFilter.class})
 @Defaults(namespace =
         @Namespace(Timetracker.TIMETRACKER),
         value = {"periodicLiveWrites=true", "port=7739"})
@@ -82,7 +82,7 @@ public class Timetracker extends Application {
     Timetracker(DB db) {
         // These are our request handlers:
         super(SignUpResource.class,
-                PushTest.class,
+                Subscribe.class,
                 WhoAmIResource.class,
                 TestLogin.class,
                 SetsResource.class,
@@ -96,6 +96,7 @@ public class Timetracker extends Application {
                 AuthorizeResource.class,
                 SharesWithMeResources.class,
                 SetPasswordResource.class,
+                DistinctResource.class,
                 GetTimeResource.class,
                 DeleteTimeResource.class,
                 TotalTimeResource.class,

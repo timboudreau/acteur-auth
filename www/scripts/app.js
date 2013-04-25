@@ -109,7 +109,8 @@ app.service('lookingAt', function(user, $http, $rootScope) {
     var self = this;
     this.name = un;
     $rootScope.lookingAtUserName = un;
-    console.log('LOOKING AT ' + un)
+    self.path = API_BASE + 'users/' + un;
+    console.log('LOOKING AT ' + un + "'")
     if (user.name === un) {
         this.get = user.get;
     } else {
@@ -117,6 +118,7 @@ app.service('lookingAt', function(user, $http, $rootScope) {
             return $http.get(API_BASE + "whoami?user=" + un).success(function(u) {
                 $rootScope.lookingAtUserName = u.name;
                 $rootScope.lookingAtUser = u;
+                self.path = API_BASE + '/users/' + u.name;
             });
         }
     }
@@ -154,6 +156,58 @@ app.directive('autoComplete', function($timeout) {
     };
 });
 
+app.directive('timepicker', function($timeout, dateFilter) {
+    var result = {
+        compile: function compile(tElement, tAttrs, transclude) {
+            return {
+                post: function postLink(scope, iElement, iAttrs, controller) {
+                    var tp = iElement.timepicker();
+                    if (iAttrs['minuteStep']) {
+                        tp.minuteStep = iAttrs['minuteStep'];
+                    }
+                    iElement.bind('mousewheel', function(evt) {
+                        if (delta === 0) {
+                            return;
+                        }
+                        var data = tp.data();
+                        var delta = evt.originalEvent.wheelDelta;
+                        console.log('MW!! ' + delta + ':', evt)
+                        var direction = delta > 0 ? 1 : -1;
+                        var step = iAttrs['minuteStep'] ? parseInt(iAttrs['minuteStep']) : 5;
+                        console.log('STEP ' + step + " dir " + direction)
+                        if (direction === 1) {
+                            tp.timepicker('decrementMinute', step);
+                            scope.$apply();
+                        } else {
+                            tp.timepicker('incrementMinute', step);
+                            scope.$apply();
+                        }
+                    });
+                    iElement.timepicker().on('changeTime.timepicker', function(e) {
+                        scope[iAttrs.ngModel] = e.time;
+                        if (!scope.$$phase)
+                            scope.$apply();
+                    });
+                }
+            }
+        }
+    }
+    return result;
+});
+
+app.filter('two', function() {
+    return function(num) {
+        if (typeof num === 'string') {
+            num = parseInt(num)
+        }
+        var result = '' + num;
+        if (result.length === 1) {
+            result = '0' + result;
+        }
+        return result;
+    }
+})
+
 function Status($scope, status) {
     $scope.clear = status.clear;
 }
@@ -173,7 +227,7 @@ function User($scope, user, $rootScope, lookingAt, $http) {
     $rootScope.$on('userDisplayNameChanged', function(evt, name) {
         $scope.userDisplayName = name;
     });
-    
+
     $scope.logout = function() {
         $http.get(API_BASE + 'testLogin?logout=true').success(function() {
             $rootScope.success = 'Logged out';

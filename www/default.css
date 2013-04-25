@@ -104,6 +104,22 @@ body {
     width: 100%;
 }
 
+.addTime h4 {
+    display: inline-block;
+}
+
+.bootstrap-timepicker {
+    
+}
+
+.controlRow {
+    margin-left: 2em;
+}
+
+.controlRow input {
+    
+}
+
 .ui-show {
     color: blue;
     display: none;
@@ -405,6 +421,10 @@ textarea {
     margin-top: 0.7em;
     text-align: left;
     color: #222218;
+}
+
+.input-verysmall {
+    width: 3em;
 }
 
 .btn-primary {

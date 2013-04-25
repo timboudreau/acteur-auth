@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Time Tracking</title>
+        <meta name="DC.author" content="Tim Boudreau" />
+        <link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
+        <link href="/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+        <link href="/default.css" rel="stylesheet">
+        <link href="/js/jquery-ui/css/smoothness/jquery-ui-1.10.2.custom.min.css" rel="stylesheet">
+        <!--[if lte IE 8]>
+            <script>
+            // The ieshiv takes care of our ui.directives, bootstrap module directives and
+            // AngularJS's ng-view, ng-include, ng-pluralize and ng-switch directives.
+            // However, IF you have custom directives (yours or someone else's) then
+            // enumerate the list of tags in window.myCustomTags
+
+            window.myCustomTags = [ 'yourDirective', 'somebodyElsesDirective' ]; // optional
+            </script>
+            <script src="/js/angular-ui-ieshiv.js"></script>
+        <![endif]-->
+
+        <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+          <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+
+        <!-- Le fav and touch icons -->
+        <link rel="shortcut icon" href="/blog/ico/favicon.ico">
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/ico/apple-touch-icon-114-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/ico/apple-touch-icon-72-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" href="/ico/apple-touch-icon-57-precomposed.png">
+    </head>
+    <body ng-app="surveys" ng-controller="Status">
+        <div ng-controller="User">
+            <ng-include src="'/partials/topNav.html'"></ng-include>
+        </div>
+        <div ng-controller="Times" id='contentBody' class='contentBody container-fluid'>
+            <div class='row-fluid'>
+                <span class='span6'><h1>What's {{lookingAtUserName}} Doing?</h1></span>
+                <div class='span6 pull-right'>
+                    <label style='display:inline-block; margin-top: 1.5em' for="startDate">From</label>
+                    <input class='input-medium search-query' ng-change='navRange(start, end)' id='startDate' ng-model="start" ui-date value="{{start | date: 'mediumDate'}}"></input>
+                    <label style='display:inline-block' for="startDate">Through</label>
+                    <input class='input-medium search-query' ng-change='navRange(start, end)' id='endDate' class='span4' ng-model="end" ui-date value="{{end | date: 'mediumDate'}}"></input>
+                </div>
+            </div>
+            <div class='row-fluid'>
+                <div class='span12'>
+                    <ul style='width: 100%;' class="nav nav-tabs" style='display:inline-block; margin-top: 1em' >
+                        <li ng-class='categoryClass(cat)' ng-repeat='cat in categories'>
+                            <a ng-click='load(cat)'>{{cat}}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class='row-fluid' style='margin-top: 2em'>
+                <div class='span8'>
+                    <h2>By Date</h2>
+                    <div class="container-fluid">
+                        <div class='row-fluid' ng-repeat="day in dates">
+                            <span class='span2' ng-click='showHide=!showHide' style="text-align: center">
+                                <h3 class='btn'>{{day | todate | date: 'mediumDate'}}</h3>
+                                <p style='margin-top: 1em'>
+                                    {{byDay[day] | duration}}
+                                </p>
+                            </span>
+                            <div class='span10'>
+
+                                <div class='container-fluid'>
+                                    <div ng-repeat='topic in byDate[day]' class='row-fluid'>
+                                        <div class='span2'>{{topic.total | duration}}</div>
+                                        <div class='span6'><b>{{topic[0].activity}}</b></div>
+                                        <div class='span4'>({{topic.length}} time periods)</div>
+                                        <div class='offset2' >
+                                            <div style='margin-left: -0.5em;' ui-show="showHide" class='container-fluid'>
+                                                <div ng-repeat='one in topic' class='row-fluid'>
+                                                    <div class='span2'>
+                                                        {{one.start | todate | date:'h:mma'}}
+                                                    </div>
+                                                    <div class='span1'> to </div>
+                                                    <div class='span2'>
+                                                        {{one.end | todate | date:'h:mma'}}
+                                                    </div>
+                                                    <div class='span5'>
+                                                        {{one.dur | duration}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='row-fluid span12'><hr/></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='span4' style='margin-top: -0.5em'>
+                    <h2>By Activity</h2>
+                    <table class="table row-fluid">
+                        <thead>
+                            <tr><th>Activity</th><th>Time Spent</th></tr>
+                        </thead>
+                        <tr ng-repeat="item in aggregate">
+                            <th ng-cloak>
+                                <a href="?activity={{item.activity}}">{{item.activity}}</a>
+                            </th>
+                            <td ng-cloak>{{item.hours}}:{{item.minutes}}:{{item.seconds}}</td>
+                        </tr>
+                        <tr>
+                            <th>Total</th>
+                            <th>{{total.hours}}:{{total.minutes}}:{{total.seconds}}</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    <ng-include src='"/partials/bottom.html"'></ng-include>
+    <script src="/bootstrap/js/jquery.min.js"></script>
+    <script src="/bootstrap/js/bootstrap-modal.min.js"></script>
+    <script src="/bootstrap/js/bootstrap-dropdown.min.js"></script>
+    <script src="/js/jquery-ui/js/jquery-ui-1.10.2.custom.min.js"></script>
+    <script src="/angular/angular.min.js"></script>
+    <script src="/angular/angular-cookies.min.js"></script>
+    <script src="/js/angular-ui.js"></script>
+    <script src="/js/base64.js"></script>
+    <script src="/scripts/app.js"></script>
+    <script src="/scripts/tracker.js"></script>
+</body>
+</html>

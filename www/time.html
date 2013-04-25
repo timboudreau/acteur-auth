@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Time</title>
+        <meta name="DC.author" content="Tim Boudreau" />
+        <link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
+        <link href="/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+        <link href="/default.css" rel="stylesheet">
+        <link href="/js/jquery-ui/css/smoothness/jquery-ui-1.10.2.custom.min.css" rel="stylesheet">
+        <link href="/bootstrap-timepicker/bootstrap-timepicker.css" rel="stylesheet">
+        <!--[if lte IE 8]>
+            <script>
+            // The ieshiv takes care of our ui.directives, bootstrap module directives and
+            // AngularJS's ng-view, ng-include, ng-pluralize and ng-switch directives.
+            // However, IF you have custom directives (yours or someone else's) then
+            // enumerate the list of tags in window.myCustomTags
+
+            window.myCustomTags = [ 'yourDirective', 'somebodyElsesDirective' ]; // optional
+            </script>
+            <script src="/js/angular-ui-ieshiv.js"></script>
+        <![endif]-->
+
+        <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+          <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+
+        <!-- Le fav and touch icons -->
+        <link rel="shortcut icon" href="/ico/favicon.ico">
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/ico/apple-touch-icon-144-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/ico/apple-touch-icon-114-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/ico/apple-touch-icon-72-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" href="/ico/apple-touch-icon-57-precomposed.png">
+    </head>
+    <body ng-app="surveys" ng-controller="Status">
+        <div class='contentBody' ng-controller="User">
+            <ng-include src="'/partials/topNav.html'"></ng-include>
+            <div class='container' ng-controller='Time'>
+                <div class="well" style='width: 70%'>
+                    <div class="row">
+                        <h2 class="span5">Add Time</h2>
+                    </div>
+                    <div class="row">
+                        <span class='controlRow'>
+                            <span class="span1">Category</span>
+                            <input type="text" class="span2" auto-complete
+                                   placeholder="Search for a category..."
+                                   id="category"
+                                   ui-items="categories" ng-model="category"></input>
+                        </span>
+                    </div>
+                    <div class="row">
+                        <span class='controlRow'>
+                            <span class="span1">Description</span>
+                            <input class="span5" type='text'
+                                   ng-model="description" auto-complete
+                                   ui-items="descriptions"
+                                   placeholder='Enter a description'></input>
+                        </span>
+                    </div>
+                    <form class='addTime'>
+                        <div class="row">
+                            <span class="span1">Start</span>
+                            <span class='controlRow'>
+                                <span class="span2">
+                                    <input class='input input-small' ng-class="inputClass"
+                                           id='startDate' type="text"
+                                           ng-model="startDate" ui-date
+                                           value="{{startDate | date: 'mediumDate'}}"></input>
+                                </span>
+                                <span class="span2 input-append bootstrap-timepicker">
+                                    <input ng-model="startTime" id="timepicker1"
+                                           data-minute-step="5"
+                                           type="text" class="input-small" timepicker>
+                                    <span class="add-on"><i class="icon-time"></i></span>
+                                </span>
+                            </span>
+                        </div>
+                        <div class='row'>
+                            <span class="span1">End</span>
+                            <span class='controlRow'>
+                                <span class="span2">
+                                    <input class='input-small input-append input'
+                                           id='endDate' type="text"
+                                           ng-model="endDate" ui-date
+                                           value="{{endDate | date: 'mediumDate'}}"
+                                           ></input>
+                                </span>
+
+                                <span class="span2 input-append bootstrap-timepicker">
+                                    <input ng-model="endTime" id="timepicker2"
+                                           data-minute-step="5"
+                                           type="text" class="input-small" timepicker>
+                                    <span class="add-on"><i class="icon-time"></i></span>
+                                </span>
+                            </span>
+                        </div>
+                        <div class='row'>
+                            <span class="span1">
+                                Total
+                            </span>
+                            <span class="span5">{{total}}</span>
+
+                            <span class="pull-right">
+                                <input class="btn btn-primary" type="submit" value="Save" ng-click="save()"></input>
+                            </span>
+                        </div>
+                    </form>
+                </div>
+                <div class="well" style='width: 70%'>
+                    <div class="row">
+                        <h2 class="span5">Record Live Time</h2>
+                    </div>
+                    <div class="row">
+                        <span class="span7">
+                            <p>
+                                Start recording time, and continue until Stop is pressed
+                                or the browser's connection to the server is broken.
+                            </p>
+                        </span>
+                    </div>
+                    <div class="row">
+                        <span class='controlRow'>
+                            <span class="span1">Category</span>
+                            <input type="text" class="span2" auto-complete
+                                   placeholder="Search for a category..."
+                                   id="category"
+                                   ui-items="categories" ng-model="category"></input>
+                        </span>
+                    </div>
+                    <div class="row">
+                        <span class='controlRow'>
+                            <span class="span1">Description</span>
+                            <input class="span5" type='text'
+                                   ng-model="description" auto-complete
+                                   ui-items="descriptions"
+                                   placeholder='Enter a description'></input>
+                        </span>
+                    </div>
+                    <div class="row">
+                        <span class='span1'>Elapsed</span>
+                        <span class='span2'>{{elapsed}}</span>
+                        <span class="pull-right">
+                            <input ng-disabled='recordRequest' class="btn btn-primary" type="submit" value="Record" ng-click="record()"></input>
+                            <input ng-disabled='!recordRequest' class="btn" type="submit" value="Stop" ng-click="recordRequest.abort()"></input>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <ng-include src='"/partials/bottom.html"'></ng-include>
+    <script src="/bootstrap/js/jquery.min.js"></script>
+    <script src="/bootstrap/js/bootstrap-modal.min.js"></script>
+    <script src="/bootstrap/js/bootstrap-dropdown.min.js"></script>
+    <script src="/js/jquery-ui/js/jquery-ui-1.10.2.custom.min.js"></script>
+    <script src="/bootstrap-timepicker/bootstrap-timepicker.js"></script>
+    <script src="/angular/angular.min.js"></script>
+    <script src="/angular/angular-cookies.min.js"></script>
+    <script src="/js/angular-ui.min.js"></script>
+    <script src="/js/base64.js"></script>
+    <script src="/scripts/app.js"></script>
+    <script src="/scripts/surveys.js"></script>
+
+    <script lang="text/javascript">
+
+        function convertTime(d, on) {
+            on = on || {};
+            function seconds(d) {
+                var res = Math.floor((d / 1000) % 60);
+                return res;
+            }
+
+            function minutes(d) {
+                var res = Math.floor((d / 60000) % 60);
+                return res;
+            }
+
+            function hours(d) {
+                var res = Math.floor((d / (60000 * 60)) % 24);
+                return res;
+            }
+
+            function days(d) {
+                var res = Math.floor(d / (24 * 60000 * 60));
+                return res;
+            }
+            on.hours = hours(d)
+            on.minutes = minutes(d)
+            on.seconds = seconds(d)
+            on.days = days(d)
+            on.value = on.minutes + 'm';
+            if (on.hours > 0) {
+                on.value = on.hours + 'h ' + on.value;
+            }
+            if (on.days > 0) {
+                on.value = on.days + 'd ' + on.value;
+            }
+            if (on.seconds != 0) {
+                on.value = on.value + on.seconds + 's'
+            }
+            return on;
+        }
+
+        function protoTime(date) {
+            var hours = date.getHours() % 12;
+            if (hours < 12) {
+                hours = '0' + hours;
+            }
+            var mins = date.getMinutes() % 12;
+            if (mins < 12) {
+                mins = '0' + mins;
+            }
+            var meridian = date.getHours() > 11 ? 'PM' : 'AM';
+            return hours + ':' + mins + ' ' + meridian;
+        }
+
+        function Time($scope, $http, user, status) {
+            $scope.descriptions = [];
+            $scope.description = ''
+            $scope.elapsed = '0m'
+            $scope.inputClass = 'input input-small'
+            $scope.categories = ['work'];
+            $scope.category = 'work';
+            var now = new Date();
+
+            var currDate = new Date(now);
+            currDate.setHours(0);
+            currDate.setMinutes(0);
+            currDate.setSeconds(0);
+            $scope.endDate = currDate;
+            $scope.startDate = new Date(currDate);
+
+            $scope.startTime = protoTime(now)
+            $scope.endTime = $scope.startTime;
+            $scope.total = 0;
+
+            $http.get(API_BASE + 'users/' + user.name + '/list').success(function(cats) {
+                $scope.categories = cats;
+            });
+
+            $scope.save = function() {
+                console.log('SAVE');
+                console.log(new Error("Save").stack);
+                $http.post(API_BASE + 'users/' + user.name + '/time/' + $scope.category + '?start=' + computeTime(false).getTime()
+                        + '&end=' + computeTime(true).getTime() + '&activity=' + $scope.description).success(function(res) {
+                    console.log('SAVED', res)
+                }).error(status.errorHandler);
+            }
+
+            function refresh() {
+                var total = computeTime(true) - computeTime(false);
+                var t = convertTime(total)
+                $scope.total = t.hours + 'h ' + t.minutes + 'm';
+                if (t.days > 0) {
+                    $scope.total = t.days + 'd ' + $scope.total;
+                }
+                if ($scope.endDate < $scope.startDate) {
+                    $scope.startDate.setTime($scope.endDate.getTime());
+                }
+            }
+            $scope.$watch('endTime.minutes + startTime.minutes + endTime.hours + startTime.hours + startTime.meridian + endTime.meridian', refresh);
+            $scope.$watch('endDate + startDate', refresh)
+
+            function computeTime(end) {
+                var time = end ? $scope.endTime : $scope.startTime;
+                var date = end ? $scope.endDate : $scope.startDate;
+                date = new Date(date);
+                if (typeof time === 'string') {
+                    var x = /(\d+):(\d+) (.*)/.exec(time);
+                    time = {
+                        hours: parseInt(x[1]),
+                        minutes: parseInt(x[2]),
+                        seconds: 0
+                    }
+                    if ('PM' === x[3]) {
+                        time.hours += 12
+                    }
+                } else {
+                    time = angular.copy(time);
+                }
+                if (time.seconds === null) {
+                    time.seconds = 0;
+                }
+                if (time.meridian === 'AM' && time.hours === 12) {
+                    time.hours = 0;
+                }
+                if (time.meridian === 'PM' && time.hours < 12) {
+                    time.hours += 12;
+                }
+                var millis = date.getTime() + (1000 * 60 * time.minutes) + (1000 * 60 * 60 * time.hours);
+                date = new Date(millis);
+                return date;
+            }
+            $scope.computeTime = computeTime;
+
+            function loadDescriptions() {
+                var fetchFrom = API_BASE + 'users/' + user.name + '/time/'
+                        + $scope.category + '/distinct?field=activity';
+                $http.get(fetchFrom).success(function(descs) {
+                    $scope.descriptions = descs;
+                    if (!$scope.description) {
+                        $scope.description = descs.length > 0 ? descs[0] : '';
+                    }
+                })
+            }
+            loadDescriptions();
+
+            $scope.record = function() {
+
+                function getXMLHttpRequestObject() {
+                    var ref = null;
+                    if (window.XMLHttpRequest) {
+                        ref = new XMLHttpRequest();
+                    } else if (window.ActiveXObject) { // Older IE.
+                        ref = new ActiveXObject("MSXML2.XMLHTTP.3.0");
+                    }
+                    return ref;
+                }
+
+                var u = API_BASE + 'users/' + user.name + '/sessions/' + $scope.category + '?activity=' + $scope.description;
+
+                var xmlhttp = getXMLHttpRequestObject();
+                xmlhttp.timeout = (60 * 1000 * 24 * 60 * 31);
+
+                var to = null;
+
+                function stopped() {
+                    try {
+                        if ($scope.recordRequest) {
+                            $scope.recordRequest.abort();
+                        }
+                        status.loading = false;
+                    } finally {
+                        $scope.recordRequest = null;
+                        if (to) {
+                            clearInterval(to);
+                            to = null;
+                        }
+                        if ($scope.startTime) {
+                            var offset = new Date().getTime() - $scope.startTime;
+                            $scope.elapsed = convertTime(offset, {}).value;
+                            $scope.$apply();
+                        }
+                    }
+                }
+
+                function startTimer() {
+                    $scope.startTime = new Date().getTime();
+                    console.log('Start time ' + $scope.startTime)
+                    to = setInterval(function() {
+                        if ($scope.startTime) {
+                            var offset = new Date().getTime() - $scope.startTime;
+                            console.log('Tick ' + offset);
+
+                            $scope.elapsed = convertTime(offset, {}).value;
+                            console.log('Elapsed: ' + $scope.elapsed)
+                            $scope.$apply();
+                        }
+                    }, 30000);
+                }
+
+                xmlhttp.onreadystatechange = function() {
+                    console.log("READY STATE " + xmlhttp.readyState, xmlhttp);
+                    switch (xmlhttp.readyState) {
+                        case 1 :
+                            $scope.recordRequest = xmlhttp;
+                            status.loading = true;
+                            startTimer();
+                            break;
+                        case 2 :
+                            var h = $scope.recordRequest.getAllResponseHeaders();
+                            console.log('H TYPE ' + typeof h, h)
+                            if (h) {
+                                var fd = /X-Tracker-ID: (.*)[\n$]?/g.exec(h);
+                                if (fd) {
+                                    var id = fd[1];
+                                    console.log('FOUND ID ' + id)
+                                    $scope._id = id;
+                                }
+                            }
+                            break;
+                        case 0 :
+                        case 4 :
+                            stopped();
+                    }
+                };
+                xmlhttp.onerror = function() {
+                    console.log('ERROR', xmlhttp);
+                    stopped();
+                }
+
+                xmlhttp.open('PUT', u, true);
+                xmlhttp.send(null);
+
+                console.log('REQ:', xmlhttp);
+            }
+        }
+    </script>
+</body>
+</html>

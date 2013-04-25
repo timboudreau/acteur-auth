@@ -32,6 +32,7 @@ import org.joda.time.DateTime;
 import static com.timboudreau.trackerapi.Properties.*;
 import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import java.util.Arrays;
+import org.joda.time.Duration;
 
 /**
  *
@@ -42,7 +43,7 @@ final class RecordTimeConnectionIsOpenResource extends Page {
     @Inject
     RecordTimeConnectionIsOpenResource(ActeurFactory af) {
         add(af.matchPath("^users/(.*?)/sessions/(.*?)"));
-        add(af.matchMethods(true, Method.PUT));
+        add(af.matchMethods(true, Method.PUT, Method.POST));
         add(Auth.class);
         add(AuthorizedChecker.class);
         add(CreateCollectionPolicy.CREATE.toActeur());
@@ -79,6 +80,9 @@ final class RecordTimeConnectionIsOpenResource extends Page {
             add(Headers.CONTENT_LENGTH, 380L);
             add(Headers.stringHeader("X-Remote-Start"), created + "");
             add(Headers.DATE, new DateTime(created));
+            add(Headers.stringHeader("Connection"), "keep-alive");
+            add(Headers.stringHeader("X-Accel-Buffering"), "off");
+            add(Headers.stringHeader("Keep-Alive"), "timeout=" + Duration.standardDays(365).getStandardSeconds());
             setChunked(false);
             setState(new RespondWith(HttpResponseStatus.ACCEPTED));
             setResponseBodyWriter(this);
@@ -100,7 +104,7 @@ final class RecordTimeConnectionIsOpenResource extends Page {
             evt.getChannel().closeFuture().addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
-                    System.out.println("Write recorded time");
+                    System.out.println("Write recorded time on connection closed");
                     isRunning.set(false);
                     try {
                         c.call();
@@ -197,6 +201,7 @@ final class RecordTimeConnectionIsOpenResource extends Page {
             public Void call() throws Exception {
                 if (!done.get()) {
                     long end = DateTime.now().getMillis();
+                    System.out.println("Write time " + new Duration(end - start));
                     toWrite.append("end", end).append(Properties.duration, end - start).append(Properties.running, running.get());
                     coll.get().save(toWrite, WriteConcern.UNACKNOWLEDGED);
                 }

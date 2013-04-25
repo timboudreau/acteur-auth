@@ -2,6 +2,7 @@ package com.timboudreau.questions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
 import com.google.common.net.MediaType;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -17,19 +18,21 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import io.netty.util.CharsetUtil;
-import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import org.joda.time.DateTimeUtils;
 
 /**
+ * Does server-side push events - subscribe by calling /subscribe/eventType
  *
  * @author tim
  */
-public class PushTest extends Page {
+public class Subscribe extends Page {
+
     @Inject
-    public PushTest(ActeurFactory af) {
-        add(af.matchPath("^events$"));
+    public Subscribe(ActeurFactory af) {
+        add(af.matchPath("^subscribe/[^/]*$"));
         add(af.matchMethods(Method.GET));
         add(PushActeur.class);
         super.getReponseHeaders().setContentType(
@@ -39,24 +42,32 @@ public class PushTest extends Page {
     @Singleton
     public static final class Publisher {
 
+        private final Map<String, Set<Channel>> subscriptions = Maps.newConcurrentMap();
         private final Set<Channel> channels = new CopyOnWriteArraySet<>();
         private final ObjectMapper mapper;
+
         @Inject
         public Publisher(ObjectMapper mapper) {
             this.mapper = mapper;
         }
 
-        public void add(final Channel channel) {
+        public void add(String eventType, final Channel channel) {
+            Set<Channel> channels = subscriptions.get(eventType);
+            if (channels == null) {
+                channels = new CopyOnWriteArraySet<>();
+                subscriptions.put(eventType, channels);
+            }
+            final Set<Channel> theChannels = channels;
             channel.closeFuture().addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
-                    channels.remove(channel);
+                    theChannels.remove(channel);
                 }
             });
             channels.add(channel);
         }
 
-        public void publish(Object object) throws JsonProcessingException {
+        public void publish(String eventType, Object object) throws JsonProcessingException {
             StringBuilder sb = new StringBuilder("id: ")
                     .append(DateTimeUtils.currentTimeMillis()).append('\n')
                     .append("data: ").append(mapper.writeValueAsString(object))
@@ -69,23 +80,24 @@ public class PushTest extends Page {
     }
 
     private static class PushActeur extends Acteur implements ChannelFutureListener {
+
         private final Publisher publisher;
+        private final Event evt;
+
         @Inject
         PushActeur(Publisher publisher, Event evt) throws JsonProcessingException {
             this.publisher = publisher;
             setState(new RespondWith(OK));
-
-            //publish that this connection showed up, so the demo does something
-            publisher.publish(Collections.singletonMap("arrived",
-                    evt.getChannel().remoteAddress().toString()));
             setResponseBodyWriter(this);
+            this.evt = evt;
         }
 
         @Override
         public void operationComplete(ChannelFuture future) throws Exception {
+            String eventType = evt.getPath().getElement(1).toString();
             // Add here - otherwise we can be sent events before
             // the HTTP headers have been written to the socket
-            publisher.add(future.channel());
+            publisher.add(eventType, future.channel());
         }
     }
 }
