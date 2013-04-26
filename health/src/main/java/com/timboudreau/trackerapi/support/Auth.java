@@ -7,7 +7,7 @@ import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.Realm;
 import com.mastfrog.guicy.annotations.Defaults;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import static com.timboudreau.trackerapi.support.AuthSupport.ResultType.BAD_CREDENTIALS;
+import static com.timboudreau.trackerapi.support.ResultType.BAD_CREDENTIALS;
 import io.netty.handler.codec.http.ServerCookieEncoder;
 import java.util.Collections;
 import java.util.Map;
@@ -23,15 +23,17 @@ public final class Auth extends Acteur {
     private final Realm realm;
 
     @Inject
-    Auth(Event evt, AuthSupport supp, Realm realm) {
+    Auth(Event evt, AuthSupport supp, Realm realm, GoogleAuth ga) {
         this.realm = realm;
-
-        AuthSupport.Result result = supp.getCookieResult();
+        
+//        AuthSupport.Result result = supp.getCookieResult();
+//        if (!result.type.isSuccess()) {
+//            result = supp.getAuthResult();
+//        }
+        Result result = supp.get();
+        System.out.println("GOT " + result);
         if (!result.type.isSuccess()) {
-            result = supp.getAuthResult();
-        }
-        if (!result.type.isSuccess()) {
-            add(Headers.WWW_AUTHENTICATE, realm);
+//            add(Headers.WWW_AUTHENTICATE, realm);
             switch (result.type) {
                 case NO_RECORD:
                 case BAD_CREDENTIALS:

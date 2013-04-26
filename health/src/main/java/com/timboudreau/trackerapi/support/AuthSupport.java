@@ -2,6 +2,7 @@ package com.timboudreau.trackerapi.support;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.name.Named;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.util.BasicCredentials;
 import com.mastfrog.acteur.util.Headers;
@@ -44,29 +45,28 @@ import org.joda.time.Duration;
  *
  * @author Tim Boudreau
  */
-public final class AuthSupport implements Provider<AuthSupport.Result> {
+public final class AuthSupport implements Provider<Result> {
 
     static final String COOKIE_NAME = "ac";
 
     private final Event evt;
-    private final DBCollection coll;
+    private final DBCollection users;
     private final PasswordHasher crypto;
     private final Settings settings;
     private final Duration slugMaxAge;
     private final Duration loginCookieMaxAge;
 
     @Inject
-    AuthSupport(DB db, Event evt, PasswordHasher crypto, Settings settings) {
+    AuthSupport(DB db, @Named("users") DBCollection users, Event evt, PasswordHasher crypto, Settings settings) {
         this.evt = evt;
         this.crypto = crypto;
         this.settings = settings;
-        String userCollectionName = settings.getString("users.collection.name", "ttusers");
-        coll = db.getCollection(userCollectionName);
+        this.users = users;
         slugMaxAge = new Duration(settings.getLong("cookieSlugMaxAge", Duration.standardHours(3).getMillis()));
         loginCookieMaxAge = new Duration(settings.getLong("loginCookieMaxAge", Duration.standardMinutes(5).getMillis()));
     }
 
-    public String encodeLoginCookie(AuthSupport.Result res) {
+    public String encodeLoginCookie(Result res) {
         return encodeLoginCookie(res.userObject, res.username, res.hashedPass);
     }
 
@@ -111,7 +111,7 @@ public final class AuthSupport implements Provider<AuthSupport.Result> {
         if (credentials.username == null || credentials.username.length() < 3) {
             return new Result(ResultType.INVALID_CREDENTIALS, false);
         }
-        DBObject u = coll.findOne(new BasicDBObject(name, credentials.username));
+        DBObject u = users.findOne(new BasicDBObject(name, credentials.username));
         if (u == null) {
             return new Result(ResultType.NO_RECORD, credentials.username, false);
         }
@@ -122,7 +122,7 @@ public final class AuthSupport implements Provider<AuthSupport.Result> {
         if (!crypto.checkPassword(credentials.password, hashedPassword)) {
             return new Result(ResultType.BAD_PASSWORD, credentials.username, false);
         }
-        List<ObjectId> authorizes = (List<ObjectId>) u.get("authorizes");
+        List<ObjectId> authorizes = (List<ObjectId>) u.get(Properties.authorizes);
         Number userVersion = (Number) u.get(Properties.version);
         String displayName = (String) u.get(Properties.displayName);
         int version = userVersion == null ? 0 : userVersion.intValue();
@@ -205,13 +205,20 @@ public final class AuthSupport implements Provider<AuthSupport.Result> {
             BasicDBObject inc = new BasicDBObject("version", 1);
             edit.append("$inc", inc);
             System.out.println("WRITE SLUG - EDIT: " + edit.toMap());
-            DBObject updated = coll.findAndModify(query, edit);
+            DBObject updated = users.findAndModify(query, edit);
             System.out.println("Updated user: " + updated.toMap());
         }
         return slug;
     }
 
     public Result get() {
+        if (true) {
+            Result res = getCookieResult();
+            if (!res.isSuccess()) {
+                res = getAuthResult();
+            }
+            return res;
+        }
         Result result = getAuthResult();
         // If login failed, try the cookie
         // But not if login credentials were actually provided
@@ -235,6 +242,7 @@ public final class AuthSupport implements Provider<AuthSupport.Result> {
         if (cookie != null) {
             Set<Cookie> cookies = CookieDecoder.decode(cookie);
             for (Cookie ck : cookies) {
+                System.out.println("CHECK " + ck.getName() + " with " + ck.getValue() + " for " + name);
                 if (name.equals(ck.getName())) {
                     return ck.getValue();
                 }
@@ -254,32 +262,32 @@ public final class AuthSupport implements Provider<AuthSupport.Result> {
     }
 
     public Result getCookieResult() {
-
+        System.out.println("Get cookie result");
         String loginCookie = findCookie();
         if (loginCookie == null) {
             return new Result(ResultType.NO_CREDENTIALS, true);
         }
-        System.out.println("Found login cookie");
+        System.out.println("Found login cookie " + loginCookie);
         String[] parts = loginCookie.split(":", 2);
         if (parts.length == 2) {
             if (parts[0].length() < 3) {
                 return new Result(ResultType.INVALID_CREDENTIALS, true);
             }
             System.out.println("USER NAME: " + parts[0]);
-            DBObject u = coll.findOne(new BasicDBObject(name, new String[]{parts[0]}));
+            DBObject u = users.findOne(new BasicDBObject(name, parts[0]));
             if (u != null) {
                 String slug = getSlug(u, false);
                 System.out.println("GET SLUG FOR " + parts[0] + " - " + u.get("cookieSlug") + " gets " + slug);
                 if (slug == null) {
                     return new Result(ResultType.NO_CREDENTIALS, true);
                 }
-                String pass = (String) u.get("pass");
+                String pass = (String) u.get(Properties.pass);
                 if (pass != null) {
-                    List<String> names = (List<String>) u.get("name");
+                    List<String> names = (List<String>) u.get(Properties.name);
                     for (String name : names) {
                         String check = assembleCookieValue(name, pass, slug);
                         if (check.equals(loginCookie)) {
-                            List<ObjectId> authorizes = (List<ObjectId>) u.get("authorizes");
+                            List<ObjectId> authorizes = (List<ObjectId>) u.get(Properties.authorizes);
                             Number ver = (Number) u.get(Properties.version);
                             int version = ver == null ? 0 : ver.intValue();
                             String displayName = (String) u.get(Properties.displayName);
@@ -296,73 +304,8 @@ public final class AuthSupport implements Provider<AuthSupport.Result> {
                 return new Result(ResultType.NO_RECORD, parts[0], true);
             }
         } else {
-            System.out.println("Weird credentials");
+            System.out.println("Weird credentials '" + loginCookie + "'");
             return new Result(ResultType.INVALID_CREDENTIALS, true);
-        }
-    }
-
-    public static class Result {
-
-        public final TTUser user;
-        public final DBObject userObject;
-        public final String username;
-        public final String hashedPass;
-        public final ResultType type;
-        public final boolean cookie;
-
-        public Result(ResultType type, String username, boolean cookie) {
-            this(null, null, username, null, type, cookie);
-        }
-
-        public Result(ResultType type, boolean cookie) {
-            this(null, null, null, null, type, cookie);
-        }
-
-        public Result(TTUser user, DBObject userObject, String username, String hashedPass, ResultType type, boolean cookie) {
-            this.user = user;
-            this.userObject = userObject;
-            this.username = username;
-            this.hashedPass = hashedPass;
-            this.type = type;
-            this.cookie = cookie;
-            System.out.println("AUTH RESULT: " + this);
-        }
-
-        static Result combined(Result a, Result b) {
-            // We want cookie to be true if a cookie was present
-            boolean ck = a.isSuccess() && a.cookie;
-            if (!ck) {
-                ck = b.isSuccess() && b.cookie;
-            }
-            return new Result(a.user == null ? b.user : null, a.userObject == null ? b.userObject : null,
-                    a.username == null ? b.username : null, a.hashedPass == null ? b.hashedPass : a.hashedPass,
-                    a.type, ck);
-        }
-
-        public boolean isSuccess() {
-            return type.isSuccess();
-        }
-
-        @Override
-        public String toString() {
-            return "Result{" + "user=" + user + ", username=" + username
-                    + ", hashedPass=" + hashedPass + ", type=" + type + ", cookie="
-                    + cookie + '}';
-        }
-    }
-
-    public enum ResultType {
-
-        NO_CREDENTIALS,
-        NO_RECORD,
-        INVALID_CREDENTIALS,
-        BAD_CREDENTIALS,
-        BAD_RECORD,
-        BAD_PASSWORD,
-        SUCCESS;
-
-        public boolean isSuccess() {
-            return this == SUCCESS;
         }
     }
 }

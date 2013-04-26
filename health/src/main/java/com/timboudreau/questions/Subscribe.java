@@ -89,8 +89,10 @@ public class Subscribe extends Page {
             ByteBuf buf = Unpooled.copiedBuffer(sb, CharsetUtil.UTF_8);
             Set<Channel> channels = subscriptions.get(eventType);
             try {
-                for (Channel channel : channels) {
-                    channel.write(buf.copy());
+                if (channels != null) {
+                    for (Channel channel : channels) {
+                        channel.write(buf.copy());
+                    }
                 }
             } finally {
                 if (addToDB) {
@@ -122,7 +124,7 @@ public class Subscribe extends Page {
         @Override
         public void operationComplete(ChannelFuture future) throws Exception {
             String eventType = evt.getPath().getElement(1).toString();
-            
+
             BasicDBObject query = new BasicDBObject("type", eventType);
 
             List<DBObject> events = evts.find(query).sort(new BasicDBObject("$natural", 1)).toArray();

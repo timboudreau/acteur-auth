@@ -11,6 +11,7 @@ import com.mastfrog.acteur.util.Method;
 import com.mastfrog.acteur.util.Realm;
 import com.timboudreau.trackerapi.Timetracker;
 import com.timboudreau.trackerapi.support.AuthSupport;
+import com.timboudreau.trackerapi.support.Result;
 import com.timboudreau.trackerapi.support.UserCollectionFinder;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.util.HashMap;
@@ -54,7 +55,7 @@ public final class TestLogin extends Page {
             BasicCredentials credentials = evt.getHeader(Headers.AUTHORIZATION);
             Map<String, Object> result = new HashMap<>();
             result.put("credentialsPresent", credentials != null);
-            AuthSupport.Result authResult = supp.get();
+            Result authResult = supp.get();
             result.put("userFound", authResult.username != null);
             result.put("success", authResult.isSuccess());
             if (authResult.isSuccess()) {

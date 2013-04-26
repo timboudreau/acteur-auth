@@ -33,7 +33,10 @@ import com.timboudreau.questions.TestLogin;
 import com.timboudreau.questions.UpdateSurveyResource;
 import com.timboudreau.trackerapi.ModifyEventsResource.Body;
 import com.timboudreau.trackerapi.support.CursorWriter.MapFilter;
+import com.timboudreau.trackerapi.support.GoogleLoginPage;
+import com.timboudreau.trackerapi.support.OAuth2CallbackPage;
 import io.netty.handler.codec.http.HttpResponse;
+import java.io.File;
 import java.io.IOException;
 import org.bson.types.ObjectId;
 import org.joda.time.Interval;
@@ -55,7 +58,7 @@ public class Timetracker extends Application {
 
     public static final String TIMETRACKER = "timetracker";
     public static final String URL_PATTERN_TIME = "^users/(.*?)/time/(.*?)$";
-    
+
     public static final String REALM_NAME = "Surv";
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -63,6 +66,7 @@ public class Timetracker extends Application {
         // /etc/timetracker.json, ~/timetracker.json and ./timetracker.json
         Settings settings = SettingsBuilder.forNamespace(TIMETRACKER)
                 .addDefaultLocations()
+                .addLocation(new File("/etc"))
                 .add(PathFactory.BASE_PATH_SETTINGS_KEY, "time")
                 .add("neverKeepAlive", "true").build();
 
@@ -101,6 +105,10 @@ public class Timetracker extends Application {
                 DeleteTimeResource.class,
                 TotalTimeResource.class,
                 ModifyEventsResource.class,
+
+                OAuth2CallbackPage.class,
+                GoogleLoginPage.class,
+
                 AdjustTimeResource.class,
                 SkewResource.class,
                 ListUsersResource.class,

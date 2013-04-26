@@ -55,15 +55,30 @@ final class MongoModule extends AbstractModule {
 
             bind(MongoClient.class).toInstance(mc);
             DB db = mc.getDB("timetracker");
-            DBCollection c;
+            DBCollection events;
             try {
-                c = db.createCollection("events", new BasicDBObject("capped", true)
+                events = db.createCollection("events", new BasicDBObject("capped", true)
                         .append("size", 100000).append("max", 30));
             } catch (com.mongodb.CommandFailureException ce) {
-                c = db.getCollection("events");
+                events = db.getCollection("events");
             }
 
-            bind(DBCollection.class).annotatedWith(Names.named("events")).toInstance(c);
+            bind(DBCollection.class).annotatedWith(Names.named("events")).toInstance(events);
+            String userCollectionName = settings.getString("user.collection.name", "ttusers");
+            DBCollection users = db.getCollection(userCollectionName);
+            bind(DBCollection.class).annotatedWith(Names.named("users")).toInstance(users);
+            
+            DBCollection authKeys;
+            try {
+                authKeys = db.createCollection("auth", new BasicDBObject("capped", true)
+                        .append("size", 1000000).append("max", 1000));
+                authKeys.ensureIndex(new BasicDBObject("uid", "hashed"));
+            } catch (com.mongodb.CommandFailureException ce) {
+                authKeys = db.getCollection("auth");
+            }
+            bind(DBCollection.class).annotatedWith(Names.named("auth")).toInstance(authKeys);
+
+            bind(String.class).annotatedWith(Names.named("application")).toInstance(Timetracker.TIMETRACKER);
 
             bind(DB.class).toInstance(db);
             Provider<DB> dbProvider = binder().getProvider(DB.class);
@@ -122,6 +137,5 @@ final class MongoModule extends AbstractModule {
                 throw new IOException("Bad date " + tree.get("$date"));
             }
         }
-
     }
 }
