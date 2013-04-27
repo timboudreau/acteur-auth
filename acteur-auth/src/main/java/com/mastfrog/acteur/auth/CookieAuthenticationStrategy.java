@@ -1,6 +1,8 @@
 package com.mastfrog.acteur.auth;
 
 import com.mastfrog.acteur.Event;
+import java.util.Collection;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  *
@@ -9,12 +11,12 @@ import com.mastfrog.acteur.Event;
 public class CookieAuthenticationStrategy extends AuthenticationStrategy {
 
     @Override
-    protected Result<?> authenticate(Event evt) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    protected boolean isEnabled(Event evt) {
+        return evt.getHeader(Headers.CO)
     }
-
+    
     @Override
-    protected void onAuthenticationFailed(Event evt) {
+    protected Result<?> authenticate(Event evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

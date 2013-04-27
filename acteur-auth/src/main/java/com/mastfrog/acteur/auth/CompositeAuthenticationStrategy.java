@@ -1,8 +1,13 @@
 package com.mastfrog.acteur.auth;
 
 import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.Response;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Tries a list of authentiction strategies in order
@@ -11,7 +16,7 @@ import java.util.List;
  */
 public final class CompositeAuthenticationStrategy extends AuthenticationStrategy {
 
-    private final List<AuthenticationStrategy> all = new ArrayList<AuthenticationStrategy>();
+    private final List<AuthenticationStrategy> all = new ArrayList<>();
 
     public CompositeAuthenticationStrategy(AuthenticationStrategy delegate) {
         all.add(delegate);
@@ -23,15 +28,27 @@ public final class CompositeAuthenticationStrategy extends AuthenticationStrateg
         return this;
     }
 
-    protected Result<?> authenticate(Event evt) {
-        List<AuthenticationStrategy> fails = new ArrayList<AuthenticationStrategy>();
+    @Override
+    protected Result<?> authenticate(Event evt, AtomicReference<? super FailHook> hook, Collection<? super Object> scopeContents) {
+        List<AtomicReference<FailHook>> fails = new ArrayList<>();
+        CompositeFailHook compositeHook = new CompositeFailHook(fails);
+        hook.set(compositeHook);
         Result res = null;
         for (AuthenticationStrategy a : all) {
-            Result r = a.authenticate(evt);
+            if (!a.isEnabled(evt)) {
+                continue;
+            }
+            Set<Object> s = new HashSet<>();
+            AtomicReference<FailHook> ref = new AtomicReference<>();
+            Result r = a.authenticate(evt, ref, s);
             if (r.isSuccess()) {
+                scopeContents.addAll(s);
+                hook.set(null);
                 return r;
             } else {
-                fails.add(a);
+                if (ref.get() != null) {
+                    fails.add(ref);
+                }
             }
             if (res == null) {
                 res = r;
@@ -42,13 +59,25 @@ public final class CompositeAuthenticationStrategy extends AuthenticationStrateg
         if (res == null) {
             res = new Result(ResultType.NO_CREDENTIALS, false);
         }
-        for (AuthenticationStrategy a : fails) {
-            a.onAuthenticationFailed(evt);
-        }
         return res;
     }
 
-    protected void onAuthenticationFailed(Event evt) {
-        assert false : "Should only be called for non-composite instances";
+    private static final class CompositeFailHook implements FailHook {
+
+        private final List<AtomicReference<FailHook>> all;
+
+        public CompositeFailHook(List<AtomicReference<FailHook>> all) {
+            this.all = all;
+        }
+
+        @Override
+        public void onAuthenticationFailed(Event evt, Response response) {
+            for (AtomicReference<FailHook> fh : all) {
+                FailHook hook = fh.get();
+                if (hook != null) {
+                    hook.onAuthenticationFailed(evt, response);
+                }
+            }
+        }
     }
 }

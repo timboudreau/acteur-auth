@@ -7,24 +7,23 @@ import com.mongodb.DBObject;
  * @author Tim Boudreau
  */
 public class Result<UserType> {
+
     public final UserType user;
-    public final DBObject userObject;
     public final String username;
     public final String hashedPass;
     public final ResultType type;
     public final boolean cookie;
 
     public Result(ResultType type, String username, boolean cookie) {
-        this(null, null, username, null, type, cookie);
+        this(null, username, null, type, cookie);
     }
 
     public Result(ResultType type, boolean cookie) {
-        this(null, null, null, null, type, cookie);
+        this(null, null, null, type, cookie);
     }
 
-    public Result(UserType user, DBObject userObject, String username, String hashedPass, ResultType type, boolean cookie) {
+    public Result(UserType user, String username, String hashedPass, ResultType type, boolean cookie) {
         this.user = user;
-        this.userObject = userObject;
         this.username = username;
         this.hashedPass = hashedPass;
         this.type = type;
@@ -38,7 +37,7 @@ public class Result<UserType> {
         if (!ck) {
             ck = b.isSuccess() && b.cookie;
         }
-        return new Result(a.user == null ? b.user : null, a.userObject == null ? b.userObject : null, a.username == null ? b.username : null, a.hashedPass == null ? b.hashedPass : a.hashedPass, a.type, ck);
+        return new Result(a.user == null ? b.user : null, a.username == null ? b.username : null, a.hashedPass == null ? b.hashedPass : a.hashedPass, a.type, ck);
     }
 
     public boolean isSuccess() {
