@@ -1,6 +1,9 @@
 package com.mastfrog.acteur.auth;
 
 import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.Response;
+import java.util.Collection;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A strategy for authenticating a request
@@ -8,25 +11,33 @@ import com.mastfrog.acteur.Event;
  * @author Tim Boudreau
  */
 public abstract class AuthenticationStrategy {
+
     /**
      * Determine if this strategy can be tried for this event
+     *
      * @param evt An event
      * @return True if it should be tried
      */
     protected boolean isEnabled(Event evt) {
         return true;
     }
+
     /**
      * Authenticate
-     * 
+     *
      * @param evt An event
-     * @return  a result
+     * @return a result
      */
-    protected abstract Result<?> authenticate(Event evt);
-    /**
-     * Called back if this strategy and all others failed to authenticate
-     * the request
-     * @param evt 
-     */
-    protected abstract void onAuthenticationFailed(Event evt);
+    protected abstract Result<?> authenticate(Event evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents);
+
+    public interface FailHook {
+
+        /**
+         * Called back if this strategy and all others failed to authenticate
+         * the request
+         *
+         * @param evt
+         */
+        void onAuthenticationFailed(Event evt, Response response);
+    }
 }
