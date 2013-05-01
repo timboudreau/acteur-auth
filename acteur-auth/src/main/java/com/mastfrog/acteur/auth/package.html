@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>OAuth in Acteur</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <h1>OAuth in Acteur</h1>
+        
+        Implementing OAuth - particularly OAuth 2 - is no fun.  This library does
+        not promise to make it fun.  What it does do is take care of all the
+        bookkeeping necessary to support OAuth, so that adding support for new
+        providers is as easy as possible.  And it provides a plugin model for
+        adding providers - you still have to deal with the varied and often
+        slightly incompatible vagaries of different providers' implementations
+        of OAuth.
+        <p/>
+        This library also abstracts the notion of a "user" such that it is not
+        tied to any particular persistence mechanism.
+        <p/>
+        <h2>The Basics</h2>
+        To do OAuth with this library, you need to implement two things:
+        <ul>
+            <li><code><a href="OAuthPlugin.html">OAuthPlugin</a></code> - 
+                this takes care of communication with the remote oauth provider
+            </li>
+            <li><code><a href="UserFactory.html">UserFactory</a></code> - 
+                this takes care of persisting user data
+            </li>
+        </ul>
+        Each OAuthPlugin has a human-readable name, a short, unique two-letter code used
+        in cookies and the database, and a logo URL.
+        
+        <h2>User Properties</h2>
+        Implementations of UserFactory need to be able to persist the following
+        properties of a user;  nothing is dictated about how exactly such information
+        is persisted, but a straightforward implementation would consist of
+        two tables:
+        <ul>
+            <li>users - contains structured records of user identities, credential info and such</li>
+            <li>login info - contains short-lived random strings used to validate callback requests from 
+                 remote OAuth services</li>
+        </ul>
+        The following properties nominally belong to a user:
+        <ul>
+            <li>names - array of strings - names or email addresses that uniquely identify on user</li>
+            <li>display name - a human-friendly name</li>
+            <li>password - a hashed password for the user when using basic auth</li>
+            <li>version - an incrementing version field updated when the user record is modified</li>
+            <li>
+                slugs - this is a mapping of service-name:properties.  A slug is a random,
+                unique, hard-to-guess string which is hashed into the cookie which
+                authenticates the user for normal requests (it is hashed with an 
+                application-specific salt in order to make it as difficult to guess
+                by an attacker as possible).  It has the following properties:
+                <ul>
+                    <li>slug value - this is the random string</li>
+                    <li>slug date - the creation date - slugs can expire;  the expiration
+                        should be the same as the remote oauth's expiration time</li>
+                </ul>
+            </li>
+        </ul>
+        The complexity of slugs and cookies is handled by this library, but you do need
+        to provide a way to store them.
+        
+        <h2>Use of Cookies</h2>
+        When a user has been authenticated, a cookie is sent back to the browser, which
+        can be used to efficiently authenticate subsequent requests for a period of
+        time until the cookie expires.  For example, authenticating with Google might 
+        result in a cookie like:
+        <pre>
+Set-Cookie: gg="jiNbV5c6+Qdl2MW+KOxbXflqwXOdGDcDpvnDndcyKYQtHSVAhrp4YNI3Hxa+p8vEpmxQY734lcgahRuaB910SQ==:tim@timboudreau.com"; Expires=Sun, 01 Sep 2013 08:52:34 GMT; Path=/; Domain=timboudreau.org
+        </pre>
+        
+        The cookie value is simple:  It consists of <code>hashed-slug:username</code>.
+        <p/>
+        When a request with this cookie is received, what happens is:
+        <ol>
+            <li>We look up an <code><a href="OAuthPlugin.html">OAuthPlugin</a></code> whose
+                <code>code()</code> method returns <code>gg</code></li>
+            <li>Assuming that succeeded, the user <code>tim@timboudreau.com</code> is looked up</li>
+            <li>We look up a slug named <code>gg</code> for that user - one should have been stored when the user
+                was authenticated with Google</li>
+            <li>We hash that slug together with an application-specific random salt and the user name, to 
+                arrive at a value which should match the cookie contents
+            </li>
+            <li>If the cookie matches, we continue;  if not we return a response indicating we 
+                need to re-authenticate
+            </li>
+        </ol>
+        The result of this is that what the browser uses to authenticate most requests is
+        unique data which is computed using different values across different applications
+        (assuming you set the salt in your settings - if <code>production.mode</code> is
+        true, the application will throw an error on startup if you don't set the salt),
+        and hashed using SHA-512.  So, the probability of an attacker computing or guessing the right
+        cookie value for a particular user for the particular time span the random slug
+        was generated for is extremely low.
+        
+        <h2>Settings Affecting This Library</h2>
+        As with the rest of Acteur, it uses the <a href="https://github.com/timboudreau/giulius">Guilius</a>
+        for loading settings.  You can provide a Settings object on startup, which consists of
+        default values from the classpath merged with files on disk (you provide a name, and the
+        system will look for (<code>/etc/$NAME.properties</code>, <code>~/$NAME/properties</code>
+        and <code>./$NAME.properties</code> and merge them together in that order).
+        <p/>
+        The following properties affect the operation of this library (all of these are provided
+        as constants):
+        <ul>
+            <li><code>oauth.cookie.salt</code> - The salt used for hashing slugs.  This <b>must</b>
+                be set when running in "production mode" (as you should do in production mode - 
+                it simply means setting the setting <code>production.mode</code> to true)
+                or a ConfigurationError will be thrown on startup.  Using the default salt
+                would make the cookie value for a user predictable, meaning that it would
+                be easy for user accounts to be spoofed.
+            </li>
+            <li><code>oauth.plugin.landing.page.base</code> - The base URL path for OAuth <i>landing pages</i> 
+                which is passed to remote services as a callback URL.  The actual URL will be
+                this value + <code>/</code> + oauthPlugin.code() for the plugin in question.
+            </li>
+            <li><code>oauth.plugin.bounce.page.base</code> - The base URL for "login with $SERVICE" pages
+                which redirect to a remote provider.  The actual URL will be this value
+                + <code>/</code> + oauthPlugin.code() for the plugin in question.
+                This is used so that the system can provide a dynamic list of supported
+                providers without requiring HTML changes.
+            </li>
+            <li><code>oauth.login.redirect</code> - The default destination page for landing pages to
+            redirect to if one was not provided as a url parameter to the bounce page
+            </li>
+            <li><code>oauth.slug.max.age.hours</code> - The default maximum age in hours before a 
+            slug should be considered expired.  Plugins can override this.</li>
+            <li><code>oauth.cookie.path</code> - The path that should be used in login cookies</li>
+        </ul>
+        
+    </body>
+</html>

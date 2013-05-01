@@ -81,7 +81,7 @@ public class EditUserResource extends Page {
             WriteResult res = coll.update(query, update, false, false, WriteConcern.FSYNCED);
             if (res.getN() == 1) {
                 Cookie key = supp.encodeDisplayNameCookie(dn);
-                add(Headers.SET_COOKIE, ServerCookieEncoder.encode(key));
+                add(Headers.SET_COOKIE, key);
             }
 
             setState(new RespondWith(HttpResponseStatus.ACCEPTED, Timetracker.quickJson("updated", res.getN())));

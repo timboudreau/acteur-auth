@@ -1,5 +1,6 @@
 package com.mastfrog.acteur.auth;
 
+import com.google.inject.ImplementedBy;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Response;
 import java.util.Collection;
@@ -10,7 +11,8 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author Tim Boudreau
  */
-public abstract class AuthenticationStrategy {
+@ImplementedBy(CompositeAuthenticationStrategy.class)
+abstract class AuthenticationStrategy {
 
     /**
      * Determine if this strategy can be tried for this event
@@ -29,6 +31,10 @@ public abstract class AuthenticationStrategy {
      * @return a result
      */
     protected abstract Result<?> authenticate(Event evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents);
+    
+    protected void authenticated(Event evt, Response response) {
+        
+    }
 
     public interface FailHook {
 

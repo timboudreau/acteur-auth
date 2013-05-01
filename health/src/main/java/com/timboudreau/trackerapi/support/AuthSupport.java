@@ -66,11 +66,11 @@ public final class AuthSupport implements Provider<Result> {
         loginCookieMaxAge = new Duration(settings.getLong("loginCookieMaxAge", Duration.standardMinutes(5).getMillis()));
     }
 
-    public String encodeLoginCookie(Result res) {
+    public Cookie encodeLoginCookie(Result res) {
         return encodeLoginCookie(res.userObject, res.username, res.hashedPass);
     }
 
-    public String expireLoginCookie() {
+    public Cookie expireLoginCookie() {
         String host = getHost();
 
         DefaultCookie lcookie = new DefaultCookie(COOKIE_NAME, "x");
@@ -78,12 +78,10 @@ public final class AuthSupport implements Provider<Result> {
         lcookie.setDiscard(true);
         lcookie.setPorts(80, 7739);
         lcookie.setPath("/");
-
-        String encoded = ServerCookieEncoder.encode(lcookie);
-        return encoded;
+        return lcookie;
     }
     
-    public String encodeLoginCookie(DBObject user, String username, String hashedPass) {
+    public Cookie encodeLoginCookie(DBObject user, String username, String hashedPass) {
         Checks.notNull("hashedPass", hashedPass);
         Checks.notNull("user", user);
         Checks.notNull("username", username);
@@ -98,9 +96,7 @@ public final class AuthSupport implements Provider<Result> {
         lcookie.setMaxAge(loginCookieMaxAge.getMillis());
         lcookie.setPorts(80, 7739);
         lcookie.setPath("/");
-
-        String encoded = ServerCookieEncoder.encode(lcookie);
-        return encoded;
+        return lcookie;
     }
 
     public Result getAuthResult() {
@@ -151,14 +147,13 @@ public final class AuthSupport implements Provider<Result> {
         return host;
     }
 
-    public String clearCookie() {
+    public Cookie clearCookie() {
         DefaultCookie ck = new DefaultCookie(COOKIE_NAME, "x");
         ck.setDomain(getHost());
         ck.setMaxAge(0);
         ck.setDiscard(true);
         ck.setPath("/");
-        System.out.println("CLEAR COOKIE");
-        return ServerCookieEncoder.encode(ck);
+        return ck;
     }
 
     private String newSlug() {

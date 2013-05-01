@@ -63,10 +63,10 @@ public class OAuth2CallbackPage extends Page {
                 setState(new RespondWith(400, "No such uid " + state));
                 return;
             }
-            GoogleCredential c = null;
+            GoogleCredential credential = null;
 
             try {
-                c = ga.getCredentialForCode(code);
+                credential = ga.getCredentialForCode(code);
             } catch (TokenResponseException tre) {
                 tre.printStackTrace();
                 add(Headers.LOCATION, new URI("./google"));
@@ -74,13 +74,14 @@ public class OAuth2CallbackPage extends Page {
                 return;
             }
 
-            BasicDBObject dbo = new BasicDBObject("accessToken", c.getAccessToken());
-            dbo.append("expiresSeconds", c.getExpiresInSeconds());
-            dbo.append("refreshToken", c.getRefreshToken());
+            BasicDBObject dbo = new BasicDBObject("accessToken", credential.getAccessToken());
+            dbo.append("expiresSeconds", credential.getExpiresInSeconds());
+            dbo.append("refreshToken", credential.getRefreshToken());
 
             // https://www.googleapis.com/userinfo/email
             // https://www.googleapis.com/oauth2/v1/userinfo
-            HttpRequest req = ga.transport.createRequestFactory(c).buildGetRequest(new GenericUrl("https://www.googleapis.com/oauth2/v1/userinfo?alt=json"));
+            GenericUrl url = new GenericUrl("https://www.googleapis.com/oauth2/v1/userinfo?alt=json");
+            HttpRequest req = ga.transport.createRequestFactory(credential).buildGetRequest(url);
 
             /*
              {
@@ -111,22 +112,21 @@ public class OAuth2CallbackPage extends Page {
                     query.append("picture", m.get("picture"));
                 }
                 query.append("googleInfo", m);
-                query.append("googletoken", c.getAccessToken());
+                query.append("googletoken", credential.getAccessToken());
                 query.append("version", 0);
                 query.append("created", DateTime.now().getMillis());
                 // Just put *something* in the password field
-                String hashedPass = hasher.encryptPassword(c.getAccessToken());
+                String hashedPass = hasher.encryptPassword(credential.getAccessToken());
                 query.append(Properties.pass, hashedPass);
 
                 users.insert(query, WriteConcern.FSYNCED);
                 user = query;
             }
 
-            String cookie = supp.encodeLoginCookie(user, m.get("email"), (String) user.get(Properties.pass));
+            Cookie cookie = supp.encodeLoginCookie(user, m.get("email"), (String) user.get(Properties.pass));
             add(Headers.SET_COOKIE, cookie);
             Cookie dn = supp.encodeDisplayNameCookie(m.get("name"));
-            String dnString = ServerCookieEncoder.encode(dn);
-            add(Headers.SET_COOKIE, dnString);
+            add(Headers.SET_COOKIE, dn);
             System.out.println("ADD USER " + user);
 
             String name = m.get("email");

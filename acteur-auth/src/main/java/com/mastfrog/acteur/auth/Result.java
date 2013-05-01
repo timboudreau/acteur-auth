@@ -1,12 +1,10 @@
 package com.mastfrog.acteur.auth;
 
-import com.mongodb.DBObject;
-
 /**
  *
  * @author Tim Boudreau
  */
-public class Result<UserType> {
+final class Result<UserType> {
 
     public final UserType user;
     public final String username;
@@ -28,7 +26,6 @@ public class Result<UserType> {
         this.hashedPass = hashedPass;
         this.type = type;
         this.cookie = cookie;
-        System.out.println("AUTH RESULT: " + this);
     }
 
     static Result combined(Result a, Result b) {

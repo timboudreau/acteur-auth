@@ -1,7 +1,9 @@
 package com.mastfrog.acteur.auth;
 
+import com.google.inject.Inject;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Response;
+import com.mastfrog.settings.Settings;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -14,12 +16,22 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author Tim Boudreau
  */
-public final class CompositeAuthenticationStrategy extends AuthenticationStrategy {
+final class CompositeAuthenticationStrategy extends AuthenticationStrategy {
 
     private final List<AuthenticationStrategy> all = new ArrayList<>();
 
     public CompositeAuthenticationStrategy(AuthenticationStrategy delegate) {
         all.add(delegate);
+    }
+
+    @Inject
+    public CompositeAuthenticationStrategy(BasicAuthenticationStrategy basic, CookieAuthenticationStrategy cookie, Settings settings) {
+        if (settings.getBoolean(Auth.SETTINGS_KEY_ENABLE_COOKIE_AUTH, true)) {
+            add(cookie);
+        }
+        if (settings.getBoolean(Auth.SETTINGS_KEY_ENABLE_BASIC_AUTH, true)) {
+            add(basic);
+        }
     }
 
     public CompositeAuthenticationStrategy add(AuthenticationStrategy delegate) {
@@ -35,12 +47,15 @@ public final class CompositeAuthenticationStrategy extends AuthenticationStrateg
         hook.set(compositeHook);
         Result res = null;
         for (AuthenticationStrategy a : all) {
+            System.out.println("TRY STRATEGY " + a);
             if (!a.isEnabled(evt)) {
+                System.out.println("  not enabled, skip");
                 continue;
             }
             Set<Object> s = new HashSet<>();
             AtomicReference<FailHook> ref = new AtomicReference<>();
-            Result r = a.authenticate(evt, ref, s);
+            Result<?> r = a.authenticate(evt, ref, s);
+            System.out.println("GOT " + r + " from " + a);
             if (r.isSuccess()) {
                 scopeContents.addAll(s);
                 hook.set(null);

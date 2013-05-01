@@ -60,7 +60,7 @@ public class WhoAmIResource extends Page {
             m.remove("cookieSlug");
             String dn = (String) m.get(Properties.displayName);
             if (dn != null && !other) {
-                add(Headers.SET_COOKIE, ServerCookieEncoder.encode(supp.encodeDisplayNameCookie(dn)));
+                add(Headers.SET_COOKIE, supp.encodeDisplayNameCookie(dn));
             }
             setState(new RespondWith(200, mapper.writeValueAsString(m)));
         }

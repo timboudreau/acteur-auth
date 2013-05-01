@@ -66,7 +66,7 @@ public final class Auth extends Acteur {
             if (other != null) {
                 String dn = result.user.displayName;
                 if (dn != null) {
-                    add(Headers.SET_COOKIE, ServerCookieEncoder.encode(supp.encodeDisplayNameCookie(dn)));
+                    add(Headers.SET_COOKIE, supp.encodeDisplayNameCookie(dn));
                 }
             }
             setState(new ConsumedLockedState(result, result.user));

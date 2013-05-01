@@ -13,6 +13,7 @@ import com.timboudreau.trackerapi.Timetracker;
 import com.timboudreau.trackerapi.support.AuthSupport;
 import com.timboudreau.trackerapi.support.Result;
 import com.timboudreau.trackerapi.support.UserCollectionFinder;
+import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,7 +61,7 @@ public final class TestLogin extends Page {
             result.put("success", authResult.isSuccess());
             if (authResult.isSuccess()) {
                 if (!authResult.cookie) {
-                    String cookie = supp.encodeLoginCookie(authResult);
+                    Cookie cookie = supp.encodeLoginCookie(authResult);
                     System.out.println("NEW COOKIE: " + cookie);
                     add(Headers.SET_COOKIE, cookie);
                 }

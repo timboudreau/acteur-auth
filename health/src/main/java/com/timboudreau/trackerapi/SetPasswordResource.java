@@ -18,6 +18,7 @@ import com.timboudreau.trackerapi.support.AuthSupport;
 import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import com.timboudreau.trackerapi.support.TTUser;
 import com.timboudreau.trackerapi.support.UserCollectionFinder;
+import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -70,7 +71,7 @@ public class SetPasswordResource extends Page {
 
             WriteResult res = coll.update(query, update, false, false, WriteConcern.FSYNCED);
             
-            String ck = supp.encodeLoginCookie(query, user.name, hashed);
+            Cookie ck = supp.encodeLoginCookie(query, user.name, hashed);
             add(Headers.SET_COOKIE, ck);
 
             setState(new RespondWith(200, Timetracker.quickJson("updated", res.getN())));

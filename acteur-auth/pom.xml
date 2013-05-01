@@ -4,7 +4,7 @@
 
     <groupId>com.mastfrog</groupId>
     <artifactId>acteur-auth</artifactId>
-    <version>1.3.5</version>
+    <version>1.3.6-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>acteur-auth</name>
@@ -24,7 +24,7 @@
     </build>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mastfrog.version>1.3.5</mastfrog.version>
+        <mastfrog.version>1.3.6-SNAPSHOT</mastfrog.version>
     </properties>
 
     <dependencies>
@@ -38,8 +38,9 @@
             <version>${mastfrog.version}</version>
             <type>jar</type>
             <groupId>com.mastfrog</groupId>
-            <artifactId>acteur-mongo</artifactId>
-        </dependency>          
+            <artifactId>giulius-tests</artifactId>
+            <scope>test</scope>
+        </dependency>        
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

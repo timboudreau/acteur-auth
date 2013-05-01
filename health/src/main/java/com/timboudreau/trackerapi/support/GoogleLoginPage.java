@@ -16,7 +16,7 @@ import java.net.URISyntaxException;
  * @author tim
  */
 public class GoogleLoginPage extends Page {
-    
+
     @Inject
     GoogleLoginPage(ActeurFactory af) {
         add(af.matchPath("^google$"));
@@ -24,8 +24,9 @@ public class GoogleLoginPage extends Page {
 //        add(af.requireParameters("dest"));
         add(RedirectActeur.class);
     }
-    
+
     private static final class RedirectActeur extends Acteur {
+
         @Inject
         RedirectActeur(Event evt, GoogleAuth ga) throws URISyntaxException {
             String referrer = evt.getHeader(Headers.stringHeader("Referer"));

@@ -75,7 +75,9 @@ public class GoogleAuth {
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(transport,
                 factory, clientId, clientSecret,
                 SCOPES)
-                .setAccessType("offline").setCredentialStore(store).build();
+                .setAccessType("offline")
+//                .setCredentialStore(store)
+                .build();
 
         String uid = ids.newId();
         System.out.println("Created id " + uid);
@@ -103,7 +105,10 @@ public class GoogleAuth {
                 code,
                 getRedirectURI().toString()).execute();
         
-        GoogleCredential cred =new GoogleCredential.Builder().setTransport(transport).setJsonFactory(factory).setClientSecrets(clientId, clientSecret).build();
+        GoogleCredential cred =new GoogleCredential.Builder()
+                .setTransport(transport)
+                .setJsonFactory(factory)
+                .setClientSecrets(clientId, clientSecret).build();
         
         return cred.setFromTokenResponse(response);
     }

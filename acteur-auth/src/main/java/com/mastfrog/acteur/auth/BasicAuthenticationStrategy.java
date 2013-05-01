@@ -1,8 +1,10 @@
 package com.mastfrog.acteur.auth;
 
+import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Response;
+import static com.mastfrog.acteur.auth.Auth.SKIP_HEADER;
 import com.mastfrog.acteur.util.BasicCredentials;
 import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.PasswordHasher;
@@ -14,9 +16,8 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author tim
  */
-public class BasicAuthenticationStrategy extends AuthenticationStrategy {
+class BasicAuthenticationStrategy extends AuthenticationStrategy {
 
-    public static final String SKIP_HEADER = "X-No-Basic-Auth";
     private final Realm realm;
     private final UserFactory<?> users;
     private final PasswordHasher hasher;
@@ -30,7 +31,8 @@ public class BasicAuthenticationStrategy extends AuthenticationStrategy {
 
     @Override
     protected boolean isEnabled(Event evt) {
-        return !"true".equals(evt.getHeader(SKIP_HEADER));
+//        return !"true".equals(evt.getHeader(SKIP_HEADER));
+        return true;
     }
 
     @Override
@@ -43,29 +45,34 @@ public class BasicAuthenticationStrategy extends AuthenticationStrategy {
         return tryAuthenticate(users, credentials, onFail, scopeContents);
     }
 
-    private <T> Result<T> tryAuthenticate(UserFactory<T> uf, BasicCredentials credentials, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents) {
-        T user = uf.findUserByName(credentials.username);
-        if (user == null) {
+    private <T> Result<?> tryAuthenticate(UserFactory<T> uf, BasicCredentials credentials, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents) {
+        Optional<T> u = uf.findUserByName(credentials.username);
+        if (!u.isPresent()) {
             onFail.set(new FailHookImpl());
             return new Result<>(ResultType.NO_RECORD, credentials.username, false);
         }
-        String hash = uf.getPasswordHash(user);
-        if (hash == null) {
-            return new Result<>(user, credentials.username, hash, ResultType.BAD_RECORD, false);
+        T user = u.get();
+        Object userObject = uf.toUserObject(user);
+        Optional<String> hasho = uf.getPasswordHash(user);
+        if (!hasho.isPresent()) {
+            return new Result<>(userObject, credentials.username, null, ResultType.BAD_RECORD, false);
         }
+        String hash = hasho.get();
         if (!hasher.checkPassword(credentials.password, hash)) {
-            return new Result<>(user, credentials.username, hash, ResultType.BAD_PASSWORD, false);
+            scopeContents.add(credentials);
+            scopeContents.add(userObject);
+            return new Result<>(userObject, credentials.username, hash, ResultType.BAD_PASSWORD, false);
         }
-        return new Result<>(user, credentials.username, hash, ResultType.SUCCESS, false);
+        return new Result<>(userObject, credentials.username, hash, ResultType.SUCCESS, false);
     }
 
     class FailHookImpl implements FailHook {
 
         @Override
         public void onAuthenticationFailed(Event evt, Response response) {
-            response.add(Headers.WWW_AUTHENTICATE, realm);
+            if (!"true".equals(evt.getHeader(SKIP_HEADER))) {
+                response.add(Headers.WWW_AUTHENTICATE, realm);
+            }
         }
-
     }
-
 }

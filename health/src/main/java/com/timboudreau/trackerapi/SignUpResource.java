@@ -131,7 +131,7 @@ class SignUpResource extends Page {
             WriteResult res = coll.save(nue, WriteConcern.FSYNCED);
 //            if (res.getN() != 0) {
                 Cookie key = supp.encodeDisplayNameCookie(evt.getParameter(displayName));
-                add(Headers.SET_COOKIE, ServerCookieEncoder.encode(key));
+                add(Headers.SET_COOKIE, key);
                 setState(new RespondWith(HttpResponseStatus.CREATED));
                 setResponseBodyWriter(this);
                 
