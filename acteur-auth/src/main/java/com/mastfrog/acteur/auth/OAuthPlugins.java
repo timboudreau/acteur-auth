@@ -5,24 +5,33 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
+import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
+import com.mastfrog.acteur.Response;
 import com.mastfrog.acteur.server.PathFactory;
 import com.mastfrog.acteur.util.CacheControlTypes;
-import com.mastfrog.acteur.util.Method;
+import com.mastfrog.acteur.util.Headers;
 import static com.mastfrog.acteur.util.Method.GET;
 import com.mastfrog.acteur.util.PasswordHasher;
 import com.mastfrog.giulius.Dependencies;
 import com.mastfrog.settings.Settings;
+import com.mastfrog.url.Host;
 import com.mastfrog.url.Path;
 import com.mastfrog.util.Checks;
 import com.mastfrog.util.ConfigurationError;
+import io.netty.handler.codec.http.Cookie;
+import io.netty.handler.codec.http.DefaultCookie;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -48,12 +57,25 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
     public static final String SETTINGS_KEY_SLUG_MAX_AGE_HOURS = "oauth.slug.max.age.hours";
     private final URI loginRedirectURI;
     private final Duration slugMaxAge;
+    public static final String SETTINGS_KEY_OAUTH_COOKIE_PATH = "oauth.cookie.path";
+    public static final String SETTINGS_KEY_OAUTH_COOKIE_HOST = "oauth.cookie.host";
+    private final int[] ports;
+    private final String cookieBasePath;
+    private final String cookieHost;
+    public static final String DISPLAY_NAME_COOKIE_NAME = "dn";
+    public static final String SETTINGS_KEY_DISPLAY_NAME_COOKIE_MAX_AGE_DAYS = "display.name.cookie.max.age.days";
+    private final boolean useDisplayNameCookie;
+    private final Duration displayNameCookieMaxAge;
+    public static final String SETTINGS_KEY_USE_DISPLAY_NAME_COOKIE = "use.display.name.cookie";
 
     @Inject
     OAuthPlugins(Settings settings, PathFactory pf, Dependencies deps, PasswordHasher hasher) throws URISyntaxException {
         this.settings = settings;
         this.pf = pf;
         this.hasher = hasher;
+        long displayNameCookieMaxAge = settings.getLong(SETTINGS_KEY_DISPLAY_NAME_COOKIE_MAX_AGE_DAYS, 60);
+        useDisplayNameCookie = settings.getBoolean(SETTINGS_KEY_USE_DISPLAY_NAME_COOKIE, true);
+        this.displayNameCookieMaxAge = Duration.standardDays(displayNameCookieMaxAge);
         salt = settings.getString(SETTINGS_KEY_COOKIE_SALT, DEFAULT_COOKIE_SALT);
         if (deps.isProductionMode() && salt == DEFAULT_COOKIE_SALT) {
             throw new ConfigurationError("Will not run in production mode "
@@ -63,6 +85,32 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
         }
         this.loginRedirectURI = new URI(settings.getString(SETTINGS_KEY_LOGIN_REDIRECT, "/"));
         this.slugMaxAge = Duration.standardHours(settings.getInt(SETTINGS_KEY_SLUG_MAX_AGE_HOURS, 3));
+        Integer runningPort = settings.getInt("port");
+        // XXX may want to be able to explicitly set all the ports
+        if (runningPort != null) {
+            ports = new int[]{80, 443, runningPort};
+        } else {
+            ports = new int[]{80, 443};
+        }
+        // The path property for cookies
+        cookieBasePath = settings.getString(SETTINGS_KEY_OAUTH_COOKIE_PATH, "/");
+        cookieHost = settings.getString(SETTINGS_KEY_OAUTH_COOKIE_HOST);
+    }
+
+    List<Integer> cookiePortList() {
+        List<Integer> l = new ArrayList(cookiePorts().length);
+        for (int i : cookiePorts()) {
+            l.add(i);
+        }
+        return l;
+    }
+
+    int[] cookiePorts() {
+        return ports;
+    }
+
+    String cookieBasePath() {
+        return cookieBasePath;
     }
 
     public Class<? extends Acteur> landingActeurType() {
@@ -103,6 +151,61 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
         return base;
     }
 
+    Set<String> cookieNames() {
+        Set<String> result = new HashSet<>();
+        for (OAuthPlugin<?> p : this) {
+            result.add(p.code());
+        }
+        return result;
+    }
+
+    private final Host getHost(Event evt) {
+        Host host = evt.getHeader(Headers.HOST);
+        if (cookieHost != null) {
+            host = Host.parse(cookieHost);
+        } else if (host == null) {
+            System.out.println("No host header, cannot usefully set cookie");
+            host = Host.parse("fail.example");
+        }
+        return host;
+    }
+
+    public void createDisplayNameCookie(Event evt, Response response, String displayName) {
+        if (useDisplayNameCookie) {
+            DefaultCookie displayNameCookie = new DefaultCookie(DISPLAY_NAME_COOKIE_NAME, displayName);
+            displayNameCookie.setDomain(getHost(evt).toString()); //XXX use a setting?
+            displayNameCookie.setDiscard(true);
+            displayNameCookie.setPorts(cookiePortList());
+            displayNameCookie.setPath(cookieBasePath());
+            displayNameCookie.setMaxAge(displayNameCookieMaxAge.getStandardSeconds());
+            response.add(Headers.SET_COOKIE, displayNameCookie);
+        }
+    }
+
+    public void logout(Event evt, Response response) {
+        Checks.notNull("response", response);
+        Checks.notNull("evt", evt);
+        Cookie[] cks = evt.getHeader(Headers.COOKIE);
+        if (cks != null) {
+            Host host = getHost(evt);
+            if (host == null) {
+                System.out.println("No cookie host, bail");
+                return;
+            }
+            Set<String> all = cookieNames();
+            for (Cookie ck : cks) {
+                if (all.contains(ck.getName())) {
+                    DefaultCookie discardCookie = new DefaultCookie(ck.getName(), "x");
+                    discardCookie.setDomain(host.toString()); //XXX use a setting?
+                    discardCookie.setDiscard(true);
+                    discardCookie.setPorts(cookiePortList());
+                    discardCookie.setPath(cookieBasePath());
+                    response.add(Headers.SET_COOKIE, discardCookie);
+                }
+            }
+        }
+    }
+
     public List<PluginInfo> getPlugins() {
         List<PluginInfo> result = new ArrayList<>(all.size());
         String base = settings.getString(OAUTH_BOUNCE_PAGE_BASE_SETTINGS_KEY, "oauth");
@@ -127,6 +230,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
     }
 
     void register(OAuthPlugin<?> plugin) {
+        Checks.notNull("plugin", plugin);
         Optional<OAuthPlugin<?>> existing = find(plugin.code());
         if (existing.isPresent()) {
             throw new ConfigurationError(plugin + " registered twice "
@@ -143,6 +247,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
     }
 
     public Optional<UserInfo> decodeCookieValue(String cookievalue) {
+        Checks.notNull("cookievalue", cookievalue);
         int ix = cookievalue.indexOf(':');
         if (ix <= 0) {
             return Optional.absent();

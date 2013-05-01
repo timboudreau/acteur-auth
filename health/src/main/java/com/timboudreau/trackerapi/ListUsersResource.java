@@ -5,6 +5,8 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
+import com.mastfrog.acteur.mongo.CursorWriter;
+import com.mastfrog.acteur.mongo.CursorWriterActeur;
 import com.mastfrog.acteur.util.Method;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -13,8 +15,6 @@ import com.timboudreau.trackerapi.support.UserCollectionFinder;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import static com.timboudreau.trackerapi.Properties.*;
-import com.timboudreau.trackerapi.support.CursorWriter;
-import com.timboudreau.trackerapi.support.CursorWriterActeur;
 import org.bson.types.ObjectId;
 
 /**

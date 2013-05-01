@@ -77,7 +77,8 @@ class CookieAuthenticationStrategy extends AuthenticationStrategy {
                     
                     if (matchWith.equals(info.hashedSlug)) {
                         Object userObject = users.toUserObject(user);
-                        return new Result(userObject, info.userName, matchWith, ResultType.SUCCESS, true);
+                        String dn = users.getUserDisplayName(user);
+                        return new Result(userObject, info.userName, matchWith, ResultType.SUCCESS, true, dn);
                     } else {
                         return new Result(ResultType.BAD_PASSWORD, info.userName, true);
                     }

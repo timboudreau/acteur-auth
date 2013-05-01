@@ -6,22 +6,17 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
+import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.mongo.CursorWriterActeur;
+import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.Method;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.timboudreau.trackerapi.support.Auth;
 import com.timboudreau.trackerapi.support.AuthSupport;
-import com.timboudreau.trackerapi.support.CursorWriterActeur;
-import com.timboudreau.trackerapi.support.TTUser;
 import com.timboudreau.trackerapi.support.UserCollectionFinder;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.util.CharsetUtil;
 import java.io.IOException;
 
 /**
@@ -48,11 +43,11 @@ public class SharesWithMeResources extends Page {
     private static class FindSharers extends Acteur {
         @Inject
         FindSharers(Event evt, TTUser user, DBCollection coll, ObjectMapper mapper, AuthSupport supp) throws IOException {
-            add(Headers.stringHeader("UserID"), user.id.toStringMongod());
+            add(Headers.stringHeader("UserID"), user.id().toStringMongod());
             BasicDBObject projection = new BasicDBObject("_id", 1).append("name", 1).append("displayName", 1);
-            DBCursor cursor = coll.find(new BasicDBObject("authorizes", user.id), projection);
+            DBCursor cursor = coll.find(new BasicDBObject("authorizes", user.id()), projection);
             if (cursor == null) {
-                setState(new RespondWith(HttpResponseStatus.GONE, "No record of " + user.name));
+                setState(new RespondWith(HttpResponseStatus.GONE, "No record of " + user.name()));
                 return;
             }
             if (!cursor.hasNext()) {

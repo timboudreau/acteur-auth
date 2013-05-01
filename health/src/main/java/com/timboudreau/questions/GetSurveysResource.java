@@ -7,6 +7,8 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
+import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mastfrog.acteur.util.Method;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -14,8 +16,6 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import static com.timboudreau.questions.AddSurveyResource.QUESTION_PATTERN;
 import com.timboudreau.trackerapi.Properties;
-import com.timboudreau.trackerapi.support.Auth;
-import com.timboudreau.trackerapi.support.TTUser;
 import com.timboudreau.trackerapi.support.UserCollectionFinder;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -53,7 +53,7 @@ public class GetSurveysResource extends Page {
         SurveysActeur(TTUser user, @Named("surveys") DBCollection coll, DBCollection users, ObjectMapper mapper, Event evt) {
             String pathId = evt.getPath().getElement(1).toString();
             BasicDBObject query;
-            if (!pathId.equals(user.name)) {
+            if (!user.names().contains(pathId)) {
                 BasicDBObject nameQuery = new BasicDBObject(Properties.name, pathId);
                 DBObject otherUser = users.findOne(nameQuery);
                 if (otherUser == null) {
@@ -61,7 +61,7 @@ public class GetSurveysResource extends Page {
                     return;
                 } else {
                     List<ObjectId> authorized = (List<ObjectId>) otherUser.get(Properties.authorizes);
-                    if (!authorized.contains(user.id)) {
+                    if (!authorized.contains(user.id())) {
                         setState(new RespondWith(HttpResponseStatus.FORBIDDEN,
                                 "You don't have permission to access " + otherUser.get(Properties.displayName) + "\n"));
                         return;
@@ -69,7 +69,7 @@ public class GetSurveysResource extends Page {
                     query = new BasicDBObject("createdBy", otherUser.get("_id"));
                 }
             } else {
-                query = new BasicDBObject("createdBy", user.id);
+                query = new BasicDBObject("createdBy", user.id());
             }
             DBCursor cursor = coll.find(query);
             if (!cursor.hasNext()) {

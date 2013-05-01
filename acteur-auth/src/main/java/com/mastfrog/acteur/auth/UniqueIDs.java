@@ -21,7 +21,8 @@ import org.joda.time.DateTimeUtils;
 
 /**
  * A source of unlikely-to-collide, hard-to-guess random url-safe strings,
- * incorporating a system-specific component and a 
+ * incorporating a system-specific component and the MAC address of the
+ * network cards on the system.
  *
  * @author Tim Boudreau
  */

@@ -10,17 +10,22 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.inject.Inject;
+import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
 
 /**
+ * Implements user information storage for acteur-auth over mongodb.
  *
- * @author tim
+ * @author Tim Boudreau
  */
-public class MongoUserFactory extends UserFactory<DBObject> {
+public final class MongoUserFactory extends UserFactory<DBObject> {
 
     private final DBCollection users;
     public static final String USERS_COLLECTION_NAME = "users";
@@ -124,7 +129,15 @@ public class MongoUserFactory extends UserFactory<DBObject> {
             return null;
         }
         DBObject slugData = new BasicDBObject("created", slug.created.getMillis()).append("slug", slug.slug);
-        DBObject toWrite = new BasicDBObject("name", new String[] {name}).append("displayName", displayName).append("version", 0).append("slugs", new BasicDBObject(slug.name, slugData)).append("tokens", new BasicDBObject()).append("pass", ids.newRandomString());
+        List<String> names = new ArrayList<>(Arrays.asList(name));
+        List<ObjectId> authorizes = new ArrayList<>();
+        DBObject toWrite = new BasicDBObject("name", names)
+                .append("displayName", displayName)
+                .append("version", 0)
+                .append("slugs", new BasicDBObject(slug.name, slugData))
+                .append("tokens", new BasicDBObject())
+                .append("pass", ids.newRandomString())
+                .append("authorizes", authorizes);
         WriteResult res = users.insert(toWrite);
         return toWrite;
     }
@@ -137,7 +150,15 @@ public class MongoUserFactory extends UserFactory<DBObject> {
             System.out.println("User already exists: " + existing);
             return null;
         }
-        DBObject toWrite = new BasicDBObject("name", new String[] {name}).append("displayName", displayName).append("version", 0).append("slugs", new BasicDBObject()).append("tokens", new BasicDBObject()).append("pass", hashedPassword);
+        List<ObjectId> authorizes = new ArrayList<>();
+        List<String> names = new ArrayList<>(Arrays.asList(name));
+        DBObject toWrite = new BasicDBObject("name", names)
+                .append("displayName", displayName)
+                .append("version", 0)
+                .append("slugs", new BasicDBObject())
+                .append("tokens", new BasicDBObject())
+                .append("pass", hashedPassword)
+                .append("authorizes", authorizes);
         WriteResult res = users.insert(toWrite);
         return toWrite;
     }
@@ -164,4 +185,24 @@ public class MongoUserFactory extends UserFactory<DBObject> {
         return Optional.absent();
     }
 
+    public void authorize(ObjectId authorizer, ObjectId authorized) {
+        BasicDBObject query = new BasicDBObject("_id", authorizer);
+        BasicDBObject update = new BasicDBObject("$addToSet", new BasicDBObject("authorizes", authorized));
+        BasicDBObject inc = new BasicDBObject("version", 1);
+        update.append("$inc", inc);
+        WriteResult res = users.update(query, update, false, false, WriteConcern.FSYNCED);
+    }
+
+    public void deauthorize(ObjectId authorizer, ObjectId authorized) {
+        BasicDBObject query = new BasicDBObject("_id", authorizer);
+        BasicDBObject update = new BasicDBObject("$pull", new BasicDBObject("authorizes", authorized));
+        BasicDBObject inc = new BasicDBObject("version", 1);
+        update.append("$inc", inc);
+        WriteResult res = users.update(query, update, false, false, WriteConcern.FSYNCED);
+    }
+
+    @Override
+    public String getUserDisplayName(DBObject obj) {
+        return (String) (obj.get("displayName") == null ? obj.get("name") : obj.get("displayName"));
+    }
 }

@@ -6,6 +6,7 @@ import com.google.inject.Singleton;
 import com.mastfrog.acteur.MockUserFactory.MockUser;
 import com.mastfrog.acteur.auth.UniqueIDs;
 import com.mastfrog.acteur.auth.UserFactory;
+import com.mastfrog.util.Checks;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -149,6 +150,12 @@ public class MockUserFactory extends UserFactory<MockUser> {
             return Optional.absent();
         }
         return Optional.fromNullable((String) tokens.get("serviceName"));
+    }
+
+    @Override
+    public String getUserDisplayName(MockUser obj) {
+        Checks.notNull("obj", obj);
+        return (String) (obj.get("displayName") == null ? obj.get("name") : obj.get("displayName"));
     }
 
     static class MockUser extends HashMap<String, Object> {

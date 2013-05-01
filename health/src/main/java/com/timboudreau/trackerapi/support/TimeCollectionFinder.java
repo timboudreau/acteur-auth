@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;

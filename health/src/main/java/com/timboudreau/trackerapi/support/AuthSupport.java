@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mastfrog.acteur.util.BasicCredentials;
 import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.PasswordHasher;
@@ -21,7 +22,6 @@ import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.CookieDecoder;
 import io.netty.handler.codec.http.DefaultCookie;
 import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.ServerCookieEncoder;
 import java.util.List;
 import java.util.Set;
 import org.bson.types.ObjectId;
@@ -122,7 +122,8 @@ public final class AuthSupport implements Provider<Result> {
         Number userVersion = (Number) u.get(Properties.version);
         String displayName = (String) u.get(Properties.displayName);
         int version = userVersion == null ? 0 : userVersion.intValue();
-        TTUser user = new TTUser(credentials.username, (ObjectId) u.get("_id"), version, displayName, authorizes);
+//        TTUser user = new TTUser(credentials.username, (ObjectId) u.get("_id"), version, displayName, authorizes);
+        TTUser user = null;
         return new Result(user, u, credentials.username, hashedPassword, ResultType.SUCCESS, false);
     }
 
@@ -286,7 +287,8 @@ public final class AuthSupport implements Provider<Result> {
                             Number ver = (Number) u.get(Properties.version);
                             int version = ver == null ? 0 : ver.intValue();
                             String displayName = (String) u.get(Properties.displayName);
-                            TTUser user = new TTUser(parts[0], (ObjectId) u.get(Properties._id), version, displayName, authorizes);
+//                            TTUser user = new TTUser(parts[0], (ObjectId) u.get(Properties._id), version, displayName, authorizes);
+                            TTUser user = null;
                             return new Result(user, u, parts[0], pass, ResultType.SUCCESS, true);
                         }
                     }

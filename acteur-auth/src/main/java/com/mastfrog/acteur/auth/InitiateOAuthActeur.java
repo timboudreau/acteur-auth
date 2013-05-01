@@ -10,6 +10,7 @@ import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.PasswordHasher;
 import com.mastfrog.giulius.Dependencies;
 import com.mastfrog.settings.Settings;
+import com.mastfrog.util.Strings;
 import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.net.MalformedURLException;
@@ -58,7 +59,7 @@ final class InitiateOAuthActeur extends Acteur {
         Optional<OAuthPlugin<?>> oplugin = plugins.find(type);
         if (!oplugin.isPresent()) {
             // No plugin?  Bogus URL.  Use 406 for diagnostic purposes.
-            setState(new RespondWith(HttpResponseStatus.NOT_ACCEPTABLE, "No oauth plugin for '" + type + "'"));
+            setState(new RespondWith(HttpResponseStatus.NOT_ACCEPTABLE, "No oauth plugin for '" + type + "'.  Available: " + Strings.toString(plugins.cookieNames()) + "\n"));
             return;
         }
         OAuthPlugin<?> plugin = oplugin.get();
@@ -154,7 +155,7 @@ final class InitiateOAuthActeur extends Acteur {
         LoginState state = users.newLoginState(redir);
 
         // Redirects to the oauth service
-        add(Headers.LOCATION, plugin.getRedirectURL(state).toJavaURL().toURI());
+        add(Headers.LOCATION, new URI(plugin.getRedirectURL(state)));
         setState(new RespondWith(HttpResponseStatus.SEE_OTHER, "Redirecting to " + plugin.name()));
     }
 

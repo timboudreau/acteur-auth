@@ -18,10 +18,34 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <version>${mastfrog.version}</version>
-            <type>jar</type>
             <groupId>com.mastfrog</groupId>
             <artifactId>acteur</artifactId>
+            <version>${mastfrog.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.mastfrog</groupId>
+            <artifactId>acteur-mongo</artifactId>
+            <version>${mastfrog.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.mastfrog</groupId>
+            <artifactId>acteur-mongo-userstore</artifactId>
+            <version>${mastfrog.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.mastfrog</groupId>
+            <artifactId>acteur-auth</artifactId>
+            <version>${mastfrog.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.mastfrog</groupId>
+            <artifactId>acteur-google-auth</artifactId>
+            <version>${mastfrog.version}</version>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>

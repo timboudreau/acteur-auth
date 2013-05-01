@@ -3,7 +3,6 @@ package com.timboudreau.trackerapi;
 import com.google.common.net.MediaType;
 import com.google.inject.Inject;
 import com.timboudreau.trackerapi.support.CreateCollectionPolicy;
-import com.timboudreau.trackerapi.support.TTUser;
 import com.mastfrog.giulius.Dependencies;
 import com.mastfrog.guicy.annotations.Defaults;
 import com.mastfrog.guicy.annotations.Namespace;
@@ -12,6 +11,9 @@ import com.mastfrog.acteur.Application;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.ImplicitBindings;
 import com.mastfrog.acteur.Page;
+import com.mastfrog.acteur.auth.OAuthPlugins;
+import com.mastfrog.acteur.mongo.CursorWriter.MapFilter;
+import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mastfrog.acteur.server.PathFactory;
 import com.mastfrog.acteur.server.ServerModule;
 import com.mastfrog.acteur.server.Server;
@@ -19,7 +21,7 @@ import com.mastfrog.acteur.util.CacheControl;
 import com.mastfrog.acteur.util.CacheControlTypes;
 import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.Method;
-import com.mastfrog.settings.Settings;
+import com.mastfrog.settings.MutableSettings;
 import com.mastfrog.settings.SettingsBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -32,9 +34,6 @@ import com.timboudreau.questions.Subscribe;
 import com.timboudreau.questions.TestLogin;
 import com.timboudreau.questions.UpdateSurveyResource;
 import com.timboudreau.trackerapi.ModifyEventsResource.Body;
-import com.timboudreau.trackerapi.support.CursorWriter.MapFilter;
-import com.timboudreau.trackerapi.support.GoogleLoginPage;
-import com.timboudreau.trackerapi.support.OAuth2CallbackPage;
 import io.netty.handler.codec.http.HttpResponse;
 import java.io.File;
 import java.io.IOException;
@@ -62,28 +61,35 @@ public class Timetracker extends Application {
     public static final String REALM_NAME = "Surv";
 
     public static void main(String[] args) throws IOException, InterruptedException {
+        int port = -1;
+        if (args.length > 0) {
+            port = Integer.parseInt(args[0]);
+        }
         // Set up our defaults - can be overridden in 
         // /etc/timetracker.json, ~/timetracker.json and ./timetracker.json
-        Settings settings = SettingsBuilder.forNamespace(TIMETRACKER)
+        MutableSettings settings = SettingsBuilder.forNamespace(TIMETRACKER)
                 .addDefaultLocations()
                 .addLocation(new File("/etc"))
                 .add(PathFactory.BASE_PATH_SETTINGS_KEY, "time")
-                .add("neverKeepAlive", "true").build();
+                .add("neverKeepAlive", "true").buildMutableSettings();
+        if (port != -1) {
+            settings.setInt("port", port);
+        }
 
         // Set up the Guice injector
         Dependencies deps = Dependencies.builder()
                 .add(settings, TIMETRACKER).
                 add(settings, Namespace.DEFAULT).add(
                 new ServerModule<>(Timetracker.class),
-                new MongoModule(settings)).build();
+                new TimetrackerAppModule(settings)).build();
 
         // Insantiate the server, start it and wait for it to exit
         Server server = deps.getInstance(Server.class);
-        server.start(settings.getInt("port", 7739)).await();
+        server.start(settings.getInt("port", port == -1 ? 7739 : port)).await();
     }
 
     @Inject
-    Timetracker(DB db) {
+    Timetracker(DB db, OAuthPlugins plugins) {
         // These are our request handlers:
         super(SignUpResource.class,
                 Subscribe.class,
@@ -106,8 +112,10 @@ public class Timetracker extends Application {
                 TotalTimeResource.class,
                 ModifyEventsResource.class,
 
-                OAuth2CallbackPage.class,
-                GoogleLoginPage.class,
+//                OAuth2CallbackPage.class,
+//                GoogleLoginPage.class,
+                plugins.bouncePageType(),
+                plugins.landingPageType(),
 
                 AdjustTimeResource.class,
                 SkewResource.class,

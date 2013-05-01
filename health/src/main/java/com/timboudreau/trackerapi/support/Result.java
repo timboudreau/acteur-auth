@@ -1,5 +1,6 @@
 package com.timboudreau.trackerapi.support;
 
+import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mongodb.DBObject;
 
 /**

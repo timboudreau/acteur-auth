@@ -5,6 +5,8 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
+import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.Method;
 import com.mastfrog.acteur.util.PasswordHasher;
@@ -13,15 +15,11 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
-import com.timboudreau.trackerapi.support.Auth;
 import com.timboudreau.trackerapi.support.AuthSupport;
 import com.timboudreau.trackerapi.support.AuthorizedChecker;
-import com.timboudreau.trackerapi.support.TTUser;
 import com.timboudreau.trackerapi.support.UserCollectionFinder;
 import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.ServerCookieEncoder;
-import io.netty.util.CharsetUtil;
 import java.io.IOException;
 import java.net.URLDecoder;
 import org.joda.time.DateTimeUtils;
@@ -51,8 +49,8 @@ public class EditUserResource extends Page {
             String userName = URLDecoder.decode(evt.getPath().getElement(1).toString(), "UTF-8");
             String dn = evt.getParameter(Properties.displayName);
 
-            if (!userName.equals(user.name)) {
-                setState(new RespondWith(HttpResponseStatus.FORBIDDEN, user.name
+            if (!userName.equals(user.name())) {
+                setState(new RespondWith(HttpResponseStatus.FORBIDDEN, user.name()
                         + " cannot set the password for " + userName));
                 return;
             }
@@ -67,7 +65,7 @@ public class EditUserResource extends Page {
                         + SignUpResource.SignerUpper.MAX_USERNAME_LENGTH));
                 return;
             }
-            if (dn.equals(user.displayName)) {
+            if (dn.equals(user.displayName())) {
                 setState(new RespondWith(200, Timetracker.quickJson("updated", 0)));
                 return;
             }

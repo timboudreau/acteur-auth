@@ -8,12 +8,12 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
+import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mastfrog.acteur.util.Method;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.timboudreau.trackerapi.support.Auth;
-import com.timboudreau.trackerapi.support.TTUser;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -44,9 +44,9 @@ public class UpdateSurveyResource extends Page {
         @Inject
         UserMustBeCreator(TTUser user, DBObject obj) {
             Object id = obj.get("createdBy");
-            if (!user.id.equals(id) && id != null) {
+            if (!user.id().equals(id) && id != null) {
                 setState(new RespondWith(HttpResponseStatus.FORBIDDEN, 
-                        "Not created by " + user.name + " but by " + id));
+                        "Not created by " + user.name() + " but by " + id));
             } else {
                 setState(new ConsumedState());
             }

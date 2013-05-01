@@ -52,18 +52,19 @@ class BasicAuthenticationStrategy extends AuthenticationStrategy {
             return new Result<>(ResultType.NO_RECORD, credentials.username, false);
         }
         T user = u.get();
+        String dn = uf.getUserDisplayName(user);
         Object userObject = uf.toUserObject(user);
         Optional<String> hasho = uf.getPasswordHash(user);
         if (!hasho.isPresent()) {
-            return new Result<>(userObject, credentials.username, null, ResultType.BAD_RECORD, false);
+            return new Result<>(userObject, credentials.username, null, ResultType.BAD_RECORD, false, dn);
         }
         String hash = hasho.get();
         if (!hasher.checkPassword(credentials.password, hash)) {
-            scopeContents.add(credentials);
-            scopeContents.add(userObject);
-            return new Result<>(userObject, credentials.username, hash, ResultType.BAD_PASSWORD, false);
+            return new Result<>(userObject, credentials.username, hash, ResultType.BAD_PASSWORD, false, dn);
         }
-        return new Result<>(userObject, credentials.username, hash, ResultType.SUCCESS, false);
+        scopeContents.add(credentials);
+        scopeContents.add(userObject);
+        return new Result<>(userObject, credentials.username, hash, ResultType.SUCCESS, false, dn);
     }
 
     class FailHookImpl implements FailHook {

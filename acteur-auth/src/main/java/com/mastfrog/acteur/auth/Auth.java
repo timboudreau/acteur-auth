@@ -44,7 +44,7 @@ public class Auth extends Acteur {
     public static final String SKIP_HEADER = "X-No-Authenticate";
 
     @Inject
-    Auth(AuthenticationStrategy strategy, Event evt) {
+    Auth(AuthenticationStrategy strategy, Event evt, UserFactory<?> uf, OAuthPlugins plugins) {
         AtomicReference<FailHook> hook = new AtomicReference<>();
         List<Object> contents = new LinkedList<>();
         Result<?> authenticationResult = strategy.authenticate(evt, hook, contents);
@@ -56,9 +56,13 @@ public class Auth extends Acteur {
             setState(new RespondWith(HttpResponseStatus.UNAUTHORIZED, 
                     authenticationResult.type.toString()));
         } else {
-            contents.add(authenticationResult);
+            setupCookie(evt, plugins, authenticationResult);
             setState(new ConsumedLockedState(
                     contents.toArray(new Object[contents.size()])));
         }
+    }
+    
+    private <T> void setupCookie(Event evt, OAuthPlugins plugins, Result<?> result) {
+            plugins.createDisplayNameCookie(evt, response(), result.displayName);
     }
 }

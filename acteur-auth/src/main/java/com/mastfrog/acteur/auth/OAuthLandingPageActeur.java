@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.auth.OAuthPlugin.RemoteUserInfo;
+import static com.mastfrog.acteur.auth.OAuthPlugins.SETTINGS_KEY_OAUTH_COOKIE_PATH;
 import com.mastfrog.acteur.auth.UserFactory.LoginState;
 import com.mastfrog.acteur.auth.UserFactory.Slug;
 import com.mastfrog.acteur.util.Headers;
@@ -23,22 +24,10 @@ import java.net.URISyntaxException;
 final class OAuthLandingPageActeur extends Acteur {
 
     private final OAuthPlugins plugins;
-    private final int[] ports;
-    private final String cookieBasePath;
-    public static final String SETTINGS_KEY_OAUTH_COOKIE_PATH = "oauth.cookie.path";
 
     @Inject
     OAuthLandingPageActeur(Event evt, OAuthPlugins plugins, UserFactory<?> users, Settings settings) throws URISyntaxException, IOException {
         this.plugins = plugins;
-        Integer runningPort = settings.getInt("port");
-        // XXX may want to be able to explicitly set all the ports
-        if (runningPort != null) {
-            ports = new int[]{80, 443, runningPort};
-        } else {
-            ports = new int[]{80, 443};
-        }
-        // The path property for cookies
-        cookieBasePath = settings.getString(SETTINGS_KEY_OAUTH_COOKIE_PATH, "/");
         // The URL should be in the form $BASE/$CODE
         String pluginType = evt.getPath().getLastElement().toString();
         // Try to find a plugin matching this code
@@ -111,10 +100,12 @@ final class OAuthLandingPageActeur extends Acteur {
             host = Host.parse("fail.example");
         }
         ck.setDomain(host.toString());
-        ck.setPorts(ports);
+        ck.setPorts(plugins.cookiePorts());
         ck.setMaxAge(plugin.getSlugMaxAge().getMillis());
-        ck.setPath(cookieBasePath);
+        ck.setPath(plugins.cookieBasePath());
         add(Headers.SET_COOKIE, ck);
+        
+        plugins.createDisplayNameCookie(evt, response(), rui.displayName());
 
         // See if the request has a redirect already - we may have passed one
         // to the remote service and it is passing it back to us

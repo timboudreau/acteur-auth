@@ -93,6 +93,7 @@ public abstract class UserFactory<T> {
 
     public abstract Object toUserObject(T obj);
 
+    public abstract String getUserDisplayName(T obj);
     /**
      * Create and store a new random string which can be passed to an oauth
      * callback

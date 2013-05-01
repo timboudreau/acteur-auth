@@ -5,9 +5,9 @@ import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Page;
+import com.mastfrog.acteur.auth.Auth;
 import com.mastfrog.acteur.util.CacheControlTypes;
 import com.mastfrog.acteur.util.Method;
-import com.timboudreau.trackerapi.support.Auth;
 import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import org.joda.time.Duration;
 

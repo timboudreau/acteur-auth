@@ -12,11 +12,11 @@ import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.auth.OAuthPlugin;
 import com.mastfrog.acteur.auth.OAuthPlugins;
-import com.mastfrog.acteur.auth.UniqueIDs;
 import com.mastfrog.acteur.auth.UserFactory;
 import static com.mastfrog.acteur.google.auth.GoogleOAuthModule.SETTINGS_KEY_ADDITIONAL_SCOPES;
 import static com.mastfrog.acteur.google.auth.GoogleOAuthModule.SETTINGS_KEY_GOOGLE_CLIENT_ID;
@@ -57,6 +57,7 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
     private final Set<String> scopes = new HashSet<>();
     private final ObjectMapper mapper;
 
+    @Inject
     public GoogleOAuthPlugin(@Named(SETTINGS_KEY_GOOGLE_CLIENT_ID) String clientId,
             @Named(SETTINGS_KEY_GOOGLE_CLIENT_SECRET) String clientSecret,
             PathFactory paths,
@@ -80,6 +81,9 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
         }
         for (String s : commaDelimitedUrls.split(",")) {
             s = s.trim();
+            if (s.isEmpty()) {
+                continue;
+            }
             URL u = URL.parse(s);
             if (!u.isValid()) {
                 throw new ConfigurationError("Bad google scope url: " + u + " - " + u.getProblems());
@@ -90,14 +94,16 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
     }
 
     @Override
-    public URL getRedirectURL(UserFactory.LoginState state) {
+    public String getRedirectURL(UserFactory.LoginState state) {
         URL callbackUrl = paths.constructURL(Path.parse(plugins.getLandingPageBasePath()).append(code()), true);
 
         System.out.println("Callback url is " + callbackUrl);
+        
+        System.out.println("SCOPES IS " + scopes);
 
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(transport,
                 factory, clientId, clientSecret,
-                SCOPES)
+                scopes)
                 .setAccessType("offline")
                 //                .setCredentialStore(store)
                 .build();
@@ -108,11 +114,11 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
         String u = url.build();
 
         System.out.println("URL: " + u);
-        return URL.parse(u);
+        return u;
     }
 
     private URI getRedirectURI() throws MalformedURLException, URISyntaxException {
-        String pathToLandingPage = Strings.join(plugins.getBouncePageBasePath(), this.code());
+        String pathToLandingPage = Strings.join(plugins.getLandingPageBasePath(), this.code());
         URL callbackUrl = paths.constructURL(Path.builder().add(pathToLandingPage).create(), true);
         return callbackUrl.toJavaURL().toURI();
     }
@@ -123,11 +129,13 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
     }
 
     public GoogleCredential getCredentialForCode(String code) throws IOException, MalformedURLException, URISyntaxException {
+        URL callbackUrl = paths.constructURL(Path.parse(plugins.getLandingPageBasePath()).append(code()), true);
+        System.out.println("REDIR URI IS " + getRedirectURI());
         GoogleTokenResponse response =
                 new GoogleAuthorizationCodeTokenRequest(transport,
                 factory, clientId, clientSecret,
                 code,
-                getRedirectURI().toString()).execute();
+                callbackUrl.toString()).execute();
 
         GoogleCredential cred = new GoogleCredential.Builder()
                 .setTransport(transport)

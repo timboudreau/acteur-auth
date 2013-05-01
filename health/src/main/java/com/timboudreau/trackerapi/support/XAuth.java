@@ -8,7 +8,6 @@ import com.mastfrog.acteur.util.Realm;
 import com.mastfrog.guicy.annotations.Defaults;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import static com.timboudreau.trackerapi.support.ResultType.BAD_CREDENTIALS;
-import io.netty.handler.codec.http.ServerCookieEncoder;
 import java.util.Collections;
 import java.util.Map;
 
@@ -18,12 +17,12 @@ import java.util.Map;
  * @author Tim Boudreau
  */
 @Defaults("cookieSalt=hfh0w08988xsecret")
-public final class Auth extends Acteur {
+public final class XAuth extends Acteur {
 
     private final Realm realm;
 
     @Inject
-    Auth(Event evt, AuthSupport supp, Realm realm, GoogleAuth ga) {
+    XAuth(Event evt, AuthSupport supp, Realm realm, GoogleAuth ga) {
         this.realm = realm;
         
 //        AuthSupport.Result result = supp.getCookieResult();
@@ -64,7 +63,7 @@ public final class Auth extends Acteur {
             }
             String other = supp.findCookie("dn");
             if (other != null) {
-                String dn = result.user.displayName;
+                String dn = result.user.displayName();
                 if (dn != null) {
                     add(Headers.SET_COOKIE, supp.encodeDisplayNameCookie(dn));
                 }

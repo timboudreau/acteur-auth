@@ -86,7 +86,7 @@ public abstract class OAuthPlugin<CredentialType> {
      * 
      * @return A url
      */
-    public abstract URL getRedirectURL(LoginState state);
+    public abstract String getRedirectURL(LoginState state);
 
     /**
      * Get an implementation-specific credential from an HTTP request;

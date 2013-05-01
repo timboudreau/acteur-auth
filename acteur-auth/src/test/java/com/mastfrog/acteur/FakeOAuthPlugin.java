@@ -22,8 +22,8 @@ class FakeOAuthPlugin extends OAuthPlugin<FakeCredential> {
     }
 
     @Override
-    public URL getRedirectURL(UserFactory.LoginState state) {
-        return URL.parse("http://localhost:3947/redirect?state=" + state.state);
+    public String getRedirectURL(UserFactory.LoginState state) {
+        return URL.parse("http://localhost:3947/redirect?state=" + state.state).toString();
     }
 
     @Override

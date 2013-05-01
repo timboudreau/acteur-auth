@@ -6,17 +6,16 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
+import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.Method;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.timboudreau.trackerapi.support.Auth;
 import com.timboudreau.trackerapi.support.AuthSupport;
-import com.timboudreau.trackerapi.support.TTUser;
 import com.timboudreau.trackerapi.support.UserCollectionFinder;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.ServerCookieEncoder;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,13 +44,13 @@ public class WhoAmIResource extends Page {
 
         @Inject
         UserInfoActeur(TTUser user, DBCollection coll, ObjectMapper mapper, AuthSupport supp, Event evt) throws IOException {
-            boolean other = evt.getParameter("user") != null && !user.name.equals(evt.getParameter("user"));
-            add(Headers.stringHeader("UserID"), user.id.toStringMongod());
+            boolean other = evt.getParameter("user") != null && !user.names().contains(evt.getParameter("user"));
+            add(Headers.stringHeader("UserID"), user.id().toStringMongod());
             DBObject ob = other ? coll.findOne(new BasicDBObject("name", evt.getParameter("user")), 
                     new BasicDBObject("_id", 1).append("name", 1).append("displayName", 1)) 
-                    : coll.findOne(new BasicDBObject("_id", user.id));
+                    : coll.findOne(new BasicDBObject("_id", user.id()));
             if (ob == null) {
-                setState(new RespondWith(HttpResponseStatus.GONE, "No record of " + user.name));
+                setState(new RespondWith(HttpResponseStatus.GONE, "No record of " + user.name()));
                 return;
             }
             Map<String, Object> m = new HashMap<>(ob.toMap());
