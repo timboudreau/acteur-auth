@@ -202,7 +202,7 @@ public final class AuthSupport implements Provider<Result> {
             edit.append("$inc", inc);
             System.out.println("WRITE SLUG - EDIT: " + edit.toMap());
             DBObject updated = users.findAndModify(query, edit);
-            System.out.println("Updated user: " + updated.toMap());
+            System.out.println("Updated user: " + updated);
         }
         return slug;
     }

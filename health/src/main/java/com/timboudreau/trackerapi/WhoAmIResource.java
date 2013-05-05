@@ -43,7 +43,7 @@ public class WhoAmIResource extends Page {
     private static class UserInfoActeur extends Acteur {
 
         @Inject
-        UserInfoActeur(TTUser user, DBCollection coll, ObjectMapper mapper, AuthSupport supp, Event evt) throws IOException {
+        UserInfoActeur(TTUser user, DBCollection coll, AuthSupport supp, Event evt) throws IOException {
             boolean other = evt.getParameter("user") != null && !user.names().contains(evt.getParameter("user"));
             add(Headers.stringHeader("UserID"), user.id().toStringMongod());
             DBObject ob = other ? coll.findOne(new BasicDBObject("name", evt.getParameter("user")), 
@@ -61,7 +61,7 @@ public class WhoAmIResource extends Page {
             if (dn != null && !other) {
                 add(Headers.SET_COOKIE, supp.encodeDisplayNameCookie(dn));
             }
-            setState(new RespondWith(200, mapper.writeValueAsString(m)));
+            setState(new RespondWith(200, m));
         }
     }
 }

@@ -21,7 +21,6 @@ import com.timboudreau.trackerapi.support.UserCollectionFinder;
 import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.nio.charset.Charset;
 
 /**

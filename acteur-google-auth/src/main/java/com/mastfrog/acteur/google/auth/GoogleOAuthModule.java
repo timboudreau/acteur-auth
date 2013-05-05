@@ -1,5 +1,8 @@
 package com.mastfrog.acteur.google.auth;
 
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.inject.AbstractModule;
 
 /**
@@ -53,10 +56,14 @@ public class GoogleOAuthModule extends AbstractModule {
      * The Google client secret which identifies your app to Google.
      */
     public static final String SETTINGS_KEY_GOOGLE_CLIENT_SECRET = "google.client.secret";
+    final NetHttpTransport transport = new NetHttpTransport();
+    final JacksonFactory factory = new JacksonFactory();
 
     @Override
     protected void configure() {
         bind(GoogleOAuthPlugin.class).asEagerSingleton();
+        bind(HttpTransport.class).toInstance(transport);
+        bind(JacksonFactory.class).toInstance(factory);
     }
     
 }

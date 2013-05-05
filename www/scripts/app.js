@@ -51,26 +51,25 @@ app.service('status', function($rootScope) {
         setSuccess(success)
     }
 });
-
+var cookieNames = ['gg', 'fb', 'ac']
 app.service('user', function($cookies, $http, $rootScope) {
     var un = window.location.pathname.split('/')[2];
     var self = this;
 
-    // This *is* a potential race condition
-    if ($cookies[USER_COOKIE_NAME]) {
-        un = /"?(.*?):.*/.exec($cookies[USER_COOKIE_NAME])[1];
-        if (un) {
-            self.name = un;
-            console.log('GOT NAME FROM COOKIE: ' + un)
-        } else {
-            console.log('NO USER FROM COOKIE')
-            self.get().success(function(user) {
-                console.log('LOADED ' + user.name)
-                un = user.name;
-            });
+    function getUserName() {
+        for (var i=0; i < cookieNames.length; i++) {
+            var ck = $cookies[cookieNames[i]];
+            if (ck != null) {
+                var res = /"?(.*?):.*/.exec($cookies[USER_COOKIE_NAME]);
+                if (res) {
+                    return res[1];
+                }
+            }
         }
     }
-    this.name = un;
+
+    // This *is* a potential race condition
+    this.name = getUserName();
 
     this.path = API_BASE + 'users/' + un;
 

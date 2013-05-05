@@ -104,7 +104,7 @@ class SignUpResource extends Page {
             }
             evt.getChannel().read();
             FullHttpRequest req = (FullHttpRequest) evt.getRequest();
-            ByteBuf inbound = req.data();
+            ByteBuf inbound = req.content();
             int count;
             do {
                 count = inbound.readableBytes();

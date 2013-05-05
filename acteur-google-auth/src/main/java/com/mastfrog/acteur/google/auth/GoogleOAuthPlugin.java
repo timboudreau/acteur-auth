@@ -10,7 +10,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpResponse;
-import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -26,6 +26,7 @@ import com.mastfrog.acteur.server.PathFactory;
 import com.mastfrog.settings.Settings;
 import com.mastfrog.url.Path;
 import com.mastfrog.url.URL;
+import com.mastfrog.util.Checks;
 import com.mastfrog.util.ConfigurationError;
 import com.mastfrog.util.Exceptions;
 import com.mastfrog.util.Strings;
@@ -49,8 +50,8 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
     private final String clientId;
     private final String clientSecret;
     private final PathFactory paths;
-    public final NetHttpTransport transport = new NetHttpTransport();
-    public final JacksonFactory factory = new JacksonFactory();
+    final HttpTransport transport;
+    final JacksonFactory factory;
     private static final List<String> SCOPES = Arrays.asList("https://www.googleapis.com/auth/urlshortener",
             "https://www.googleapis.com/auth/userinfo.email",
             "https://www.googleapis.com/auth/userinfo.profile");
@@ -61,7 +62,8 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
     public GoogleOAuthPlugin(@Named(SETTINGS_KEY_GOOGLE_CLIENT_ID) String clientId,
             @Named(SETTINGS_KEY_GOOGLE_CLIENT_SECRET) String clientSecret,
             PathFactory paths,
-            Settings settings, OAuthPlugins plugins, ObjectMapper mapper, UserFactory<?> users) {
+            Settings settings, OAuthPlugins plugins, ObjectMapper mapper, UserFactory<?> users,
+            JacksonFactory factory, HttpTransport transport) {
         super("Google", "gg", "http://productforums.google.com/forum/google.png", plugins);
 
         if (!splitAndAdd(settings.getString(SETTINGS_KEY_SCOPES), scopes)) {
@@ -73,6 +75,8 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
         this.clientSecret = clientSecret;
         this.paths = paths;
         this.mapper = mapper;
+        this.factory = factory;
+        this.transport = transport;
     }
 
     private static boolean splitAndAdd(String commaDelimitedUrls, Set<? super String> set) {
@@ -119,7 +123,7 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
 
     private URI getRedirectURI() throws MalformedURLException, URISyntaxException {
         String pathToLandingPage = Strings.join(plugins.getLandingPageBasePath(), this.code());
-        URL callbackUrl = paths.constructURL(Path.builder().add(pathToLandingPage).create(), true);
+        URL callbackUrl = paths.constructURL(Path.parse(pathToLandingPage), true);
         return callbackUrl.toJavaURL().toURI();
     }
 
@@ -129,8 +133,9 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
     }
 
     public GoogleCredential getCredentialForCode(String code) throws IOException, MalformedURLException, URISyntaxException {
+        Checks.notNull("code", code);
         URL callbackUrl = paths.constructURL(Path.parse(plugins.getLandingPageBasePath()).append(code()), true);
-        System.out.println("REDIR URI IS " + getRedirectURI());
+        System.out.println("REDIR URI IS " + callbackUrl);
         GoogleTokenResponse response =
                 new GoogleAuthorizationCodeTokenRequest(transport,
                 factory, clientId, clientSecret,
@@ -153,6 +158,10 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
     @Override
     public GoogleCredential credentialForEvent(Event evt) {
         String code = evt.getParameter("code");
+        if (code == null) {
+            System.out.println("NO CODE IN " + evt.getPath() + " with " + evt.getParametersAsMap());
+            return null;
+        }
         try {
             return getCredentialForCode(code);
         } catch (IOException ex) {

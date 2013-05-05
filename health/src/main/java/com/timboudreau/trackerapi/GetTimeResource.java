@@ -7,6 +7,8 @@ import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.mongo.CursorWriter;
+import com.mastfrog.acteur.mongo.CursorWriterActeur;
 import com.mastfrog.acteur.util.Method;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -22,6 +24,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import static com.timboudreau.trackerapi.Properties.*;
 import com.timboudreau.trackerapi.support.AuthorizedChecker;
+import static io.netty.handler.codec.http.HttpResponseStatus.NO_CONTENT;
+import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 /**
  *
@@ -39,11 +43,45 @@ class GetTimeResource extends Page {
         add(CreateCollectionPolicy.DONT_CREATE.toActeur());
         add(TimeCollectionFinder.class);
         add(TimeGetter.class);
+        add(CursorWriterActeur.class);
     }
 
     @Override
     protected String getDescription() {
         return "Query recorded time events";
+    }
+
+    private static class TimeGetter2 extends Acteur {
+
+        @Inject
+        public TimeGetter2(DBCollection collection, BasicDBObject query, Event evt) {
+            query.put(type, time);
+            String fields = evt.getParameter("fields");
+            DBObject projection = null;
+            if (fields != null) {
+                projection = new BasicDBObject();
+                for (String field : fields.split(",")) {
+                    projection.put(field, 1);
+                }
+            }
+            final DBCursor cur = projection == null ? collection.find(query)
+                    : collection.find(query, projection);
+            if (evt.getMethod() == Method.HEAD) {
+                setState(new RespondWith(cur.hasNext() ? OK : NO_CONTENT));
+                return;
+            }
+            evt.getChannel().closeFuture().addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    cur.close();
+                }
+            });
+            if (!cur.hasNext()) {
+                setState(new RespondWith(OK, "[]"));
+            } else {
+                setState(new ConsumedLockedState(cur, CursorWriter.NO_FILTER));
+            }
+        }
     }
 
     private static class TimeGetter extends Acteur implements ChannelFutureListener {
@@ -66,7 +104,6 @@ class GetTimeResource extends Page {
             if (fields != null) {
                 projection = new BasicDBObject();
                 for (String field : fields.split(",")) {
-                    System.out.println("FIELD " + field);
                     projection.put(field, 1);
                 }
             }

@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
-import com.google.inject.name.Names;
 import com.mastfrog.acteur.auth.ActeurAuthModule;
+import com.mastfrog.acteur.facebook.auth.FacebookOAuthModule;
 import com.mastfrog.acteur.google.auth.GoogleOAuthModule;
 import com.mastfrog.acteur.mongo.MongoInitializer;
 import com.mastfrog.acteur.mongo.MongoModule;
@@ -41,8 +41,6 @@ final class TimetrackerAppModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(Realm.class).toInstance(Realm.createSimple(Timetracker.REALM_NAME));
-        bind(String.class).annotatedWith(Names.named("application"))
-                .toInstance(Timetracker.TIMETRACKER);
 
         String userCollectionName = settings.getString("user.collection.name", "ttusers");
         MongoModule mongoModule = new MongoModule("timetracker")
@@ -55,6 +53,7 @@ final class TimetrackerAppModule extends AbstractModule {
         install(new QuestionsModule());
         install(mongoModule);
         install(new GoogleOAuthModule());
+        install(new FacebookOAuthModule());
         install(new ActeurAuthModule(MongoUserFactory.class));
         bind(Ini.class).asEagerSingleton();
     }

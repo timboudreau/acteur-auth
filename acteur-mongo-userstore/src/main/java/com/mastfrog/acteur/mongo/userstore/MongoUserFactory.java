@@ -131,9 +131,12 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
         DBObject slugData = new BasicDBObject("created", slug.created.getMillis()).append("slug", slug.slug);
         List<String> names = new ArrayList<>(Arrays.asList(name));
         List<ObjectId> authorizes = new ArrayList<>();
+        long now = DateTime.now().getMillis();
         DBObject toWrite = new BasicDBObject("name", names)
                 .append("displayName", displayName)
                 .append("version", 0)
+                .append("created", now)
+                .append("lastModified", now)
                 .append("slugs", new BasicDBObject(slug.name, slugData))
                 .append("tokens", new BasicDBObject())
                 .append("pass", ids.newRandomString())
@@ -152,9 +155,12 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
         }
         List<ObjectId> authorizes = new ArrayList<>();
         List<String> names = new ArrayList<>(Arrays.asList(name));
+        long now = DateTime.now().getMillis();
         DBObject toWrite = new BasicDBObject("name", names)
                 .append("displayName", displayName)
                 .append("version", 0)
+                .append("created", now)
+                .append("lastModified", now)
                 .append("slugs", new BasicDBObject())
                 .append("tokens", new BasicDBObject())
                 .append("pass", hashedPassword)

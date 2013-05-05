@@ -58,7 +58,7 @@ public class SetsResource extends Page {
             if (evt.getMethod() == Method.HEAD) {
                 setState(new RespondWith(200));
             } else {
-                setState(new RespondWith(200, mapper.writeValueAsString(l)));
+                setState(new RespondWith(200, l));
             }
         }
     }

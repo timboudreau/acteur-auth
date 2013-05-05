@@ -21,7 +21,7 @@ import com.mastfrog.acteur.util.CacheControl;
 import com.mastfrog.acteur.util.CacheControlTypes;
 import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.Method;
-import com.mastfrog.settings.MutableSettings;
+import com.mastfrog.settings.Settings;
 import com.mastfrog.settings.SettingsBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -37,6 +37,8 @@ import com.timboudreau.trackerapi.ModifyEventsResource.Body;
 import io.netty.handler.codec.http.HttpResponse;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import org.bson.types.ObjectId;
 import org.joda.time.Interval;
 
@@ -61,21 +63,20 @@ public class Timetracker extends Application {
     public static final String REALM_NAME = "Surv";
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        int port = -1;
-        if (args.length > 0) {
-            port = Integer.parseInt(args[0]);
-        }
+        
+        Map<Character,String> shortcuts = new HashMap<>();
+        shortcuts.put('p', "port");
+        
         // Set up our defaults - can be overridden in 
         // /etc/timetracker.json, ~/timetracker.json and ./timetracker.json
-        MutableSettings settings = SettingsBuilder.forNamespace(TIMETRACKER)
+        Settings settings = SettingsBuilder.forNamespace(TIMETRACKER)
                 .addDefaultLocations()
                 .addLocation(new File("/etc"))
                 .add(PathFactory.BASE_PATH_SETTINGS_KEY, "time")
-                .add("neverKeepAlive", "true").buildMutableSettings();
-        if (port != -1) {
-            settings.setInt("port", port);
-        }
-
+//                .add("neverKeepAlive", "true")
+                .parseCommandLineArguments(shortcuts, args)
+                .build();
+        
         // Set up the Guice injector
         Dependencies deps = Dependencies.builder()
                 .add(settings, TIMETRACKER).
@@ -85,7 +86,7 @@ public class Timetracker extends Application {
 
         // Insantiate the server, start it and wait for it to exit
         Server server = deps.getInstance(Server.class);
-        server.start(settings.getInt("port", port == -1 ? 7739 : port)).await();
+        server.start(settings.getInt("port", 7739)).await();
     }
 
     @Inject
@@ -111,12 +112,10 @@ public class Timetracker extends Application {
                 DeleteTimeResource.class,
                 TotalTimeResource.class,
                 ModifyEventsResource.class,
-
-//                OAuth2CallbackPage.class,
-//                GoogleLoginPage.class,
+                //                OAuth2CallbackPage.class,
+                //                GoogleLoginPage.class,
                 plugins.bouncePageType(),
                 plugins.landingPageType(),
-
                 AdjustTimeResource.class,
                 SkewResource.class,
                 ListUsersResource.class,
