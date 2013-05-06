@@ -35,6 +35,7 @@ public class WebCallBuilder {
 
     /**
      * <b>Required</b> - set the ID of this call
+     *
      * @param id The id
      * @return this
      */
@@ -45,6 +46,7 @@ public class WebCallBuilder {
 
     /**
      * Set the HTTP method of this call (by default it is GET).
+     *
      * @param method The method
      * @return this
      */
@@ -54,15 +56,17 @@ public class WebCallBuilder {
     }
 
     /**
-     * <b>Required</b> - Set the <i>path template</i> for this call.
-     * To do simple substitution, you can delimit templated items with {{ }}
-     * and use simple types whose toString() value is substituted in.  So
-     * if you have a class called <code>UserId</code> whose <code>toString()</code>
-     * method returns a useful representation of the ID, then you can have a
-     * template that looks like, say, <code>/users/{{userid}}/dostuff</code>
-     * and if a UserId is available when the call is invoked, {{userid}} will
-     * be replaced.  The templated text should be the <i>lower-cased</li> type
-     * name of the type.
+     * <b>Required</b> - Set the <i>path template</i> for this call. To do
+     * simple substitution, you can delimit templated items with {{ }} and use
+     * simple types whose toString() value is substituted in. So if you have a
+     * class called
+     * <code>UserId</code> whose
+     * <code>toString()</code> method returns a useful representation of the ID,
+     * then you can have a template that looks like, say,
+     * <code>/users/{{userid}}/dostuff</code> and if a UserId is available when
+     * the call is invoked, {{userid}} will be replaced. The templated text
+     * should be the <i>lower-cased</li> type name of the type.
+     *
      * @param path The path
      * @return This
      */
@@ -72,32 +76,48 @@ public class WebCallBuilder {
     }
 
     /**
-     * Add a type which is required by something that will construct the call - 
-     * this might be a constructor argument to a Decorator subclass, or something
-     * similer.  Use this to ensure types that will be needed when processing
-     * calls are bound correctly.
+     * Add a type which is required by something that will construct the call -
+     * this might be a constructor argument to a Decorator subclass, or
+     * something similer. Use this to ensure types that will be needed when
+     * processing calls are bound correctly.
+     *
      * @param type
-     * @return 
+     * @return
      */
     public WebCallBuilder addRequiredType(Class<?> type) {
         requiredTypes.add(type);
         return this;
     }
 
+    public WebCallBuilder addRequiredTypes(Class<?>... types) {
+        for (Class<?> type : types) {
+            addRequiredType(type);
+        }
+        return this;
+    }
+
     /**
-     * Mark this call as requiring HTTP basic authentication.  To use Basic authentication,
-     * do this and include a <code>BasicCredentials</code> in the call context.
-     * @return 
+     * Mark this call as requiring HTTP basic authentication. To use Basic
+     * authentication, do this and include a
+     * <code>BasicCredentials</code> in the call context.
+     *
+     * @return
      */
     public WebCallBuilder authenticationRequired() {
         this.authenticationRequired = true;
         return this;
     }
 
+    public WebCallBuilder authenticationRequired(boolean required) {
+        this.authenticationRequired = required;
+        return this;
+    }
+    
     /**
      * Add an interpolator which will replace some contents of the API call path
-     * based on some object type.  The actual interpolator instance will be created
-     * on-demand.
+     * based on some object type. The actual interpolator instance will be
+     * created on-demand.
+     *
      * @param <T> The object type
      * @param <R> The interpolator type
      * @param type The object type
@@ -113,6 +133,7 @@ public class WebCallBuilder {
     /**
      * Add a decorator which will somehow modify an HTTP request based on some
      * object passed into the call context.
+     *
      * @param <T> The object type
      * @param <R> The decorator type
      * @param type The object type
@@ -128,6 +149,7 @@ public class WebCallBuilder {
     /**
      * This call utilizes an open HTTP connection - don't close the channel when
      * the request is completed.
+     *
      * @return this
      */
     public WebCallBuilder stayOpen() {
@@ -136,10 +158,11 @@ public class WebCallBuilder {
     }
 
     /**
-     * The response type.  May be superseded by the type on the Callback passed
+     * The response type. May be superseded by the type on the Callback passed
      * to the web call
+     *
      * @param type A type
-     * @return 
+     * @return
      * @deprecated
      */
     public WebCallBuilder responseType(Class<?> type) {
@@ -148,11 +171,12 @@ public class WebCallBuilder {
     }
 
     /**
-     * Determine whether to expect a response body.  If false, the system may 
-     * opt to close the connection and call the callback as soon as headers
-     * have been received.
+     * Determine whether to expect a response body. If false, the system may opt
+     * to close the connection and call the callback as soon as headers have
+     * been received.
+     *
      * @param val
-     * @return 
+     * @return
      */
     public WebCallBuilder hasBody(boolean val) {
         this.hasBody = val;
@@ -161,7 +185,7 @@ public class WebCallBuilder {
 
     /**
      * Thing which interprets the response
-     * 
+     *
      * @param interp An interpreter
      * @return this
      */
@@ -172,6 +196,7 @@ public class WebCallBuilder {
 
     /**
      * Build a web call
+     *
      * @return A web call.
      * @throws ConfigurationError if the id, method or path are not set
      */

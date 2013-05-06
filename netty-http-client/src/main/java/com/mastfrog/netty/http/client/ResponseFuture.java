@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Returned from launching an HTTP request; attach handlers using the
@@ -115,8 +116,15 @@ public final class ResponseFuture {
         }
         return this;
     }
+    
+    public final StateType lastState() {
+        return lastState.get();
+    }
 
+    private AtomicReference<StateType> lastState = new AtomicReference<StateType>();
     <T> void event(State<T> state) {
+        Checks.notNull("state", state);
+        lastState.set(state.stateType());
         try {
             if (state instanceof State.Error && cancelled.get()) {
                 System.out.println("Suppressing error after cancel");

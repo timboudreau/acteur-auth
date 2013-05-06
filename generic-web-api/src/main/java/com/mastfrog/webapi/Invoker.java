@@ -66,31 +66,36 @@ public class Invoker<T extends Enum<T> & WebCallEnum> {
             }
         }
     }
-    
+
     /**
-     * Create a standalone Web API invoker for the passed base URL and Web API enum
-     * type.  This method creates all of the Guice plumbing used to drive the
-     * invoker under the hood.  Use this for deployment in simple apps which have
-     * no other need for dependency injection;  otherwise, you may want to use
+     * Create a standalone Web API invoker for the passed base URL and Web API
+     * enum type. This method creates all of the Guice plumbing used to drive
+     * the invoker under the hood. Use this for deployment in simple apps which
+     * have no other need for dependency injection; otherwise, you may want to
+     * use
      * <a href="WebApiModule.class"><code>WebApiModule</code></a> and set up
-     * injection explicitly (in which case you need to bind <code>com.mastfrog.url.URL</code> 
-     * and <code>com.mastfrog.netty.HttpClient</code> and Jackson's <code>ObjectMapper</code>.
-     * 
+     * injection explicitly (in which case you need to bind
+     * <code>com.mastfrog.url.URL</code> and
+     * <code>com.mastfrog.netty.HttpClient</code> and Jackson's
+     * <code>ObjectMapper</code>.
+     *
      * @param <T> The type
      * @param baseUrl The base URL for api calls
      * @param webApi An enum whose constants implement WebCall
      * @return An invoker
-     * @throws IOException 
+     * @throws IOException
      */
     public static <T extends Enum<T> & WebCallEnum> Invoker<T> create(URL baseUrl, Class<T> webApi) throws IOException {
         Dependencies deps = Dependencies.builder().add(new StandaloneModule(baseUrl))
                 .add(new WebApiModule(webApi)).build();
         return deps.getInstance(Invoker.class);
     }
-    
+
     private static class StandaloneModule extends AbstractModule {
+
         private final URL url;
         private final HttpClientBuilder builder = HttpClient.builder().followRedirects();
+
         StandaloneModule(URL url) {
             this.url = url;
         }
@@ -125,10 +130,17 @@ public class Invoker<T extends Enum<T> & WebCallEnum> {
     }
 
     public <T> ResponseFuture call(final WebCallEnum call, final Callback<T> callback, final Object... args) throws Exception {
+        return call(call, null, callback, args);
+    }
+
+    public <T> ResponseFuture call(final WebCallEnum call, Receiver<State<?>> listener, final Callback<T> callback, final Object... args) throws Exception {
         final ReentrantScope scope = deps.getInstance(Key.get(ReentrantScope.class, Names.named("webapi")));
         try (AutoCloseable cl = scope.enter(args)) {
             final WebCall wc = call.get();
             HttpRequestBuilder reqb = toRequest(wc, deps);
+            if (listener != null) {
+                reqb.onEvent(listener);
+            }
             if (wc.authenticationRequired()) {
                 BasicCredentials bc = deps.getInstance(BasicCredentials.class);
                 if (bc != null) {
@@ -193,9 +205,9 @@ public class Invoker<T extends Enum<T> & WebCallEnum> {
         Path p = Path.parse(b.toString());
         Path pth = Path.merge(base.getPath() == null ? Path.parse("/") : base.getPath(), p);
         bld.setPath(pth);
-        
+
         HttpRequestBuilder builder = client.request(call.method()).setURL(bld.create());
-        
+
         if (params != null) {
             params.populate(builder);
         }

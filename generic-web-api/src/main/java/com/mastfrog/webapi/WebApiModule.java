@@ -3,6 +3,7 @@ package com.mastfrog.webapi;
 import com.mastfrog.webapi.builtin.Parameters;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
+import com.mastfrog.acteur.util.BasicCredentials;
 import com.mastfrog.guicy.scope.ReentrantScope;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -23,7 +24,7 @@ public final class WebApiModule<T extends Enum<T> & WebCallEnum> extends Abstrac
         ReentrantScope scope = new ReentrantScope();
         bind(ReentrantScope.class).annotatedWith(Names.named("webapi")).toInstance(scope);
         scope.bindTypes(binder(), WebCall.class, WebCallEnum.class);
-        scope.bindTypesAllowingNulls(binder(), Parameters.class);
+        scope.bindTypesAllowingNulls(binder(), Parameters.class, BasicCredentials.class);
         
         Set<Class<?>> types = new HashSet<>();
         for (T obj : type.getEnumConstants()) {

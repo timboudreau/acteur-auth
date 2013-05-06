@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.util.Providers;
 import com.mastfrog.acteur.Event;
+import com.mastfrog.util.Exceptions;
 import com.mongodb.BasicDBObject;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,6 +13,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.bson.types.ObjectId;
 import static com.timboudreau.trackerapi.Properties.*;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 /**
  *
@@ -46,7 +49,14 @@ final class EventToQuery implements Provider<BasicDBObject> {
             }
             if (!found) {
                 String v = evt.getParameter(param);
+                System.out.println("GOT PARAMETER " + v);
                 if (v != null) {
+                    try {
+                        v = URLDecoder.decode(v, "UTF-8");
+                        System.out.println(" CONVERTED TO " + v);
+                    } catch (UnsupportedEncodingException ex) {
+                        Exceptions.chuck(ex);
+                    }
                     long val = Long.parseLong(v);
                     obj.put(param, val);
                 }
@@ -116,6 +126,11 @@ final class EventToQuery implements Provider<BasicDBObject> {
         boolean process(BasicDBObject ob, String name, Event evt) {
             String val = evt.getParameter(name);
             if (val != null) {
+                try {
+                    val = URLDecoder.decode(val, "UTF-8");
+                } catch (UnsupportedEncodingException ex) {
+                    Exceptions.chuck(ex);
+                }
                 return decorate(ob, name, val);
             }
             return false;

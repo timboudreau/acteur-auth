@@ -2,13 +2,12 @@ package com.mastfrog.webapi;
 
 import com.google.inject.AbstractModule;
 import com.mastfrog.acteur.server.Server;
+import com.mastfrog.giulius.Dependencies;
 import com.mastfrog.giulius.tests.GuiceRunner;
 import com.mastfrog.giulius.tests.TestWith;
 import com.mastfrog.netty.http.client.HttpClient;
 import com.mastfrog.netty.http.client.ResponseFuture;
-import com.mastfrog.netty.http.client.State;
 import com.mastfrog.url.URL;
-import com.mastfrog.util.thread.Receiver;
 import com.mastfrog.webapi.WebCallTest.M;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -27,16 +26,20 @@ import org.junit.runner.RunWith;
  * @author tim
  */
 @RunWith(GuiceRunner.class)
-@TestWith(value = {TestApiApplication.Module.class, M.class})
+@TestWith(value = {TestApiApplication.Module.class})
 public class WebCallTest {
 
     @Test
-    public void test(Server server, Invoker invoker, HttpClient cl) throws IOException, Exception, Throwable {
+    public void test(Server server) throws IOException, Exception, Throwable {
+        Dependencies deps = new Dependencies(new M());
+        HttpClient cl = deps.getInstance(HttpClient.class);
+        Invoker invoker = deps.getInstance(Invoker.class);
+
         server.start(3729);
 
         CB cb = new CB();
-        ResponseFuture f = invoker.call(TestAPI.HELLO_WORLD, cb, new DisplayName("Tim Boudreau"), new UserId("tim"), new Integer(23), new Short((short)5), Boolean.TRUE);
-        
+        ResponseFuture f = invoker.call(TestAPI.HELLO_WORLD, cb, new DisplayName("Tim Boudreau"), new UserId("tim"), new Integer(23), new Short((short) 5), Boolean.TRUE);
+
         f.await(3, TimeUnit.SECONDS);
         f.throwIfError();
         assertNotNull(cb.obj);
