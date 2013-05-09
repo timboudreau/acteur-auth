@@ -138,6 +138,7 @@ public class MockApp extends Application {
 
         Success() {
             add(Headers.stringHeader("success"), "true");
+            System.out.println("Sanity check write success");
             setState(new RespondWith(200, "SUCCESS"));
         }
     }
@@ -157,7 +158,8 @@ public class MockApp extends Application {
         @Inject
         SuccessAfterAuth(MockUser user) {
             add(Headers.stringHeader("success"), "true");
-            setState(new Acteur.RespondWith(200, "SUCCESS " + user));
+            String result = "SUCCESS " + user;
+            setState(new Acteur.RespondWith(200, result));
         }
     }
 }

@@ -3,6 +3,7 @@ package com.mastfrog.acteur.auth;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.Response;
 import com.mastfrog.acteur.auth.UserFactory.Slug;
 import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.settings.Settings;
@@ -26,7 +27,7 @@ class CookieAuthenticationStrategy extends AuthenticationStrategy {
     }
 
     @Override
-    protected Result<?> authenticate(Event evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents) {
+    protected Result<?> authenticate(Event evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response) {
         Cookie[] cookies = evt.getHeader(Headers.COOKIE);
         if (cookies == null || cookies.length == 0) {
             return new Result(ResultType.NO_CREDENTIALS, true);
@@ -38,7 +39,7 @@ class CookieAuthenticationStrategy extends AuthenticationStrategy {
             System.out.println("Find plugin for cookie " + name + "? " + plugino.isPresent());
             if (plugino.isPresent()) {
                 OAuthPlugin<?> plugin = plugino.get();
-                res = tryToAuthenticate(plugin, evt, ck, users, scopeContents);
+                res = tryToAuthenticate(plugin, evt, ck, users, scopeContents, response);
                 if (res.isSuccess()) {
                     scopeContents.add(res.user);
                     return res;
@@ -47,8 +48,8 @@ class CookieAuthenticationStrategy extends AuthenticationStrategy {
         }
         return res == null ? new Result(ResultType.NO_CREDENTIALS, true) : res;
     }
-    
-    private <T, R> Result<?> tryToAuthenticate(OAuthPlugin<T> plugin, Event evt, Cookie cookie, UserFactory<R> users, Collection<? super Object> scopeContents) {
+
+    private <T, R> Result<?> tryToAuthenticate(OAuthPlugin<T> plugin, Event evt, Cookie cookie, UserFactory<R> users, Collection<? super Object> scopeContents, Response response) {
         System.out.println("Try to authenticate " + plugin + " cookie " + cookie + " for " + evt.getPath());
         Optional<UserInfo> io = plugins.decodeCookieValue(cookie.getValue());
         System.out.println("DECODED USER INFO " + io);
@@ -69,15 +70,18 @@ class CookieAuthenticationStrategy extends AuthenticationStrategy {
                     String matchWith = plugins.encodeCookieValue(info.userName, slug.slug).split(":")[0];
                     System.out.println("HASHED SLUG IS " + info.hashedSlug);
                     System.out.println("MATCH WITH " + matchWith);
-                    System.out.println("COOKIE VALUE '" + info.hashedSlug + "' should match '" 
-                            + info.hashedSlug + "'" + " do they? " 
-                            + (info.hashedSlug.equals(matchWith)) 
-                            + " length " + info.hashedSlug.length() 
+                    System.out.println("COOKIE VALUE '" + info.hashedSlug + "' should match '"
+                            + info.hashedSlug + "'" + " do they? "
+                            + (info.hashedSlug.equals(matchWith))
+                            + " length " + info.hashedSlug.length()
                             + " " + matchWith.length());
-                    
+
                     if (matchWith.equals(info.hashedSlug)) {
                         Object userObject = users.toUserObject(user);
                         String dn = users.getUserDisplayName(user);
+                        if (dn != null && !plugins.hasDisplayNameCookie(evt)) {
+                            plugins.createDisplayNameCookie(evt, response, dn);
+                        }
                         return new Result(userObject, info.userName, matchWith, ResultType.SUCCESS, true, dn);
                     } else {
                         return new Result(ResultType.BAD_PASSWORD, info.userName, true);

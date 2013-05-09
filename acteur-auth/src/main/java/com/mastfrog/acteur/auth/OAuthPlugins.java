@@ -25,11 +25,9 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -181,6 +179,19 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
             response.add(Headers.SET_COOKIE, displayNameCookie);
         }
     }
+    
+    public boolean hasDisplayNameCookie(Event evt) {
+        Cookie[] cookies = evt.getHeader(Headers.COOKIE);
+        if (cookies == null) {
+            return false;
+        }
+        for (Cookie ck : cookies) {
+            if (DISPLAY_NAME_COOKIE_NAME.equals(ck.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public void logout(Event evt, Response response) {
         Checks.notNull("response", response);
@@ -195,7 +206,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
             Set<String> all = cookieNames();
             for (Cookie ck : cks) {
                 if (all.contains(ck.getName())) {
-                    DefaultCookie discardCookie = new DefaultCookie(ck.getName(), "x");
+                    DefaultCookie discardCookie = new DefaultCookie(ck.getName(), "%");
                     discardCookie.setDomain(host.toString()); //XXX use a setting?
                     discardCookie.setDiscard(true);
                     discardCookie.setPorts(cookiePortList());

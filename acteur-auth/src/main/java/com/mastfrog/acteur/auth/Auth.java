@@ -48,7 +48,7 @@ public class Auth extends Acteur {
     Auth(AuthenticationStrategy strategy, Event evt, UserFactory<?> uf, OAuthPlugins plugins) {
         AtomicReference<FailHook> hook = new AtomicReference<>();
         List<Object> contents = new LinkedList<>();
-        Result<?> authenticationResult = strategy.authenticate(evt, hook, contents);
+        Result<?> authenticationResult = strategy.authenticate(evt, hook, contents, response());
         if (!authenticationResult.isSuccess()) {
             FailHook hookImpl = hook.get();
             if (hookImpl != null) {
@@ -64,6 +64,8 @@ public class Auth extends Acteur {
     }
 
     private <T> void setupCookie(Event evt, OAuthPlugins plugins, Result<?> result) {
-        plugins.createDisplayNameCookie(evt, response(), result.displayName);
+        if (!plugins.hasDisplayNameCookie(evt)) {
+            plugins.createDisplayNameCookie(evt, response(), result.displayName);
+        }
     }
 }

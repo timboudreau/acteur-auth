@@ -21,12 +21,14 @@ class BasicAuthenticationStrategy extends AuthenticationStrategy {
     private final Realm realm;
     private final UserFactory<?> users;
     private final PasswordHasher hasher;
+    private final OAuthPlugins plugins;
 
     @Inject
-    BasicAuthenticationStrategy(Realm realm, UserFactory<?> users, PasswordHasher hasher) {
+    BasicAuthenticationStrategy(Realm realm, UserFactory<?> users, PasswordHasher hasher, OAuthPlugins plugins) {
         this.realm = realm;
         this.users = users;
         this.hasher = hasher;
+        this.plugins = plugins;
     }
 
     @Override
@@ -36,16 +38,16 @@ class BasicAuthenticationStrategy extends AuthenticationStrategy {
     }
 
     @Override
-    protected Result<?> authenticate(Event evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents) {
+    protected Result<?> authenticate(Event evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response) {
         BasicCredentials credentials = evt.getHeader(Headers.AUTHORIZATION);
         if (credentials == null) {
             onFail.set(new FailHookImpl());
             return new Result<>(ResultType.NO_CREDENTIALS, false);
         }
-        return tryAuthenticate(users, credentials, onFail, scopeContents);
+        return tryAuthenticate(evt, users, credentials, onFail, scopeContents, response);
     }
 
-    private <T> Result<?> tryAuthenticate(UserFactory<T> uf, BasicCredentials credentials, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents) {
+    private <T> Result<?> tryAuthenticate(Event evt, UserFactory<T> uf, BasicCredentials credentials, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response) {
         Optional<T> u = uf.findUserByName(credentials.username);
         if (!u.isPresent()) {
             onFail.set(new FailHookImpl());
@@ -56,14 +58,19 @@ class BasicAuthenticationStrategy extends AuthenticationStrategy {
         Object userObject = uf.toUserObject(user);
         Optional<String> hasho = uf.getPasswordHash(user);
         if (!hasho.isPresent()) {
+            System.out.println("NO PW ON " + user + " (" + user.getClass() + ")");
             return new Result<>(userObject, credentials.username, null, ResultType.BAD_RECORD, false, dn);
         }
         String hash = hasho.get();
         if (!hasher.checkPassword(credentials.password, hash)) {
+            System.out.println("compare " + credentials.password + " and " + hash + " failed");
             return new Result<>(userObject, credentials.username, hash, ResultType.BAD_PASSWORD, false, dn);
         }
         scopeContents.add(credentials);
         scopeContents.add(userObject);
+        if (dn != null && !plugins.hasDisplayNameCookie(evt)) {
+            plugins.createDisplayNameCookie(evt, response, dn);
+        }
         return new Result<>(userObject, credentials.username, hash, ResultType.SUCCESS, false, dn);
     }
 

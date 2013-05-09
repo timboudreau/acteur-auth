@@ -1,8 +1,5 @@
 package com.mastfrog.webapi;
 
-import com.mastfrog.giulius.Dependencies;
-import com.mastfrog.util.Parameterized;
-import com.mastfrog.webapi.Decorator;
 import java.util.LinkedList;
 import java.util.List;
 

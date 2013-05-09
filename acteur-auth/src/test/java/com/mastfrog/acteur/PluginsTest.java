@@ -12,6 +12,8 @@ import com.mastfrog.acteur.auth.OAuthPlugin;
 import com.mastfrog.acteur.auth.OAuthPlugins;
 import com.mastfrog.giulius.tests.GuiceRunner;
 import com.mastfrog.giulius.tests.TestWith;
+import io.netty.util.CharsetUtil;
+import java.nio.charset.Charset;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -41,6 +43,7 @@ public class PluginsTest {
 
         @Override
         protected void configure() {
+            bind(Charset.class).toInstance(CharsetUtil.UTF_8);
             bind(FakeOAuthPlugin.class).asEagerSingleton();
         }
     }

@@ -43,11 +43,12 @@ public class MockUserFactory extends UserFactory<MockUser> {
 
     @Override
     public Optional<String> getPasswordHash(MockUser user) {
-        return Optional.fromNullable(user.getString("pass"));
+        return user.optional("pass");
     }
 
     @Override
     public void setPasswordHash(MockUser on, String hash) {
+        System.out.println("Set pw hach " + on + " to "+ hash);
         on.put("pass", hash);
     }
 
@@ -88,11 +89,12 @@ public class MockUserFactory extends UserFactory<MockUser> {
         }
         MockUser mu = new MockUser(name);
         Map<String, Object> slugs = new HashMap<>();
+        mu.put("displayName", displayName);
         mu.put("slugs", slugs);
-        if (slug.name.equals("fake")) {
-            throw new Error();
-        }
         if (slug != null) {
+            if (slug.name.equals("fake")) {
+                throw new Error();
+            }
             slugs.put(slug.name, slug);
         }
         mu.putAll(properties);
@@ -103,7 +105,7 @@ public class MockUserFactory extends UserFactory<MockUser> {
     @Override
     public MockUser newUser(String name, String hashedPassword, String displayName, Map<String, Object> properties) {
         MockUser result = newUser(name, (Slug) null, displayName, properties);
-        result.put("pass", hashedPassword);
+        setPasswordHash(result, hashedPassword);
         return result;
     }
 
@@ -174,9 +176,6 @@ public class MockUserFactory extends UserFactory<MockUser> {
         public Optional<String> optional(String key) {
             return Optional.fromNullable(getString(key));
         }
-        
-        public String toString() {
-            return (String) get("name");
-        }
+
     }
 }

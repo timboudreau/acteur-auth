@@ -1,6 +1,7 @@
 package com.mastfrog.acteur.auth;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.mastfrog.util.Streams;
@@ -36,7 +37,7 @@ public final class UniqueIDs {
     private final long vmid;
 
     @Inject
-    UniqueIDs(@Named("application") String applicationName) throws SocketException, IOException {
+    UniqueIDs(@Named("application") Provider<String> applicationName) throws SocketException, IOException {
         SecureRandom sr = new SecureRandom();
         random = new Random(sr.nextLong());
         vmid = Math.abs(sr.nextLong());
@@ -51,7 +52,7 @@ public final class UniqueIDs {
         }
         baos.write(addrBytes);
         File home = new File(System.getProperty("user.home"));
-        File appfile = new File(home, '.' + applicationName);
+        File appfile = new File(home, '.' + applicationName.get());
         if (appfile.exists()) {
             try (FileInputStream in = new FileInputStream(appfile)) {
                 Streams.copy(in, baos, 8);

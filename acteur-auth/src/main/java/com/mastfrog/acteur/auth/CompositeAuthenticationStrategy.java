@@ -41,7 +41,7 @@ final class CompositeAuthenticationStrategy extends AuthenticationStrategy {
     }
 
     @Override
-    protected Result<?> authenticate(Event evt, AtomicReference<? super FailHook> hook, Collection<? super Object> scopeContents) {
+    protected Result<?> authenticate(Event evt, AtomicReference<? super FailHook> hook, Collection<? super Object> scopeContents, Response response) {
         List<AtomicReference<FailHook>> fails = new ArrayList<>();
         CompositeFailHook compositeHook = new CompositeFailHook(fails);
         hook.set(compositeHook);
@@ -54,7 +54,7 @@ final class CompositeAuthenticationStrategy extends AuthenticationStrategy {
             }
             Set<Object> s = new HashSet<>();
             AtomicReference<FailHook> ref = new AtomicReference<>();
-            Result<?> r = a.authenticate(evt, ref, s);
+            Result<?> r = a.authenticate(evt, ref, s, response);
             System.out.println("GOT " + r + " from " + a);
             if (r.isSuccess()) {
                 scopeContents.addAll(s);

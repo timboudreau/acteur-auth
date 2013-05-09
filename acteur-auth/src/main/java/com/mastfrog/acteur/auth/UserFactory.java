@@ -63,7 +63,7 @@ public abstract class UserFactory<T> {
      * @param on A user object
      * @return A slug
      */
-    public Optional<Slug> getSlug(String name, T on, boolean createIfMissingOrExpired) {
+    public final Optional<Slug> getSlug(String name, T on, boolean createIfMissingOrExpired) {
         Slug slug = getSlug(on, name);
         if (slug == null && createIfMissingOrExpired) {
             slug = newSlug(name);
@@ -72,7 +72,7 @@ public abstract class UserFactory<T> {
         return Optional.fromNullable(slug);
     }
 
-    public Slug newSlug(String name) {
+    public final Slug newSlug(String name) {
         String nue = ids.newId();
         return new Slug(name, nue, DateTime.now());
     }

@@ -32,7 +32,6 @@ public class ActeurAuthModule<T extends UserFactory<?>> extends AbstractModule {
         // of untyped UserFactory be injected, and allows access to the concrete
         // implementation type if desired
         bind(UserFactory.class).to(userFactoryType).in(Scopes.SINGLETON);
-//        bind(userFactoryType).toProvider(new SpecificProvider(binder().getProvider(UserFactory.class)));
         bind(new UserFactoryTL()).toProvider(new GenericProvider(binder().getProvider(UserFactory.class)));
     }
 
@@ -49,19 +48,5 @@ public class ActeurAuthModule<T extends UserFactory<?>> extends AbstractModule {
             return userFactoryType.cast(p.get());
         }
 
-    }
-
-    private class SpecificProvider implements Provider<T> {
-
-        private final Provider<UserFactory> p;
-
-        public SpecificProvider(Provider<UserFactory> p) {
-            this.p = p;
-        }
-
-        @Override
-        public T get() {
-            return userFactoryType.cast(p.get());
-        }
     }
 }

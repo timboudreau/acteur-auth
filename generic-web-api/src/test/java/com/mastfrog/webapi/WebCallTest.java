@@ -1,7 +1,7 @@
 package com.mastfrog.webapi;
 
 import com.google.inject.AbstractModule;
-import com.mastfrog.acteur.server.Server;
+import com.mastfrog.acteur.util.Server;
 import com.mastfrog.giulius.Dependencies;
 import com.mastfrog.giulius.tests.GuiceRunner;
 import com.mastfrog.giulius.tests.TestWith;

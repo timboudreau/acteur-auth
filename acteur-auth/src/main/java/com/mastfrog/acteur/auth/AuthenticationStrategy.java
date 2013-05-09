@@ -30,7 +30,7 @@ abstract class AuthenticationStrategy {
      * @param evt An event
      * @return a result
      */
-    protected abstract Result<?> authenticate(Event evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents);
+    protected abstract Result<?> authenticate(Event evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response);
     
     protected void authenticated(Event evt, Response response) {
         
