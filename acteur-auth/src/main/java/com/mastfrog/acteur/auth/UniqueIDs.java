@@ -47,7 +47,9 @@ public final class UniqueIDs {
         for (NetworkInterface i : CollectionUtils.toIterable(NetworkInterface.getNetworkInterfaces())) {
             if (!i.isLoopback() && i.isUp() && !i.isVirtual()) {
                 byte[] macAddress = i.getHardwareAddress();
-                xor(macAddress, addrBytes);
+                if (macAddress != null) {
+                    xor(macAddress, addrBytes);
+                }
             }
         }
         baos.write(addrBytes);
