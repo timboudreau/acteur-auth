@@ -3,11 +3,15 @@ package com.timboudreau.questions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.google.inject.util.Providers;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
+import com.mastfrog.acteur.ResponseWriter;
 import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.mongo.CursorWriter;
+import com.mastfrog.acteur.mongo.CursorWriter.MapFilter;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mastfrog.acteur.util.Method;
 import com.mongodb.BasicDBObject;
@@ -23,6 +27,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.util.CharsetUtil;
 import java.util.List;
+import java.util.Map;
 import org.bson.types.ObjectId;
 
 /**
@@ -76,45 +81,15 @@ public class GetSurveysResource extends Page {
                 setState(new RespondWith(HttpResponseStatus.OK, "[]\n"));
             } else {
                 setState(new RespondWith(HttpResponseStatus.OK));
-                setResponseBodyWriter(new ResultsWriter(cursor, mapper, evt));
-            }
-        }
+//                setResponseWriter(new ResultsWriter(cursor, mapper, evt));
+                setResponseWriter(new CursorWriter(cursor, evt, Providers.<MapFilter>of(new MapFilter() {
 
-        static class ResultsWriter implements ChannelFutureListener {
-
-            private final DBCursor cursor;
-            private volatile boolean first = true;
-            private final ObjectMapper mapper;
-            private final boolean close;
-
-            @Inject
-            public ResultsWriter(DBCursor cursor, ObjectMapper mapper, Event evt) {
-                this.cursor = cursor;
-                this.mapper = mapper;
-                close = !evt.isKeepAlive();
-            }
-
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                // We simply iterate via being called back until the cursor is
-                // finished
-                if (first) {
-                    future = future.channel().write(Unpooled.copiedBuffer("[\n", CharsetUtil.UTF_8));
-                    first = false;
-                }
-                if (cursor.hasNext()) {
-                    DBObject ob = cursor.next();
-                    future = future.channel().write(Unpooled.copiedBuffer(mapper.writeValueAsString(ob), CharsetUtil.UTF_8));
-                }
-                if (cursor.hasNext()) {
-                    future = future.channel().write(Unpooled.copiedBuffer(",\n", CharsetUtil.UTF_8));
-                    future.addListener(this);
-                } else {
-                    future = future.channel().write(Unpooled.copiedBuffer("\n]\n", CharsetUtil.UTF_8));
-                    if (close) {
-                        future.addListener(ChannelFutureListener.CLOSE);
+                    @Override
+                    public Map<String, Object> filter(Map<String, Object> m) {
+                        return m;
                     }
-                }
+                    
+                })));
             }
         }
     }

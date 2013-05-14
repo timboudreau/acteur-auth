@@ -3,12 +3,12 @@
 <html lang="en">
     <head>
         <title>Time</title>
-        <meta name="DC.author" content="Tim Boudreau" />
-        <link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
-        <link href="/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-        <link href="/default.css" rel="stylesheet">
-        <link href="/js/jquery-ui/css/smoothness/jquery-ui-1.10.2.custom.min.css" rel="stylesheet">
-        <link href="/bootstrap-timepicker/bootstrap-timepicker.css" rel="stylesheet">
+        <meta name="DC.author" content="Tim Boudreau"/>
+        <link href="/bootstrap/css/bootstrap.css" rel="stylesheet"/>
+        <link href="/bootstrap/css/bootstrap-responsive.css" rel="stylesheet"/>
+        <link href="/default.css" rel="stylesheet"/>
+        <link href="/js/jquery-ui/css/smoothness/jquery-ui-1.10.2.custom.min.css" rel="stylesheet"/>
+        <link href="/bootstrap-timepicker/bootstrap-timepicker.css" rel="stylesheet"/>
         <!--[if lte IE 8]>
             <script>
             // The ieshiv takes care of our ui.directives, bootstrap module directives and
@@ -18,20 +18,31 @@
 
             window.myCustomTags = [ 'yourDirective', 'somebodyElsesDirective' ]; // optional
             </script>
-            <script src="/js/angular-ui-ieshiv.js"></script>
-        <![endif]-->
+            <script src="/js/angular-ui-ieshiv.min.js"></script>
+        <!--[if lte IE 8]>
+          <script>
+            document.createElement('ng-app');
+            document.createElement('ng-repeat');
+            document.createElement('ng-show');
+            document.createElement('ng-controller');
+            document.createElement('ng-click');
+     
+            // Optionally these for CSS
+            document.createElement('ng:include');
+            document.createElement('ng:pluralize');
+            document.createElement('ng:view');
+          </script>
+        <![endif]-->          
 
         <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
         <!--[if lt IE 9]>
           <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
         <![endif]-->
-
-        <!-- Le fav and touch icons -->
-        <link rel="shortcut icon" href="/ico/favicon.ico">
-        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/ico/apple-touch-icon-144-precomposed.png">
-        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/ico/apple-touch-icon-114-precomposed.png">
-        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/ico/apple-touch-icon-72-precomposed.png">
-        <link rel="apple-touch-icon-precomposed" href="/ico/apple-touch-icon-57-precomposed.png">
+        <link rel="shortcut icon" href="/ico/favicon.ico"/>
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/ico/apple-touch-icon-144-precomposed.png"/>
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/ico/apple-touch-icon-114-precomposed.png"/>
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/ico/apple-touch-icon-72-precomposed.png"/>
+        <link rel="apple-touch-icon-precomposed" href="/ico/apple-touch-icon-57-precomposed.png"/>
     </head>
     <body ng-app="surveys" ng-controller="Status">
         <div class='contentBody' ng-controller="User">
@@ -158,9 +169,13 @@
     <script src="/angular/angular.min.js"></script>
     <script src="/angular/angular-cookies.min.js"></script>
     <script src="/js/angular-ui.min.js"></script>
-    <script src="/js/base64.js"></script>
+    <script src="/scripts/angular-http-auth.js"></script>
+    <script src="/angular/angular-ui-bootstrap.min.js"></script>
+    <script src="/js/base64.min.js"></script>
+    <script src="/scripts/urls.js"></script>
+    <script src="/scripts/status.js"></script>
+    <script src="/scripts/users.js"></script>
     <script src="/scripts/app.js"></script>
-    <script src="/scripts/surveys.js"></script>
 
     <script lang="text/javascript">
 
@@ -215,7 +230,7 @@
             return hours + ':' + mins + ' ' + meridian;
         }
 
-        function Time($scope, $http, user, status) {
+        function Time($scope, $http, user, status, urls) {
             $scope.descriptions = [];
             $scope.description = ''
             $scope.elapsed = '0m'
@@ -235,15 +250,15 @@
             $scope.endTime = $scope.startTime;
             $scope.total = 0;
 
-            $http.get(API_BASE + 'users/' + user.name + '/list').success(function(cats) {
+            $http.get(urls.userPath(user.name, 'list')).success(function(cats) {
                 $scope.categories = cats;
             });
 
             $scope.save = function() {
                 console.log('SAVE');
                 console.log(new Error("Save").stack);
-                $http.post(API_BASE + 'users/' + user.name + '/time/' + $scope.category + '?start=' + computeTime(false).getTime()
-                        + '&end=' + computeTime(true).getTime() + '&activity=' + $scope.description).success(function(res) {
+                $http.post(urls.userPath(user.name, '/time/' + $scope.category + '?start=' + computeTime(false).getTime()
+                        + '&end=' + computeTime(true).getTime() + '&activity=' + $scope.description)).success(function(res) {
                     console.log('SAVED', res)
                 }).error(status.errorHandler);
             }
@@ -295,8 +310,8 @@
             $scope.computeTime = computeTime;
 
             function loadDescriptions() {
-                var fetchFrom = API_BASE + 'users/' + user.name + '/time/'
-                        + $scope.category + '/distinct?field=activity';
+                var fetchFrom = urls.userPath('time/'
+                        + $scope.category + '/distinct?field=activity');
                 $http.get(fetchFrom).success(function(descs) {
                     $scope.descriptions = descs;
                     if (!$scope.description) {
@@ -318,7 +333,7 @@
                     return ref;
                 }
 
-                var u = API_BASE + 'users/' + user.name + '/sessions/' + $scope.category + '?activity=' + $scope.description;
+                var u = urls.userPath(user.name, 'sessions/' + $scope.category + '?activity=' + $scope.description);
 
                 var xmlhttp = getXMLHttpRequestObject();
                 xmlhttp.timeout = (60 * 1000 * 24 * 60 * 31);

@@ -18,7 +18,9 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
+import io.netty.util.CharsetUtil;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -108,6 +110,7 @@ public class MongoUserFactoryTest {
         protected void configure() {
             bind(Initializer.class).asEagerSingleton();
             bind(UserFactory.class).to(MongoUserFactory.class);
+            bind(Charset.class).toInstance(CharsetUtil.UTF_8);
             bind(String.class).annotatedWith(Names.named("application"))
                     .toInstance(MongoUserFactoryTest.class.getSimpleName());
             install(new MongoModule("testit")

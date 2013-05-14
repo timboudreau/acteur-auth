@@ -1,4 +1,4 @@
-package com.mastfrog.acteur;
+package com.mastfrog.acteur.auth;
 
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
@@ -6,17 +6,16 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
-import com.mastfrog.acteur.OAuthPluginsTest.M;
-import com.mastfrog.acteur.OAuthPluginsTest.SM;
-import com.mastfrog.acteur.auth.OAuthPlugins;
-import com.mastfrog.acteur.auth.UniqueIDs;
-import com.mastfrog.acteur.auth.UserFactory;
+import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.auth.OAuthPluginsTest.M;
+import com.mastfrog.acteur.auth.OAuthPluginsTest.SM;
 import com.mastfrog.acteur.auth.UserFactory.Slug;
-import com.mastfrog.acteur.auth.UserInfo;
+import com.mastfrog.acteur.server.PathFactory;
 import com.mastfrog.acteur.server.ServerModule;
 import com.mastfrog.giulius.tests.GuiceRunner;
 import com.mastfrog.giulius.tests.TestWith;
 import com.mastfrog.netty.http.client.HttpClient;
+import com.mastfrog.url.Path;
 import java.util.HashMap;
 import java.util.Set;
 import static org.junit.Assert.assertEquals;
@@ -64,11 +63,29 @@ public class OAuthPluginsTest {
         }
 
     }
+    
+    static class HH extends HomePageRedirector {
+        private final PathFactory pf;
+        @Inject
+        public HH(PathFactory pf) {
+            this.pf = pf;
+        }
+        
+
+        @Override
+        public <T> String getRedirectURI(UserFactory<T> uf, T user, Event evt) {
+            String un = uf.getUserName(user);
+            Path p = Path.builder().add("users").add(un).add("index.html").create();
+            return pf.toExternalPath(p).toStringWithLeadingSlash();
+        }
+        
+    }
 
     static class M extends AbstractModule {
 
         @Override
         protected void configure() {
+            bind(HomePageRedirector.class).to(HH.class);
             bind(FakeOAuthPlugin.class).asEagerSingleton();
             bind(UserFactory.class).to(MockUserFactory.class).in(Scopes.SINGLETON);
             bind(HttpClient.class).toInstance(HttpClient.builder()

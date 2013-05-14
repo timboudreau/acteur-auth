@@ -1,4 +1,4 @@
-function SurveyEditor($scope, $http, user, status) {
+function SurveyEditor($scope, $http, user, status, urls) {
 
     $scope.answerTypes = [
         {name: 'Multiple choice', type: 'multiplechoice'},
@@ -118,7 +118,8 @@ function SurveyEditor($scope, $http, user, status) {
         }
         
         console.log('WILL SEND ', surv)
-        $http.post(API_BASE + 'users/' + user.name + '/surveys', surv).success(function(saved) {
+//        $http.post(API_BASE + 'users/' + user.name + '/surveys', surv).success(function(saved) {
+        $http.post(urls.userPath(user.name, 'surveys'), surv).success(function(saved) {
             status.success = "Saved";
             $scope.survey = saved;
         }).error(status.errorHandler)

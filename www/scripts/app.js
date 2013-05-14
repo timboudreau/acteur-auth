@@ -1,127 +1,4 @@
-var app = angular.module('surveys', ['ngCookies', 'ui']);
-
-var USER_DISPLAY_NAME_COOKIE = "dn";
-var USER_COOKIE_NAME = "ac";
-var API_BASE = "/time/"
-
-app.service('status', function($rootScope) {
-    function setProblem(err) {
-        $rootScope.success = null;
-        $rootScope.problem = err;
-    }
-
-    function setSuccess(succ) {
-        $rootScope.problem = null;
-        $rootScope.success = succ;
-    }
-
-    function clear() {
-        $rootScope.problem = null;
-        $rootScope.success = null;
-    }
-    this.clear = clear;
-
-    this.__defineGetter__('errorHandler', function() {
-        clear();
-        $rootScope.loading = true;
-        return function(err) {
-            $rootScope.loading = false;
-            setProblem(err);
-        }
-    });
-
-    this.__defineGetter__('successHandler', function() {
-        clear();
-        $rootScope.loading = true;
-        return function(succ) {
-            setSuccess(succ);
-            $rootScope.loading = false;
-        }
-    });
-
-    this.__defineSetter__('problem', function(err) {
-        setProblem(err)
-    });
-
-    this.__defineSetter__('success', function(succ) {
-        setSuccess(succ)
-    })
-
-    this.successHandler = function(success) {
-        setSuccess(success)
-    }
-});
-var cookieNames = ['gg', 'fb', 'ac']
-app.service('user', function($cookies, $http, $rootScope) {
-    var un = window.location.pathname.split('/')[2];
-    var self = this;
-
-    function getUserName() {
-        for (var i=0; i < cookieNames.length; i++) {
-            var ck = $cookies[cookieNames[i]];
-            if (ck != null) {
-                var res = /"?(.*?):.*/.exec($cookies[USER_COOKIE_NAME]);
-                if (res) {
-                    return res[1];
-                }
-            }
-        }
-    }
-
-    // This *is* a potential race condition
-    this.name = getUserName();
-
-    this.path = API_BASE + 'users/' + un;
-
-    this.__defineGetter__('displayName', function() {
-        if (self.dn) {
-            return self.dn;
-        }
-        var dn = $cookies[USER_DISPLAY_NAME_COOKIE];
-        if (dn && /"/.test(dn)) {
-            dn = dn.replace(/"/g, '');
-        }
-        return self.dn = dn;
-    });
-
-    this.setDisplayName = function(nm) {
-        var old = self.name;
-        self.name = nm;
-        return $http.post(self.path + '?displayName=' + nm, '').error(function(err) {
-            self.name = old;
-        }).success(function(records) {
-            $rootScope.$broadcast('userDisplayNameChanged', nm);
-        });
-    }
-
-    this.setPassword = function(password) {
-        return $http.post(self.path + '/password', password);
-    }
-
-    this.get = function() {
-        return $http.get(API_BASE + "whoami");
-    }
-});
-
-app.service('lookingAt', function(user, $http, $rootScope) {
-    var un = window.location.pathname.split('/')[2];
-    var self = this;
-    this.name = un;
-    $rootScope.lookingAtUserName = un;
-    self.path = API_BASE + 'users/' + un;
-    console.log('LOOKING AT ' + un + "'")
-    if (user.name === un) {
-        this.get = user.get;
-    } else {
-        this.get = function() {
-            return $http.get(API_BASE + "whoami?user=" + un).success(function(u) {
-                $rootScope.lookingAtUserName = u.name;
-                $rootScope.lookingAtUser = u;
-                self.path = API_BASE + '/users/' + u.name;
-            });
-        }
-    }
-});
+var app = angular.module('surveys', ['ngCookies', 'ui', 'http-auth-interceptor', 'urls', 'users', 'status', 'ui.bootstrap.dialog']);
 
 app.factory('loadingInterceptor', function($q, $rootScope) {
     return function(promise) {
@@ -139,6 +16,7 @@ app.factory('loadingInterceptor', function($q, $rootScope) {
 
 app.config(function($httpProvider) {
     $httpProvider.responseInterceptors.push('loadingInterceptor');
+    $httpProvider.defaults.headers.common['X-No-Authenticate'] = 'true';
 });
 
 app.directive('autoComplete', function($timeout) {
@@ -170,10 +48,8 @@ app.directive('timepicker', function($timeout, dateFilter) {
                         }
                         var data = tp.data();
                         var delta = evt.originalEvent.wheelDelta;
-                        console.log('MW!! ' + delta + ':', evt)
                         var direction = delta > 0 ? 1 : -1;
                         var step = iAttrs['minuteStep'] ? parseInt(iAttrs['minuteStep']) : 5;
-                        console.log('STEP ' + step + " dir " + direction)
                         if (direction === 1) {
                             tp.timepicker('decrementMinute', step);
                             scope.$apply();
@@ -194,6 +70,122 @@ app.directive('timepicker', function($timeout, dateFilter) {
     return result;
 });
 
+app.directive('loginDialog', function($dialog) {
+    return {
+        restrict: 'C',
+        link: function(scope, elem, attrs) {
+
+            var dlg = $dialog.dialog({dialogFade: true, keyboard: false, backdropClick: false});
+
+            scope.$on('event:auth-loginRequired', function() {
+                dlg.open('/partials/loginform.html', function(dialog) {
+                    console.log('DIALOG INIT:')
+                    scope.loginDialog = dialog;
+                });
+            });
+            scope.$on('event:auth-loginConfirmed', function() {
+                if (scope.loginDialog) {
+                    scope.loginDialog.close();
+                    scope.loginDialog = null;
+                }
+            });
+        }
+    }
+});
+
+app.controller({
+    AuthController: function($scope, $http, $cookies, authService, urls, user) {
+        $http.get(urls.path('auths')).success(function(auths) {
+            $scope.auths = auths;
+        });
+
+        $scope.authPopup = function(auth) {
+            var url = auth.loginPagePath;
+//            signinWin = window.open(url + "?redir=/login.html");
+            var pos = {x: '50%', y: '50%'}
+            signinWin = window.open(url + "?redir=/login.html", "SignIn", "width=500,height=300,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + pos.x + ",top=" + pos.y + ",unadorned=true");
+
+            var oldc = signinWin.close;
+            signinWin.close = function() {
+                console.log('CLOSE IT', new Error("Close"))
+                oldc.apply(signinWin, arguments);
+            }
+
+            user.onLoggedInUserChange(function(userName) {
+                if (userName) {
+                    authService.loginConfirmed();
+                    signinWin.close();
+                }
+            });
+
+            if (signinWin) {
+                signinWin.focus();
+            }
+        }
+    },
+    User: function($scope, user) {
+        $scope.user = user.info;
+    },
+    Status : function($scope, status) {
+        
+    },
+    LoginController: function($scope, $http, authService, urls, status) {
+        $scope.signUp = function() {
+            if ($scope.password2 !== $scope.password) {
+                status.problem = "Passwords do not match"
+                return;
+            }
+            $scope.problem = null;
+            var up = urls.userPath($scope.username, 'signup?displayName=' + $scope.displayName);
+            $http.post(up, $scope.password).success(function(user) {
+                $scope.user = user;
+                $http.defaults.headers.common['X-No-Authenticate'] = 'true';
+                $http.defaults.headers.common['Authorization'] = 'Basic ' + Base64.encode($scope.username + ':' + $scope.password);
+
+                $http.get(urls.path('whoami')).success(function() {
+                    window.location = urls.userHome($scope.username);
+                });
+            }).error(function(err) {
+                $scope.problem = err;
+            });
+        }
+
+        $scope.login = function() {
+            if (!$scope.username || !$scope.password) {
+                status.problem = "Username or password missing";
+                return;
+            }
+
+            var credentials = Base64.encode($scope.username + ':' + $scope.password);
+
+            var up = urls.path('testLogin?auth=true');
+            console.log('USER PATH: ' + up)
+            var opts = {
+                withCredentials: true,
+                method: 'POST',
+                url: up,
+                data: '',
+                headers: {
+                    Authorization: 'Basic ' + credentials
+                }
+            }
+
+            $http.defaults.headers['Authorization'] = 'Basic ' + credentials;
+            $http(opts).success(function(info) {
+                console.log("GOT BACK", info);
+
+                if (!info.success) {
+                    $scope.problem = 'Invalid user name or password';
+                } else {
+                    authService.loginConfirmed();
+                }
+            }).error(function(err) {
+                $scope.problem = err;
+            })
+        }
+    }
+})
+
 app.filter('two', function() {
     return function(num) {
         if (typeof num === 'string') {
@@ -206,31 +198,3 @@ app.filter('two', function() {
         return result;
     }
 })
-
-function Status($scope, status) {
-    $scope.clear = status.clear;
-}
-
-function User($scope, user, $rootScope, lookingAt, $http) {
-    console.log('USER ' + user.name);
-    console.log('LOOKING AT ' + lookingAt.name)
-    console.log('DN ' + user.displayName)
-    if (!user.displayName) {
-        user.get().success(function(u) {
-            $scope.userDisplayName = u.displayName;
-        });
-    }
-    $scope.userDisplayName = user.displayName;
-    $scope.userName = user.name;
-    $scope.lookingAtUserName = lookingAt.name;
-    $rootScope.$on('userDisplayNameChanged', function(evt, name) {
-        $scope.userDisplayName = name;
-    });
-
-    $scope.logout = function() {
-        $http.get(API_BASE + 'testLogin?logout=true').success(function() {
-            $rootScope.success = 'Logged out';
-            window.location = '/';
-        })
-    }
-}

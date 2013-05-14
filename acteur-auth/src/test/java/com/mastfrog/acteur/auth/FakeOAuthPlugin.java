@@ -1,7 +1,8 @@
-package com.mastfrog.acteur;
+package com.mastfrog.acteur.auth;
 
 import com.google.inject.Inject;
-import com.mastfrog.acteur.FakeOAuthPlugin.FakeCredential;
+import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.auth.FakeOAuthPlugin.FakeCredential;
 import com.mastfrog.acteur.auth.OAuthPlugin;
 import com.mastfrog.acteur.auth.OAuthPlugins;
 import com.mastfrog.acteur.auth.UserFactory;

@@ -50,13 +50,13 @@ app.filter('duration', function() {
     }
 })
 
-function Times($scope, $http, lookingAt, $location) {
+function Times($scope, $http, lookingAt, $location, urls) {
     var u = decodeURIComponent(document.URL);
 
-    console.log('LOOKINGAT PATH + "' + lookingAt.path + '"')
+    console.log('LOOKINGAT PATH + "' + lookingAt.name + '"')
     console.log('CATEGORY: ' + $scope.category)
 
-    $http.get(lookingAt.path +'/list').success(function(categories) {
+    $http.get(urls.userPath(lookingAt.name,'list')).success(function(categories) {
         $scope.categories = categories;
     })
     
@@ -93,11 +93,11 @@ function Times($scope, $http, lookingAt, $location) {
         $scope.category = cat;
 //        $location.hash(cat);
 //        window.location.hash=cat;
-        var fetchFrom = lookingAt.path + '/time/' + $scope.category;
+        var fetchFrom = urls.userPath(lookingAt.name, 'time/' + $scope.category);
         if (/.*?\?(.*?)/.test(u + "")) {
             fetchFrom += '?' + /.*?\?(.*?)$/.exec(u + "")[1];
         }
-        fetchBase = lookingAt.path + '/time/' + $scope.category;
+        fetchBase = urls.userPath(lookingAt.name, 'time/' + $scope.category);
         $http.get(fetchFrom).success(function(items) {
             var total = 0;
             var aggregate = {};

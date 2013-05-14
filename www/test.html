@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ng="http://angularjs.org" >
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title>Angular authorization demo application</title>
+
+        <link href="/bootstrap/css/bootstrap.css" rel="stylesheet"/>
+        <link href="/bootstrap/css/bootstrap-responsive.css" rel="stylesheet"/>
+        <link href="/default.css" rel="stylesheet"/>
+        <link href="/js/jquery-ui/css/smoothness/jquery-ui-1.10.2.custom.min.css" rel="stylesheet"/>
+        <link href="/angular/angular-ui.min.css" rel="stylesheet"/>
+        <!--[if lte IE 8]>
+            <script>
+            // The ieshiv takes care of our ui.directives, bootstrap module directives and
+            // AngularJS's ng-view, ng-include, ng-pluralize and ng-switch directives.
+            // However, IF you have custom directives (yours or someone else's) then
+            // enumerate the list of tags in window.myCustomTags
+
+            window.myCustomTags = [ 'yourDirective', 'somebodyElsesDirective' ]; // optional
+            </script>
+            <script src="/js/angular-ui-ieshiv.min.js"></script>
+        <!--[if lte IE 8]>
+          <script>
+            document.createElement('ng-app');
+            document.createElement('ng-repeat');
+            document.createElement('ng-show');
+            document.createElement('ng-controller');
+            document.createElement('ng-click');
+     
+            // Optionally these for CSS
+            document.createElement('ng:include');
+            document.createElement('ng:pluralize');
+            document.createElement('ng:view');
+          </script>
+        <![endif]-->          
+
+        <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+          <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+
+        <link rel="shortcut icon" href="/ico/favicon.ico"></link>
+    </head>
+    <body ng-app="surveys" class="login-dialog ng-cloak" ng-controller="Status">
+
+        <ng-include src="'/partials/topNav.html'"></ng-include>
+        <div id="initializing-panel"></div>
+
+        <div id="content-outer" class='contentBody'>
+            <span ng:controller="UserController">
+                <h1>Hello {{user.displayName}} ({{user.name}})</h1>
+            </span>
+
+            <!--<ng-include src="'/partials/loginform.html'"></ng-include>-->
+
+            <!--<div id="content" ng-controller="ContentController">-->
+            <div ng-controller="ContentController">
+
+                <h1>HTTP Auth Interceptor Module Demo</h1>
+
+                <button ng-click="restrictedAction()">Click Me</button>
+                <button ng-click="logout()">Logout</button>
+
+            </div>
+        </div>
+        <script src="/bootstrap/js/jquery.min.js"></script>
+        <script src="/bootstrap/js/bootstrap-modal.min.js"></script>
+        <script src="/bootstrap/js/bootstrap-dropdown.min.js"></script>
+        <script src="/js/jquery-ui/js/jquery-ui-1.10.2.custom.min.js"></script>
+
+        <script src="/angular/angular.min.js"></script>
+        <script src="/angular/angular-cookies.min.js"></script>
+        <script src="/js/angular-ui.min.js"></script>
+        <script src="/scripts/angular-http-auth.js"></script>
+        <script src="/angular/angular-ui-bootstrap.min.js"></script>
+        <script src="/js/base64.min.js"></script>
+        <script src="/scripts/urls.js"></script>
+        <script src="/scripts/status.js"></script>
+        <script src="/scripts/users.js"></script>
+        <script src="/scripts/app.js"></script>
+
+        <script lang="text/javascript">
+                    function UserController($scope, user) {
+                        $scope.user = user.info;
+                    }
+
+                    function ContentController($scope, $http) {
+
+                        $scope.publicContent = [];
+                        $scope.restrictedContent = [];
+
+                        $scope.restrictedAction = function() {
+                            console.log('DO IT')
+                            $http.get('/time/users/niftiness@gmail.com/list', $scope.restrictedData).success(function(response) {
+                                // this piece of code will not be executed until user is authenticated
+                                $scope.restrictedContent.push(response);
+                            });
+                        }
+
+                        $scope.logout = function() {
+                            $http.post('/time/testLogin?logout=true').success(function() {
+                                $scope.restrictedContent = [];
+                            });
+                        }
+                    }
+        </script>
+    </body>
+</html>

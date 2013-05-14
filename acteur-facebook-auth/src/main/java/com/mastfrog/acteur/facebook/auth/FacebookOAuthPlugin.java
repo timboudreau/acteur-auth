@@ -28,7 +28,7 @@ import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
 /**
- * OAuthPlugin for authenticating with Google.
+ * OAuthPlugin for authenticating with Facebook.
  *
  * @author tim
  */
@@ -45,7 +45,7 @@ final class FacebookOAuthPlugin extends OAuthPlugin<Token> {
             @Named(SETTINGS_KEY_FACEBOOK_APP_SECRET) String appSecret,
             PathFactory paths,
             Settings settings, OAuthPlugins plugins, ObjectMapper mapper, UserFactory<?> users) {
-        super("Facebook", "fb", "http://productforums.google.com/forum/google.png", plugins);
+        super("Facebook", "fb", "https://fbstatic-a.akamaihd.net/rsrc.php/v2/yr/r/KHAfgp45Qko.png", plugins);
         this.appId = apiKey;
         this.appSecret = appSecret;
         this.paths = paths;

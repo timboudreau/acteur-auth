@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Login</title>
+        <link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
+        <link href="/default.css" rel="stylesheet">        
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body ng-app='login'>
+        <div ng-controller="AuthController" class="contentBody">
+            <div ng-repeat="auth in auths">
+                <a id="{{auth.code}}" class='btn btn-primary' href="#" ng-click="authPopup(auth)">{{auth.name}}</a>
+            </div>
+        </div>
+        <a class='btn' href='/time/testLogin?logout=true' target='x'>Logout</a>
+
+        <script src="/bootstrap/js/jquery.min.js"></script>
+        <script src="/angular/angular.min.js"></script>        
+        <script src="/angular/angular-cookies.min.js"></script>
+        <script lang="text/javascript">
+
+                    angular.module('login', ['ngCookies'])
+
+                    function AuthController($scope, $http, $cookies) {
+                        $http.get('/time/auths').success(function(auths) {
+                            $scope.auths = auths;
+                        });
+
+                        function watchCookies(names, callback) {
+                            var orig = {};
+                            for (var i = 0; i < names.length; i++) {
+                                orig[names[i]] = $cookies[names[i]]
+                            }
+                            var ival = setInterval(function() {
+                                for (var i = 0; i < names.length; i++) {
+                                    if ($cookies[names[i]] !== orig[names[i]]) {
+                                        callback(names[i]);
+                                        clearInterval(ival);
+                                        break;
+                                    }
+                                }
+                            }, 1000);
+                        }
+
+                        $scope.authPopup = function(auth) {
+                            var url = auth.loginPagePath;
+                            w = 500;
+                            h = 300;
+                            var left = (screen.width / 2) - (w / 2);
+                            var top = (screen.height / 2) - (h / 2);
+                            var pos = {left: left, top: top}
+                            signinWin = window.open(url + "?redir=/login.html", "SignIn", "width=500,height=300,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + pos.x + ",top=" + pos.y + ",unadorned=true");
+
+                            watchCookies(['gg', 'fb', 'ba'], function(changed) {
+                                console.log('COOKIE CHANGE: ' + changed);
+                                signinWin.close();
+                            })
+
+                            if (signinWin) {
+                                signinWin.focus();
+                            }
+                        }
+                    }
+        </script>
+    </body>
+</html>

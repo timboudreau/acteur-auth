@@ -17,27 +17,31 @@
 
             window.myCustomTags = [ 'yourDirective', 'somebodyElsesDirective' ]; // optional
             </script>
-            <script src="/js/angular-ui-ieshiv.js"></script>
-        <![endif]-->
+            <script src="/js/angular-ui-ieshiv.min.js"></script>
+        <!--[if lte IE 8]>
+          <script>
+            document.createElement('ng-app');
+            document.createElement('ng-repeat');
+            document.createElement('ng-show');
+            document.createElement('ng-controller');
+            document.createElement('ng-click');
+     
+            // Optionally these for CSS
+            document.createElement('ng:include');
+            document.createElement('ng:pluralize');
+            document.createElement('ng:view');
+          </script>
+        <![endif]-->          
 
         <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
         <!--[if lt IE 9]>
           <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
         <![endif]-->
-
-        <!-- Le fav and touch icons -->
-        <link rel="shortcut icon" href="/ico/favicon.ico">
-        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/ico/apple-touch-icon-144-precomposed.png">
-        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/ico/apple-touch-icon-114-precomposed.png">
-        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/ico/apple-touch-icon-72-precomposed.png">
-        <link rel="apple-touch-icon-precomposed" href="/ico/apple-touch-icon-57-precomposed.png">
-        <!--        <script lang="text/javascript">
-                    var req = new XMLHttpRequest();
-                    req.open('GET', '/time/testLogin?auth=true&respondWith=401', false);
-                    req.send(null);
-                    var headers = req.getAllResponseHeaders().toLowerCase();
-                    console.log("HEADERS: ", req.getAllResponseHeaders());
-                </script>        -->
+        <link rel="shortcut icon" href="/ico/favicon.ico"/>
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/ico/apple-touch-icon-144-precomposed.png"/>
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/ico/apple-touch-icon-114-precomposed.png"/>
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/ico/apple-touch-icon-72-precomposed.png"/>
+        <link rel="apple-touch-icon-precomposed" href="/ico/apple-touch-icon-57-precomposed.png"/>
     </head>
     <body ng-app="surveys" ng-controller="Status">
         <div ng-controller="User">
@@ -145,102 +149,107 @@
     <script src="/angular/angular.min.js"></script>
     <script src="/angular/angular-cookies.min.js"></script>
     <script src="/js/angular-ui.js"></script>
-    <script src="/js/base64.js"></script>
+    <script src="/angular/angular-ui-bootstrap.min.js"></script>
+    <script src="/js/base64.min.js"></script>
+    <script src="/scripts/urls.js"></script>
+    <script src="/scripts/status.js"></script>
+    <script src="/scripts/users.js"></script>
     <script src="/scripts/app.js"></script>
+    <script src="/scripts/angular-http-auth.js"></script>
 
     <script lang="text/javascript">
-        function UserProfile($scope, user, status, $http) {
-            $scope.allUsers = [];
-            $scope.users = [];
-            $scope.password = '';
-            $scope.repeatPassword = '';
+                                    function UserProfile($scope, user, status, $http, urls) {
+                                        $scope.allUsers = [];
+                                        $scope.users = [];
+                                        $scope.password = '';
+                                        $scope.repeatPassword = '';
 
-            user.get().success(function(user) {
-                $scope.user = user;
-                if (user.created) {
-                    $scope.user.date = new Date(user.created)
-                }
-            }).error(status.errorHandler);
+                                        user.get().success(function(user) {
+                                            $scope.user = user;
+                                            if (user.created) {
+                                                $scope.user.date = new Date(user.created)
+                                            }
+                                        }).error(status.errorHandler);
 
-            $scope.save = function() {
-                if (!$scope.user.displayName) {
-                    status.problem = "Display name not set";
-                } else if ($scope.user.displayName.length < 3) {
-                    status.problem = "Display name too short";
-                } else {
-                    user.setDisplayName($scope.user.displayName).success(function(res) {
-                        status.success = res.updated + " records updated";
-                    });
-                }
-            }
+                                        $scope.save = function() {
+                                            if (!$scope.user.displayName) {
+                                                status.problem = "Display name not set";
+                                            } else if ($scope.user.displayName.length < 3) {
+                                                status.problem = "Display name too short";
+                                            } else {
+                                                user.setDisplayName($scope.user.displayName).success(function(res) {
+                                                    status.success = res.updated + " records updated";
+                                                });
+                                            }
+                                        }
 
-            $scope.deauthorize = function(whom) {
-                console.log("DEAUTHORIZE " + whom)
-                var name = $scope.selected;
+                                        $scope.deauthorize = function(whom) {
+                                            console.log("DEAUTHORIZE " + whom)
+                                            var name = $scope.selected;
 
-                $http.post(user.path + '/deauthorize/' + whom, '').success(function(upd) {
-                    console.log('DEAUTH RESULT ', upd)
-                    status.success = 'Updated ' + JSON.stringify(upd.updated);
-                    $scope.user.authorizes.push($scope.idForDisplayName[name]);
-                    var ix = $scope.user.authorizes.indexOf($scope.idForDisplayName[name]);
-                    if (ix >= 0) {
-                        remove($scope.user.authorizes, ix, ix);
-                    }
-                    loadSharers();
-                }).error(status.errorHandler).error(function(er) {
-                    console.log(er)
-                });
-            }
+                                            $http.post(urls.userPath (user.name, 'deauthorize/' + whom), '').success(function(upd) {
+                                                console.log('DEAUTH RESULT ', upd)
+                                                status.success = 'Updated ' + JSON.stringify(upd.updated);
+                                                $scope.user.authorizes.push($scope.idForDisplayName[name]);
+                                                var ix = $scope.user.authorizes.indexOf($scope.idForDisplayName[name]);
+                                                if (ix >= 0) {
+                                                    remove($scope.user.authorizes, ix, ix);
+                                                }
+                                                loadSharers();
+                                            }).error(status.errorHandler).error(function(er) {
+                                                console.log(er)
+                                            });
+                                        }
 
-            $scope.authorize = function() {
-                var name = $scope.selected;
-                var id = $scope.idForDisplayName[name]
-                console.log("AUTHORIZE " + name + " as " + id);
+                                        $scope.authorize = function() {
+                                            var name = $scope.selected;
+                                            var id = $scope.idForDisplayName[name]
+                                            console.log("AUTHORIZE " + name + " as " + id);
 
-                $http.post(user.path + '/authorize/' + id).success(function(upd) {
-                    status.success = 'Updated ' + JSON.stringify(upd.updated);
+                                            $http.post(urls.userPath(user.name, 'authorize/' + id)).success(function(upd) {
+                                                status.success = 'Updated ' + JSON.stringify(upd.updated);
 //                    status.success = 'Updated ' + upd.updated;
-                    $scope.user.authorizes.push($scope.idForDisplayName[name]);
-                }).error(status.errorHandler);
-            }
+                                                $scope.user.authorizes.push($scope.idForDisplayName[name]);
+                                            }).error(status.errorHandler);
+                                        }
 
-            $scope.changePassword = function() {
-                if ($scope.password !== $scope.repeatPassword) {
-                    return status.problem = 'Passwords do not match';
-                }
-                if ($scope.password.length < 5) {
-                    return status.problem = 'Password too short';
-                }
-                console.log('Set password to "' + $scope.password + "'")
-                user.setPassword($scope.password).success(status.successHandler).error(status.errorHandler);
-            }
+                                        $scope.changePassword = function() {
+                                            if ($scope.password !== $scope.repeatPassword) {
+                                                return status.problem = 'Passwords do not match';
+                                            }
+                                            if ($scope.password.length < 5) {
+                                                return status.problem = 'Password too short';
+                                            }
+                                            console.log('Set password to "' + $scope.password + "'")
+                                            user.setPassword($scope.password).success(status.successHandler).error(status.errorHandler);
+                                        }
 
-            $http.get(API_BASE + "all").error(status.errorHandler).success(function(items) {
-                $scope.allUsers = items;
-                $scope.userForId = {};
-                $scope.idForDisplayName = {};
-                items.forEach(function(item) {
-                    $scope.users.push(item.displayName || item.name);
-                    $scope.userForId[item._id] = (item.displayName || item.name);
-                    $scope.idForDisplayName[item.displayName] = item._id;
-                });
-                console.log('USERS: ', $scope.users)
-            });
+                                        $http.get(urls.path("all")).error(status.errorHandler).success(function(items) {
+                                            $scope.allUsers = items;
+                                            $scope.userForId = {};
+                                            $scope.idForDisplayName = {};
+                                            items.forEach(function(item) {
+                                                $scope.users.push(item.displayName || item.name);
+                                                $scope.userForId[item._id] = (item.displayName || item.name);
+                                                $scope.idForDisplayName[item.displayName] = item._id;
+                                            });
+                                            console.log('USERS: ', $scope.users)
+                                        });
 
-            $scope.sharers = [];
-            function loadSharers() {
-                $http.get(user.path + '/sharers').success(function(sharers) {
-                    $scope.sharers = sharers;
-                })
-            }
-            loadSharers();
-        }
+                                        $scope.sharers = [];
+                                        function loadSharers() {
+                                            $http.get(urls.path('sharers')).success(function(sharers) {
+                                                $scope.sharers = sharers;
+                                            })
+                                        }
+                                        loadSharers();
+                                    }
 
-        function remove(arr, from, to) {
-            var rest = arr.slice((to || from) + 1 || arr.length);
-            arr.length = from < 0 ? arr.length + from : from;
-            return arr.push.apply(this, rest);
-        }
+                                    function remove(arr, from, to) {
+                                        var rest = arr.slice((to || from) + 1 || arr.length);
+                                        arr.length = from < 0 ? arr.length + from : from;
+                                        return arr.push.apply(this, rest);
+                                    }
     </script>
 </body>
 </html>

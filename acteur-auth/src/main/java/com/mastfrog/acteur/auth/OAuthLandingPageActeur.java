@@ -5,7 +5,6 @@ import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.auth.OAuthPlugin.RemoteUserInfo;
-import static com.mastfrog.acteur.auth.OAuthPlugins.SETTINGS_KEY_OAUTH_COOKIE_PATH;
 import com.mastfrog.acteur.auth.UserFactory.LoginState;
 import com.mastfrog.acteur.auth.UserFactory.Slug;
 import com.mastfrog.acteur.util.Headers;
@@ -16,17 +15,20 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 
 /**
  *
- * @author tim
+ * @author Tim Boudreau
  */
 final class OAuthLandingPageActeur extends Acteur {
 
     private final OAuthPlugins plugins;
+    private final HomePageRedirector redir;
 
     @Inject
-    OAuthLandingPageActeur(Event evt, OAuthPlugins plugins, UserFactory<?> users, Settings settings) throws URISyntaxException, IOException {
+    OAuthLandingPageActeur(Event evt, OAuthPlugins plugins, UserFactory<?> users, Settings settings, HomePageRedirector redir) throws URISyntaxException, IOException {
+        this.redir = redir;
         this.plugins = plugins;
         // The URL should be in the form $BASE/$CODE
         String pluginType = evt.getPath().getLastElement().toString();
@@ -50,6 +52,11 @@ final class OAuthLandingPageActeur extends Acteur {
         Optional<LoginState> stateo = users.lookupLoginState(state);
         if (!stateo.isPresent()) {
             setState(new RespondWith(HttpResponseStatus.BAD_REQUEST, "Bogus login state " + state));
+            return;
+        }
+        LoginState st = stateo.get();
+        if (st.used){
+            setState(new RespondWith(HttpResponseStatus.BAD_REQUEST, "Already used credential " + state));
             return;
         }
         finish(plugin, evt, users, stateo.get());
@@ -104,16 +111,23 @@ final class OAuthLandingPageActeur extends Acteur {
         ck.setMaxAge(plugin.getSlugMaxAge().getMillis());
         ck.setPath(plugins.cookieBasePath());
         add(Headers.SET_COOKIE, ck);
-        
+
         plugins.createDisplayNameCookie(evt, response(), rui.displayName());
 
         // See if the request has a redirect already - we may have passed one
         // to the remote service and it is passing it back to us
         String redirTo = state.redirectTo;
-        // If not, look up the default, which is set in settings and defaults to /
-        URI uri = redirTo == null ? plugins.loginRedirect() : new URI(redirTo);
-        add(Headers.LOCATION, uri);
-        // Do the redirect
-        setState(new RespondWith(HttpResponseStatus.FOUND, "Logged in " + rui.displayName() + " (" + rui.userName() + ")"));
+        if (redirTo != null) {
+            URI uri = new URI(URLDecoder.decode(redirTo, "UTF-8"));
+            add(Headers.LOCATION, uri);
+            // Do the redirect
+            setState(new RespondWith(HttpResponseStatus.FOUND, "Logged in " + rui.displayName() + " (" + rui.userName() + ")"));
+        } else {
+            // If not, look up the default, which is set in settings and defaults to /
+            URI uri = new URI(redir.getRedirectURI(users, user, evt));
+            add(Headers.LOCATION, uri);
+            // Do the redirect
+            setState(new RespondWith(HttpResponseStatus.FOUND, "Logged in " + rui.displayName() + " (" + rui.userName() + ")"));
+        }
     }
 }

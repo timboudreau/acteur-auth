@@ -11,6 +11,7 @@ function Login($scope, $http) {
         $http.post('/time/users/' + $scope.username + '/signup?displayName=' + $scope.displayName, $scope.password).success(function(user) {
             $scope.user = user;
             console.log("SIGN UP", user);
+            $http.defaults.headers.common['X-No-Authenticate'] = 'true';
             $http.defaults.headers.common['Authorization'] = 'Basic ' + Base64.encode($scope.username + ':' + $scope.password);
             $http.get('/time/whoami').success(function() {
                 var loc = '/users/' + $scope.username + "/";

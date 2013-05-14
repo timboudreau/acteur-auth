@@ -53,7 +53,8 @@ class ListUsersResource extends Page {
                     if (!simple) {
                         m.remove(pass);
                         m.remove(origPass);
-                        m.remove("cookieSlug");
+                        m.remove("slugs");
+                        m.remove("tokens");
                         Object i = m.get("_id");
                         if (i instanceof ObjectId) {
                             i = ((ObjectId) i).toStringMongod();

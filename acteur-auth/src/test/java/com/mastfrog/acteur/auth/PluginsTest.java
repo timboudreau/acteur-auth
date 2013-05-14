@@ -3,13 +3,11 @@
  * and open the template in the editor.
  */
 
-package com.mastfrog.acteur;
+package com.mastfrog.acteur.auth;
 
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
-import com.mastfrog.acteur.PluginsTest.M;
-import com.mastfrog.acteur.auth.OAuthPlugin;
-import com.mastfrog.acteur.auth.OAuthPlugins;
+import com.mastfrog.acteur.auth.PluginsTest.M;
 import com.mastfrog.giulius.tests.GuiceRunner;
 import com.mastfrog.giulius.tests.TestWith;
 import io.netty.util.CharsetUtil;
@@ -36,7 +34,7 @@ public class PluginsTest {
         assertNotNull(pgn);
         assertTrue(pgn instanceof FakeOAuthPlugin);
         OAuthPlugins.PluginInfo info = plugins.getPlugins().iterator().next();
-        assertEquals("api/foo/oauth/fk", info.loginPagePath);
+        assertEquals("/api/foo/oauth/fk", info.loginPagePath);
     }
 
     static class M extends AbstractModule {

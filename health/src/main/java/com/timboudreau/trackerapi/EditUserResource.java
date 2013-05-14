@@ -6,6 +6,7 @@ import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.auth.OAuthPlugins;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.Method;
@@ -15,7 +16,6 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
-import com.timboudreau.trackerapi.support.AuthSupport;
 import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import com.timboudreau.trackerapi.support.UserCollectionFinder;
 import io.netty.handler.codec.http.Cookie;
@@ -45,7 +45,7 @@ public class EditUserResource extends Page {
     private static class UpdateUserActeur extends Acteur {
 
         @Inject
-        UpdateUserActeur(DBCollection coll, Event evt, PasswordHasher hasher, TTUser user, AuthSupport supp) throws IOException {
+        UpdateUserActeur(DBCollection coll, Event evt, PasswordHasher hasher, TTUser user, OAuthPlugins pgns) throws IOException {
             String userName = URLDecoder.decode(evt.getPath().getElement(1).toString(), "UTF-8");
             String dn = evt.getParameter(Properties.displayName);
 
@@ -78,8 +78,7 @@ public class EditUserResource extends Page {
 
             WriteResult res = coll.update(query, update, false, false, WriteConcern.FSYNCED);
             if (res.getN() == 1) {
-                Cookie key = supp.encodeDisplayNameCookie(dn);
-                add(Headers.SET_COOKIE, key);
+                pgns.createDisplayNameCookie(evt, response(), dn);
             }
 
             setState(new RespondWith(HttpResponseStatus.ACCEPTED, Timetracker.quickJson("updated", res.getN())));

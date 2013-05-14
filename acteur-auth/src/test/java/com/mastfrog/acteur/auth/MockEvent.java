@@ -1,7 +1,8 @@
-package com.mastfrog.acteur;
+package com.mastfrog.acteur.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Optional;
+import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.util.HeaderValueType;
 import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.Method;

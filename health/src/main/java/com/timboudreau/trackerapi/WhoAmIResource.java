@@ -1,19 +1,18 @@
 package com.timboudreau.trackerapi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.auth.OAuthPlugins;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.Method;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.timboudreau.trackerapi.support.AuthSupport;
 import com.timboudreau.trackerapi.support.UserCollectionFinder;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
@@ -43,7 +42,7 @@ public class WhoAmIResource extends Page {
     private static class UserInfoActeur extends Acteur {
 
         @Inject
-        UserInfoActeur(TTUser user, DBCollection coll, AuthSupport supp, Event evt) throws IOException {
+        UserInfoActeur(TTUser user, DBCollection coll, Event evt, OAuthPlugins pgns) throws IOException {
             boolean other = evt.getParameter("user") != null && !user.names().contains(evt.getParameter("user"));
             add(Headers.stringHeader("UserID"), user.id().toStringMongod());
             DBObject ob = other ? coll.findOne(new BasicDBObject("name", evt.getParameter("user")), 
@@ -56,10 +55,10 @@ public class WhoAmIResource extends Page {
             Map<String, Object> m = new HashMap<>(ob.toMap());
             m.remove(Properties.pass);
             m.remove(Properties.origPass);
-            m.remove("cookieSlug");
+            m.remove("slugs");
             String dn = (String) m.get(Properties.displayName);
             if (dn != null && !other) {
-                add(Headers.SET_COOKIE, supp.encodeDisplayNameCookie(dn));
+                pgns.createDisplayNameCookie(evt, response(), dn);
             }
             setState(new RespondWith(200, m));
         }

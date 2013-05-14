@@ -11,18 +11,26 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
+import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.auth.ActeurAuthModule;
+import com.mastfrog.acteur.auth.HomePageRedirector;
+import com.mastfrog.acteur.auth.UserFactory;
 import com.mastfrog.acteur.facebook.auth.FacebookOAuthModule;
 import com.mastfrog.acteur.google.auth.GoogleOAuthModule;
 import com.mastfrog.acteur.mongo.MongoInitializer;
 import com.mastfrog.acteur.mongo.MongoModule;
 import com.mastfrog.acteur.mongo.userstore.MongoUserFactory;
 import static com.mastfrog.acteur.mongo.userstore.MongoUserFactory.USERS_COLLECTION_NAME;
+import com.mastfrog.acteur.server.PathFactory;
 import com.mastfrog.acteur.util.Realm;
 import com.mastfrog.settings.Settings;
+import com.mastfrog.url.Path;
+import com.mastfrog.util.Exceptions;
 import com.mongodb.BasicDBObject;
 import com.timboudreau.questions.QuestionsModule;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import org.joda.time.DateTime;
 
@@ -56,6 +64,22 @@ final class TimetrackerAppModule extends AbstractModule {
         install(new FacebookOAuthModule());
         install(new ActeurAuthModule(MongoUserFactory.class));
         bind(Ini.class).asEagerSingleton();
+        bind(HomePageRedirector.class).to(HPR.class);
+    }
+
+    private static class HPR extends HomePageRedirector {
+
+        private final PathFactory paths;
+        @Inject
+        HPR(PathFactory paths) {
+            this.paths = paths;
+        }
+
+        @Override
+        public <T> String getRedirectURI(UserFactory<T> uf, T user, Event evt) {
+            String nm = uf.getUserName(user);
+            return "/users/" + nm + "/";
+        }
     }
 
     private static class BsonDateSerializer extends StdSerializer<DateTime> {

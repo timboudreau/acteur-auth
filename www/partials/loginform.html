@@ -1,0 +1,86 @@
+<div id="login-holder" class="auth-demo-application modal modal-wide">
+    <div id="loginbox">
+        <div id="login-inner" ng-controller="LoginController" class="container-fluid">
+            <div class='row-fluid'>
+                <div class='span12'>
+                    <div class="oauths ng-cloak">
+                        <h2>Sign In With...</h2>
+                        <div ng-controller="AuthController">
+                            <span ng-repeat="auth in auths">
+                                <button id="{{auth.code}}-login" class='btn logoButton' ng-click="authPopup(auth)">
+                                    <img src="{{auth.logoUrl}}" alt="{{auth.name}}" ng-show="auth.logoUrl"/>
+                                    {{auth.name}}
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='row-fluid'>
+                <div class="span6">
+                    <div class="logins">
+                        <h2>... or Log In</h2>
+                        <form class="form-horizontal loginForm">
+                            <span class="control-group">
+                                <label class="control-label">Username</label>
+                                <input ng-model="username" type="text" id="signupUsername" class="input-small"
+                                       placeholder="Username" required></input>
+                            </span>
+                            <span class="control-group">
+                                <label class="control-label">Password</label>
+                                <input ng-model="password" type="password" id="signupPassword" class="input-small"
+                                       placeholder="Password" required></input>
+                            </span>
+                            <div class="filler"></div>
+                            <!--<div class="pull-right">-->
+                            <input type="submit"
+                                   ng-disabled="!username || !password"
+                                   class="btn btn-primary loginButton" value="Log In" ng-click="login()"></input>
+                            <!--</div>-->
+                        </form>
+                    </div>
+                </div>
+                <div class="span6">
+                    <div class="signup logins">
+                        <h2>... or Sign Up</h2>
+                        <form class="form-horizontal loginForm css-form">
+                            <span class="control-group">
+                                <label class="control-label">Your Name</label>
+                                <input ng-model="displayName" type="text" id="signupName" class="input-small"
+                                       placeholder="Your name" required></input>
+                            </span>
+                            <span class="control-group">
+                                <label class="control-label">Username</label>
+                                <input ng-model="username" type="text" id="signupUsername"  class="input-small"
+                                       placeholder="Username" required></input>
+                            </span>
+                            <span class="control-group">
+                                <label class="control-label">Password</label>
+                                <input ng-model="password" type="password" id="signupPassword" class="input-small"
+                                       placeholder="Password" required></input>
+                            </span>
+                            <span class="control-group">
+                                <label class="control-label">Again</label>
+                                <input ng-model="password2" type="password" id="signupPassword2" class="input-small"
+                                       placeholder="Repeat Password" required></input>
+                            </span>
+                            <input type="submit" href="#" type="submit"
+                                   ng-disabled="!displayName || !password || !username || (password != password2)"
+                                   class="btn btn-primary loginButton" ng-click="signUp()" value="Sign Up"></input>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class='row-fluid'>
+                <div class="alert alert-error" style="margin-top: 1em" ng-show='problem'>
+                    <button class="close pull-right" ng-click="clear()">x</button>
+                    <i class="icon-exclamation-sign" ></i>
+                    <span ng-bind-html-unsafe="problem">
+                        {{problem}}
+                    </span>
+                </div>
+            </div>            
+        </div>
+        <div class="clear"></div>
+    </div>
+</div>

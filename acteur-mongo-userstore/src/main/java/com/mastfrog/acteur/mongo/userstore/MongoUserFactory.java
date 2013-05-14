@@ -186,7 +186,10 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
             Number n = (Number) result.get("created");
             DateTime created = new DateTime(n.longValue());
             String redir = (String) result.get("redir");
-            return Optional.of(new LoginState(state, redir, created));
+            boolean used = Boolean.TRUE.equals(result.get("used"));
+            result.put("used", true);
+            loginStates.save(query, WriteConcern.UNACKNOWLEDGED);
+            return Optional.of(new LoginState(state, redir, created, used));
         }
         return Optional.absent();
     }
@@ -210,5 +213,10 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
     @Override
     public String getUserDisplayName(DBObject obj) {
         return (String) (obj.get("displayName") == null ? obj.get("name") : obj.get("displayName"));
+    }
+
+    @Override
+    public String getUserName(DBObject obj) {
+        return ((List<String>) obj.get("name")).iterator().next();
     }
 }

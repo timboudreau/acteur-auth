@@ -7,8 +7,7 @@
     <version>1.3.6-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>acteur-google-auth</name>
-    <url>http://maven.apache.org</url>
+    <name>Acteur Google Auth</name>
     <build>
         <plugins>
             <plugin>

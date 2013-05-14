@@ -1,8 +1,15 @@
-package com.mastfrog.acteur;
+package com.mastfrog.acteur.auth;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.mastfrog.acteur.MockUserFactory.MockUser;
+import com.mastfrog.acteur.Acteur;
+import com.mastfrog.acteur.ActeurFactory;
+import com.mastfrog.acteur.Application;
+import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.ImplicitBindings;
+import com.mastfrog.acteur.auth.MockUserFactory.MockUser;
+import com.mastfrog.acteur.Page;
+import com.mastfrog.acteur.State;
 import com.mastfrog.acteur.auth.Auth;
 import com.mastfrog.acteur.auth.OAuthPlugins;
 import com.mastfrog.acteur.auth.UserFactory;
@@ -31,6 +38,7 @@ public class MockApp extends Application {
         add(plugins.bouncePageType());
         add(plugins.landingPageType());
         add(plugins.listOAuthProvidersPageType());
+        add(plugins.testLoginPageType());
         add(AuthPage.class);
         add(SanityCheckPage.class);
         add(Application.helpPageType());

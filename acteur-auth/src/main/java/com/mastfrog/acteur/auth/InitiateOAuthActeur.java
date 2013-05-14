@@ -149,9 +149,9 @@ final class InitiateOAuthActeur extends Acteur {
 
     private void doRedirect(OAuthPlugin<?> plugin) throws MalformedURLException, URISyntaxException {
         String redir = evt.getParameter(REDIRECT_ON_SUCCESS_URL_PARAMETER);
-        if (redir == null) {
-            redir = plugins.loginRedirect().toString();
-        }
+//        if (redir == null) {
+//            redir = plugins.loginRedirect().toString();
+//        }
         LoginState state = users.newLoginState(redir);
 
         // Redirects to the oauth service

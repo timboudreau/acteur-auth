@@ -104,12 +104,80 @@ body {
     width: 100%;
 }
 
+.oauths {
+    text-align: center;
+    padding-bottom: 1em;
+    border-bottom: #CCCCCC solid 1px;
+}
+
+.signup {
+    border-left: #CCCCCC solid 1px;
+    padding-left: 1em;
+}
+
+.logins {
+    min-height: 10em;
+}
+
+body.waiting-for-angular div#content-outer {
+    display: none;
+}
+body.waiting-for-angular div#initializing-panel {
+    display: block;
+    background: url(../images/loading-large-transparent.gif) center center no-repeat;
+    position:absolute;
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100%;
+}
+
+#loginbox {
+    margin:1em;
+}
+
+.modal {
+    width:80%;
+    left: 10%;
+    position: absolute;
+    margin: 0px;
+}
+
+.screen {
+    background-color: rgba(150, 150, 150, 0.5);
+    z-index: -100000;
+    position:fixed;
+    width: 100%;
+    height: 100%;
+    display: block;
+    left: 0;
+    top: 0;
+}
+
+.logoButton {
+    min-height: 26px;
+    min-width: 32px;
+    margin-top: 1em;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.logoButton img {
+    height: 100%;
+    vertical-align: middle;
+}
+
+.modal-wide h3 {
+    width: 100%;
+    text-align: center;
+}
+
 .addTime h4 {
     display: inline-block;
 }
 
 .bootstrap-timepicker {
-    
+
 }
 
 .controlRow {
@@ -117,7 +185,7 @@ body {
 }
 
 .controlRow input {
-    
+
 }
 
 .ui-show {
@@ -322,6 +390,10 @@ a {
     margin-right: 1em;
 }
 
+.form-horizontal .control-label {
+    width: 120px;
+}
+
 .questionText {
     margin-bottom: 0.5em;
     color: #117400;
@@ -428,20 +500,20 @@ textarea {
 }
 
 .btn-primary {
-  color: #ffffff;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-  background-color: #006dcc;
-  *background-color: #339922;
-  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#44AA33), to(#339922));
-  background-image: -webkit-linear-gradient(top, #44AA33, #339922);
-  background-image: -o-linear-gradient(top, #44AA33, #339922);
-  background-image: linear-gradient(to bottom, #44AA33, #339922);
-  background-image: -moz-linear-gradient(top, #44AA33, #339922);
-  background-repeat: repeat-x;
-  border-color: #339922 #339922 #002a80;
-  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff44AA33', endColorstr='#ff339922', GradientType=0);
-  filter: progid:dximagetransform.microsoft.gradient(enabled=false);
+    color: #ffffff;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    background-color: #006dcc;
+    *background-color: #339922;
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#44AA33), to(#339922));
+    background-image: -webkit-linear-gradient(top, #44AA33, #339922);
+    background-image: -o-linear-gradient(top, #44AA33, #339922);
+    background-image: linear-gradient(to bottom, #44AA33, #339922);
+    background-image: -moz-linear-gradient(top, #44AA33, #339922);
+    background-repeat: repeat-x;
+    border-color: #339922 #339922 #002a80;
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+    filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff44AA33', endColorstr='#ff339922', GradientType=0);
+    filter: progid:dximagetransform.microsoft.gradient(enabled=false);
 }
 
 .btn-primary:hover,
@@ -449,7 +521,7 @@ textarea {
 .btn-primary.active,
 .btn-primary.disabled,
 .btn-primary[disabled] {
-  color: #ffffff;
-  background-color: #339922;
-  *background-color: #003bb3;
+    color: #ffffff;
+    background-color: #339922;
+    *background-color: #003bb3;
 }

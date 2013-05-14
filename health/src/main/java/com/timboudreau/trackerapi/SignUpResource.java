@@ -7,6 +7,7 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
+import com.mastfrog.acteur.auth.OAuthPlugins;
 import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.Method;
 import com.mastfrog.acteur.util.PasswordHasher;
@@ -31,9 +32,7 @@ import java.util.Map;
 import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
 import static com.timboudreau.trackerapi.Properties.*;
-import com.timboudreau.trackerapi.support.AuthSupport;
-import io.netty.handler.codec.http.Cookie;
-import io.netty.handler.codec.http.ServerCookieEncoder;
+import static io.netty.handler.codec.http.HttpResponseStatus.CREATED;
 
 /**
  *
@@ -68,7 +67,7 @@ class SignUpResource extends Page {
         private final ObjectMapper mapper;
 
         @Inject
-        SignerUpper(DBCollection coll, Event evt, PasswordHasher crypto, ObjectMapper mapper, AuthSupport supp, Publisher publisher) throws UnsupportedEncodingException, IOException {
+        SignerUpper(DBCollection coll, Event evt, PasswordHasher crypto, ObjectMapper mapper, OAuthPlugins pgns, Publisher publisher) throws UnsupportedEncodingException, IOException {
             this.mapper = mapper;
             this.evt = evt;
             add(Headers.CONTENT_TYPE, MediaType.JSON_UTF_8);
@@ -130,13 +129,15 @@ class SignUpResource extends Page {
             nue.put(origPass, encrypted);
             WriteResult res = coll.save(nue, WriteConcern.FSYNCED);
 //            if (res.getN() != 0) {
-                Cookie key = supp.encodeDisplayNameCookie(evt.getParameter(displayName));
-                add(Headers.SET_COOKIE, key);
-                setState(new RespondWith(HttpResponseStatus.CREATED));
-                setResponseBodyWriter(this);
-                
-                add(Headers.SET_COOKIE, supp.encodeLoginCookie(nue, userName, encrypted));
-                publisher.publish("signup", new BasicDBObject("name", evt.getParameter(displayName)));
+            pgns.createDisplayNameCookie(evt, response(), displayName);
+            setState(new RespondWith(HttpResponseStatus.CREATED));
+            Map<String, Object> m = nue.toMap();
+            m.remove(pass);
+            m.remove(origPass);
+            m.remove("slugs");
+            setState(new RespondWith(CREATED, m));
+
+            publisher.publish("signup", new BasicDBObject("name", evt.getParameter(displayName)));
 //            } else {
 //                setState(new RespondWith(HttpResponseStatus.INTERNAL_SERVER_ERROR, "No write"));
 //            }

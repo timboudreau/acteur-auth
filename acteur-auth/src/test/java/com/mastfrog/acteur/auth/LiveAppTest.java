@@ -1,9 +1,10 @@
-package com.mastfrog.acteur;
+package com.mastfrog.acteur.auth;
 
 import com.google.common.base.Optional;
-import com.mastfrog.acteur.MockUserFactory.MockUser;
+import com.mastfrog.acteur.auth.MockUserFactory.MockUser;
 import com.mastfrog.acteur.auth.OAuthPlugin;
 import com.mastfrog.acteur.auth.OAuthPlugins;
+import static com.mastfrog.acteur.auth.OAuthPlugins.DISPLAY_NAME_COOKIE_NAME;
 import com.mastfrog.acteur.auth.UserFactory;
 import com.mastfrog.acteur.auth.UserInfo;
 import com.mastfrog.acteur.util.Headers;
@@ -60,7 +61,7 @@ public class LiveAppTest {
         CallResult res = harness.get(plugins.getLandingPageBasePath(), "fk").addQueryPair("state", state)
                 .addQueryPair("redirect", "/foo/bar").go()
                 .assertCode(302);
-        res.assertHeader(Headers.LOCATION, new URI("/"));
+        res.assertHeader(Headers.LOCATION, new URI("/users/user2/index.html"));
         Iterable<Cookie> cookies = res.getHeaders(Headers.SET_COOKIE);
         assertNotNull(cookies);
         assertTrue(cookies.iterator().hasNext());
@@ -119,6 +120,18 @@ public class LiveAppTest {
 
         Iterable<Cookie> all = authed.getHeaders(Headers.SET_COOKIE);
         assertFalse("Should not redundantly set cookies, but got " + all, all.iterator().hasNext());
+
+        CallResult testLogin = harness.get("testLogin")
+                .addHeader(COOKIE, new Cookie[]{new DefaultCookie(authCookie.getName(), authCookie.getValue())})
+                .go()
+                .assertStatus(OK)
+                .assertHasCookie(DISPLAY_NAME_COOKIE_NAME);
+
+        TestLoginPage.Result login = testLogin.content(TestLoginPage.Result.class);
+        assertTrue(login.success);
+        assertEquals("/users/user2/index.html", login.homePage);
+        String content = testLogin.content();
+        System.out.println("CONTENT: " + content);
     }
 
     @Test
@@ -127,7 +140,7 @@ public class LiveAppTest {
         MockUser user = (MockUser) uf.newUser("joe", pw, "Joe Blow", Collections.emptyMap());
         assertNotNull(uf.getPasswordHash(user));
         System.out.println("CREATED " + user);
-        
+
         CallResult res = harness.get("boink").basicAuthentication("joe", "password").go()
                 .assertStatus(OK)
                 .assertHasCookie(OAuthPlugins.DISPLAY_NAME_COOKIE_NAME)

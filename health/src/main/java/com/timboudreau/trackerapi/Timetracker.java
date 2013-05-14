@@ -31,7 +31,6 @@ import com.timboudreau.questions.AddSurveyResource;
 import com.timboudreau.questions.GetSurveyResource;
 import com.timboudreau.questions.GetSurveysResource;
 import com.timboudreau.questions.Subscribe;
-import com.timboudreau.questions.TestLogin;
 import com.timboudreau.questions.UpdateSurveyResource;
 import com.timboudreau.trackerapi.ModifyEventsResource.Body;
 import io.netty.handler.codec.http.HttpResponse;
@@ -95,7 +94,8 @@ public class Timetracker extends Application {
         super(SignUpResource.class,
                 Subscribe.class,
                 WhoAmIResource.class,
-                TestLogin.class,
+//                TestLogin.class,
+                plugins.testLoginPageType(),
                 SetsResource.class,
                 CORSResource.class,
                 GetSurveysResource.class,
@@ -116,6 +116,7 @@ public class Timetracker extends Application {
                 //                GoogleLoginPage.class,
                 plugins.bouncePageType(),
                 plugins.landingPageType(),
+                plugins.listOAuthProvidersPageType(),
                 AdjustTimeResource.class,
                 SkewResource.class,
                 ListUsersResource.class,

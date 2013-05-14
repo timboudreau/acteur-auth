@@ -94,6 +94,8 @@ public abstract class UserFactory<T> {
     public abstract Object toUserObject(T obj);
 
     public abstract String getUserDisplayName(T obj);
+    
+    public abstract String getUserName(T obj);
     /**
      * Create and store a new random string which can be passed to an oauth
      * callback
@@ -122,17 +124,20 @@ public abstract class UserFactory<T> {
         public final String state;
         public final DateTime created;
         public final String redirectTo;
+        public final boolean used;
 
-        public LoginState(String state, String redirectTo, DateTime created) {
+        public LoginState(String state, String redirectTo, DateTime created, boolean used) {
             this.state = state;
             this.redirectTo = redirectTo;
             this.created = created;
+            this.used = used;
         }
 
         public LoginState(String state, String redirectTo) {
             this.state = state;
             this.redirectTo = redirectTo;
             created = new DateTime();
+            this.used = false;
         }
 
         public boolean equals(Object o) {

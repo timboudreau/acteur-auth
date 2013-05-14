@@ -8,6 +8,7 @@ import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.Response;
+import com.mastfrog.acteur.auth.TestLoginPage.TestLoginActeur;
 import com.mastfrog.acteur.server.PathFactory;
 import com.mastfrog.acteur.util.CacheControlTypes;
 import com.mastfrog.acteur.util.Headers;
@@ -111,6 +112,14 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
         return cookieBasePath;
     }
 
+    public Class<? extends Acteur> testLoginActeurType() {
+        return TestLoginActeur.class;
+    }
+
+    public Class<? extends Page> testLoginPageType() {
+        return TestLoginPage.class;
+    }
+
     public Class<? extends Acteur> landingActeurType() {
         return OAuthLandingPageActeur.class;
     }
@@ -179,7 +188,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
             response.add(Headers.SET_COOKIE, displayNameCookie);
         }
     }
-    
+
     public boolean hasDisplayNameCookie(Event evt) {
         Cookie[] cookies = evt.getHeader(Headers.COOKIE);
         if (cookies == null) {
@@ -204,13 +213,16 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
                 return;
             }
             Set<String> all = cookieNames();
+            all.add(BasicAuthenticationStrategy.CODE);
+            all.add(OAuthPlugins.DISPLAY_NAME_COOKIE_NAME);
             for (Cookie ck : cks) {
                 if (all.contains(ck.getName())) {
-                    DefaultCookie discardCookie = new DefaultCookie(ck.getName(), "%");
+                    DefaultCookie discardCookie = new DefaultCookie(ck.getName(), "-");
                     discardCookie.setDomain(host.toString()); //XXX use a setting?
                     discardCookie.setDiscard(true);
                     discardCookie.setPorts(cookiePortList());
                     discardCookie.setPath(cookieBasePath());
+                    discardCookie.setMaxAge(0);
                     response.add(Headers.SET_COOKIE, discardCookie);
                 }
             }
@@ -225,7 +237,8 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
         for (OAuthPlugin<?> p : all) {
             Path path = pf.toExternalPath(pth.append(p.code()));
             Path landingPath = pf.toExternalPath(Path.parse(landingBase).append(p.code()));
-            result.add(new PluginInfo(p.code(), p.name(), path.toString(), p.getLogoUrl(), landingPath.toString()));
+            result.add(new PluginInfo(p.code(), p.name(), path.toStringWithLeadingSlash(), 
+                    p.getLogoUrl(), landingPath.toStringWithLeadingSlash()));
         }
         return result;
     }
@@ -273,6 +286,15 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
         return Collections.unmodifiableCollection(all).iterator();
     }
 
+    public OAuthPlugin getPlugin(String code) {
+        for (OAuthPlugin plugin : this) {
+            if (plugin.code().equals(code)) {
+                return plugin;
+            }
+        }
+        return null;
+    }
+
     public static class PluginInfo {
 
         public final String code;
@@ -287,6 +309,18 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
             this.loginPagePath = path;
             this.logoUrl = logoUrl;
             this.landingPagePath = landingPagePath;
+        }
+
+        public boolean equals(Object o) {
+            return o instanceof PluginInfo && ((PluginInfo) o).code.equals(code);
+        }
+
+        public int hashCode() {
+            return code.hashCode();
+        }
+
+        public String toString() {
+            return name + ':' + code + ':' + loginPagePath + ':' + landingPagePath;
         }
     }
 
@@ -320,6 +354,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
             getReponseHeaders().addCacheControl(CacheControlTypes.Public);
             getReponseHeaders().addCacheControl(CacheControlTypes.must_revalidate);
             getReponseHeaders().addCacheControl(CacheControlTypes.max_age, Duration.standardHours(2));
+            getReponseHeaders().setExpires(DateTime.now().plus(Duration.standardDays(2)));
             String pth = "^" + settings.getString(SETTINGS_KEY_OAUTH_TYPES_PAGE_PATH, "auths$");
             add(af.matchMethods(GET));
             add(af.matchPath(pth));

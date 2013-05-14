@@ -1,9 +1,9 @@
-package com.mastfrog.acteur;
+package com.mastfrog.acteur.auth;
 
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.mastfrog.acteur.MockUserFactory.MockUser;
+import com.mastfrog.acteur.auth.MockUserFactory.MockUser;
 import com.mastfrog.acteur.auth.UniqueIDs;
 import com.mastfrog.acteur.auth.UserFactory;
 import com.mastfrog.util.Checks;
@@ -158,6 +158,11 @@ public class MockUserFactory extends UserFactory<MockUser> {
     public String getUserDisplayName(MockUser obj) {
         Checks.notNull("obj", obj);
         return (String) (obj.get("displayName") == null ? obj.get("name") : obj.get("displayName"));
+    }
+
+    @Override
+    public String getUserName(MockUser obj) {
+        return (String) obj.get("name");
     }
 
     static class MockUser extends HashMap<String, Object> {
