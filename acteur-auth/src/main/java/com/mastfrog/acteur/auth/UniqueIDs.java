@@ -72,8 +72,10 @@ public final class UniqueIDs {
     }
 
     private void xor(byte[] src, byte[] dest) {
-        for (int i = 0; i < Math.min(src.length, dest.length); i++) {
-            dest[i] ^= src[i];
+        if (src != null && dest != null) {
+            for (int i = 0; i < Math.min(src.length, dest.length); i++) {
+                dest[i] ^= src[i];
+            }
         }
     }
 
