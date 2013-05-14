@@ -2,22 +2,22 @@
     <div class="navbar-inner">
         <ul class="nav" ng-controller="User">
             <a class="homeLink" href="./"><img class="navlogo" width="32" height="32" src="/images/logo.svg"/>Thingamabob</a>
-            <li>
+            <li ng-show="user">
                 <a href="../{{user.name}}/surveys.html">
                     My Surveys
                 </a>
             </li>
-            <li>
+            <li ng-show="user">
                 <a href="../{{user.name}}/newsurvey.html">
                     New Survey
                 </a>
             </li>
-            <li>
+            <li ng-show="user">
                 <a href="../{{user.name}}/tracking.html">
                     Time Tracking
                 </a>
             </li>
-            <li>
+            <li ng-show="user">
                 <a href="../{{user.name}}/time.html">
                     Add Time
                 </a>
@@ -60,27 +60,4 @@
         </span>
     </div>
 </div>
-<!--<div id="login-holder">
-    <div id="loginbox">
-        <div id="login-inner" ng:controller="LoginController">
-            Note: there is no need to enter any credentials.<br>&nbsp;
-            <form ng-submit="submit()">
-                <table border="0" cellpadding="0" cellspacing="0">
-                    <tr>
-                        <th>Username</th>
-                        <td><input type="text" class="login-inp" ng-model="username"/></td>
-                    </tr>
-                    <tr>
-                        <th>Password</th>
-                        <td><input type="password" class="login-inp" ng-model="password"/></td>
-                    </tr>
-                    <tr>
-                        <th></th>
-                        <td><input type="submit" class="submit-login"/></td>
-                    </tr>
-                </table>
-            </form>
-        </div>
-        <div class="clear"></div>
-    </div>
-</div>-->
+

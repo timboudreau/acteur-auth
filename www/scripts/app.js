@@ -123,8 +123,13 @@ app.controller({
             }
         }
     },
-    User: function($scope, user) {
+    User: function($scope, user, $http, urls) {
         $scope.user = user.info;
+        $scope.logout = function() {
+            $http.post(urls.path('testLogin?logout=true'), '').success(function(){
+                window.location = '/';
+            });
+        }
     },
     Status : function($scope, status) {
         
