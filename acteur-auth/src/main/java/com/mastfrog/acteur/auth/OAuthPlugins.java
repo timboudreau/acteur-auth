@@ -171,7 +171,6 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
         if (cookieHost != null) {
             host = Host.parse(cookieHost);
         } else if (host == null) {
-            System.out.println("No host header, cannot usefully set cookie");
             host = Host.parse("fail.example");
         }
         return host;
@@ -209,7 +208,6 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
         if (cks != null) {
             Host host = getHost(evt);
             if (host == null) {
-                System.out.println("No cookie host, bail");
                 return;
             }
             Set<String> all = cookieNames();
@@ -332,16 +330,38 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
             add(af.matchPath(plgns.getBouncePageBasePath() + "/.*"));
             add(InitiateOAuthActeur.class);
         }
+        
+        @Override
+        protected String getDescription() {
+            return "Redirects to an oauth provider whose code is the "
+                    + "second path component";
+        }
     }
 
     static class LandingPage extends Page {
+        private final OAuthPlugins plgns;
 
         @Inject
         LandingPage(ActeurFactory af, OAuthPlugins plgns) {
+            this.plgns = plgns;
             add(af.matchMethods(GET));
             add(af.matchPath(plgns.getLandingPageBasePath() + "/.*"));
             add(OAuthLandingPageActeur.class);
         }
+        
+        @Override
+        protected String getDescription() {
+            StringBuilder sb = new StringBuilder();
+            for (PluginInfo info : plgns.getPlugins()) {
+                if (sb.length() != 0) {
+                    sb.append(", ");
+                }
+                sb.append(plgns.getLandingPageBasePath()).append("/").append(info.code).append( " -> ").append(info.name);
+            }
+            return "OAuth callback page - the exact service is determined "
+                    + "by the last path element of the URL as follows: " + sb;
+        }
+        
     }
 
     public static final String SETTINGS_KEY_OAUTH_TYPES_PAGE_PATH = "oauth.types.page.path";
@@ -360,6 +380,11 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
             add(af.matchPath(pth));
             add(af.sendNotModifiedIfIfModifiedSinceHeaderMatches());
             add(ListAuthsActeur.class);
+        }
+
+        @Override
+        protected String getDescription() {
+            return "List OAuth authentication methods supported";
         }
 
         static class ListAuthsActeur extends Acteur {

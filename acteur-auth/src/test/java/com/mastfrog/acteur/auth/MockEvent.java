@@ -481,6 +481,11 @@ class MockEvent implements Event {
             public ChannelProgressivePromise newProgressivePromise() {
                 throw new UnsupportedOperationException();
             }
+
+            @Override
+            public ChannelPromise voidPromise() {
+                throw new UnsupportedOperationException();
+            }
         };
     }
 

@@ -8,13 +8,15 @@ import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Application;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
-import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.Method;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.WriteConcern;
+import static com.timboudreau.trackerapi.Properties.*;
+import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import com.timboudreau.trackerapi.support.CreateCollectionPolicy;
 import com.timboudreau.trackerapi.support.LiveWriter;
 import com.timboudreau.trackerapi.support.TimeCollectionFinder;
@@ -22,6 +24,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +32,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
-import static com.timboudreau.trackerapi.Properties.*;
-import com.timboudreau.trackerapi.support.AuthorizedChecker;
-import java.util.Arrays;
 import org.joda.time.Duration;
 
 /**
@@ -44,7 +44,7 @@ final class RecordTimeConnectionIsOpenResource extends Page {
     RecordTimeConnectionIsOpenResource(ActeurFactory af) {
         add(af.matchPath("^users/(.*?)/sessions/(.*?)"));
         add(af.matchMethods(true, Method.PUT, Method.POST));
-        add(Auth.class);
+        add(AuthenticationActeur.class);
         add(AuthorizedChecker.class);
         add(CreateCollectionPolicy.CREATE.toActeur());
         add(TimeCollectionFinder.class);

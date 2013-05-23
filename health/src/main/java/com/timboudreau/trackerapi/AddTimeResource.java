@@ -6,13 +6,16 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
-import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.Method;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.WriteConcern;
+import static com.timboudreau.trackerapi.Properties.*;
+import static com.timboudreau.trackerapi.RecordTimeConnectionIsOpenResource.LiveTime.buildQueryFromURLParameters;
+import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import com.timboudreau.trackerapi.support.CreateCollectionPolicy;
 import com.timboudreau.trackerapi.support.TimeCollectionFinder;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -22,9 +25,6 @@ import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Interval;
-import static com.timboudreau.trackerapi.Properties.*;
-import static com.timboudreau.trackerapi.RecordTimeConnectionIsOpenResource.LiveTime.buildQueryFromURLParameters;
-import com.timboudreau.trackerapi.support.AuthorizedChecker;
 
 /**
  *
@@ -40,7 +40,7 @@ final class AddTimeResource extends Page {
         add(af.banParameters("added", "type"));
         add(CheckParameters.class);
         add(CreateCollectionPolicy.CREATE.toActeur());
-        add(Auth.class);
+        add(AuthenticationActeur.class);
         add(AuthorizedChecker.class);
         add(TimeCollectionFinder.class);
         add(TimeAdder.class);

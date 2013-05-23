@@ -6,7 +6,7 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
-import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.mongo.CursorWriter;
 import com.mastfrog.acteur.mongo.CursorWriterActeur;
 import com.mastfrog.acteur.util.Method;
@@ -14,18 +14,18 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import static com.timboudreau.trackerapi.Properties.*;
+import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import com.timboudreau.trackerapi.support.CreateCollectionPolicy;
 import com.timboudreau.trackerapi.support.TimeCollectionFinder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import static com.timboudreau.trackerapi.Properties.*;
-import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import static io.netty.handler.codec.http.HttpResponseStatus.NO_CONTENT;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
@@ -38,7 +38,7 @@ class GetTimeResource extends Page {
         add(af.matchPath(Timetracker.URL_PATTERN_TIME));
         add(af.matchMethods(Method.GET, Method.HEAD));
         add(af.banParameters("type"));
-        add(Auth.class);
+        add(AuthenticationActeur.class);
         add(AuthorizedChecker.class);
         add(CreateCollectionPolicy.DONT_CREATE.toActeur());
         add(TimeCollectionFinder.class);

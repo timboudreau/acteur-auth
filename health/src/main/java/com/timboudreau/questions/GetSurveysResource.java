@@ -8,8 +8,7 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
-import com.mastfrog.acteur.ResponseWriter;
-import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.mongo.CursorWriter;
 import com.mastfrog.acteur.mongo.CursorWriter.MapFilter;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
@@ -21,11 +20,7 @@ import com.mongodb.DBObject;
 import static com.timboudreau.questions.AddSurveyResource.QUESTION_PATTERN;
 import com.timboudreau.trackerapi.Properties;
 import com.timboudreau.trackerapi.support.UserCollectionFinder;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.util.CharsetUtil;
 import java.util.List;
 import java.util.Map;
 import org.bson.types.ObjectId;
@@ -41,7 +36,7 @@ public class GetSurveysResource extends Page {
         add(af.matchPath(QUESTION_PATTERN));
         add(af.matchMethods(Method.GET));
         add(UserCollectionFinder.class);
-        add(Auth.class);
+        add(AuthenticationActeur.class);
         add(SurveysActeur.class);
     }
 

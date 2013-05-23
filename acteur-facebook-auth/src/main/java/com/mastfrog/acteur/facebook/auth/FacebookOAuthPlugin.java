@@ -69,15 +69,12 @@ final class FacebookOAuthPlugin extends OAuthPlugin<Token> {
         URL callbackUrl = paths.constructURL(Path.parse(plugins.getLandingPageBasePath()).append(code()), true);
         callbackUrl = callbackUrl.withParameter("state", state.state);
 
-        System.out.println("Callback url is " + callbackUrl);
-
         String redirUrl = oauthService.getAuthorizationUrl(Token.empty());
         if (redirUrl.contains("?")) {
             redirUrl += "&state=" + state.state;
         } else {
             redirUrl += "?state=" + state.state;
         }
-        System.out.println("Redir url: " + redirUrl);
         return redirUrl;
     }
 
@@ -90,7 +87,6 @@ final class FacebookOAuthPlugin extends OAuthPlugin<Token> {
         URL callbackUrl = paths.constructURL(Path.parse(plugins.getLandingPageBasePath()).append(code()), true);
         Verifier verifier = new Verifier(code);
         Token accessToken = oauthService.getAccessToken(Token.empty(), verifier);
-        System.out.println("ACCESS TOKEN FOR \n" + code + "\n IS " + accessToken);
         return accessToken;
     }
 
@@ -109,11 +105,9 @@ final class FacebookOAuthPlugin extends OAuthPlugin<Token> {
     @Override
     public RemoteUserInfo getRemoteUserInfo(Token credential) throws JsonParseException, IOException {
         OAuthRequest req = new OAuthRequest(Verb.GET, "https://graph.facebook.com/me");
-        System.out.println("GET USER INFO " + req);
         oauthService.signRequest(credential, req);
         Response apiResponse = req.send();
         if (apiResponse.isSuccessful()) {
-            System.out.println("USER INFO: " + apiResponse.getBody());
             RUI rui = mapper.readValue(apiResponse.getBody(), RUI.class);
             return rui;
         } else {

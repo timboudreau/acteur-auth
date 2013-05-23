@@ -36,7 +36,6 @@ class CookieAuthenticationStrategy extends AuthenticationStrategy {
         for (Cookie ck : cookies) {
             String name = ck.getName();
             Optional<OAuthPlugin<?>> plugino = plugins.find(name);
-            System.out.println("Find plugin for cookie " + name + "? " + plugino.isPresent());
             if (plugino.isPresent()) {
                 OAuthPlugin<?> plugin = plugino.get();
                 res = tryToAuthenticate(plugin, evt, ck, users, scopeContents, response);
@@ -50,31 +49,19 @@ class CookieAuthenticationStrategy extends AuthenticationStrategy {
     }
 
     private <T, R> Result<?> tryToAuthenticate(OAuthPlugin<T> plugin, Event evt, Cookie cookie, UserFactory<R> users, Collection<? super Object> scopeContents, Response response) {
-        System.out.println("Try to authenticate " + plugin + " cookie " + cookie + " for " + evt.getPath());
         Optional<UserInfo> io = plugins.decodeCookieValue(cookie.getValue());
-        System.out.println("DECODED USER INFO " + io);
         if (io.isPresent()) {
             UserInfo info = io.get();
             Optional<R> uo = users.findUserByName(info.userName);
-            System.out.println("  find user " + info.userName + "? " + uo.isPresent());
             if (uo.isPresent()) {
                 R user = uo.get();
                 Optional<Slug> slugo = users.getSlug(plugin.code(), user, false);
-                System.out.println("  looked up slug");
                 if (slugo.isPresent()) {
                     Slug slug = slugo.get();
-                    System.out.println("GOT THE SLUG " + slug);
                     if (slug.age().isLongerThan(plugin.getSlugMaxAge())) {
                         return new Result(ResultType.EXPIRED_CREDENTIALS, info.userName, true);
                     }
                     String matchWith = plugins.encodeCookieValue(info.userName, slug.slug).split(":")[0];
-                    System.out.println("HASHED SLUG IS " + info.hashedSlug);
-                    System.out.println("MATCH WITH " + matchWith);
-                    System.out.println("COOKIE VALUE '" + info.hashedSlug + "' should match '"
-                            + info.hashedSlug + "'" + " do they? "
-                            + (info.hashedSlug.equals(matchWith))
-                            + " length " + info.hashedSlug.length()
-                            + " " + matchWith.length());
 
                     if (matchWith.equals(info.hashedSlug)) {
                         Object userObject = users.toUserObject(user);

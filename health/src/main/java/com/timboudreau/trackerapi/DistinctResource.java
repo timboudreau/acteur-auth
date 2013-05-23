@@ -5,7 +5,7 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
-import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.util.Method;
 import com.mongodb.BasicDBObject;
 import com.mongodb.CommandResult;
@@ -28,7 +28,7 @@ public class DistinctResource extends Page {
         add(af.matchPath(URL_PATTERN_DISTINCT));
         add(af.matchMethods(Method.GET));
         add(af.requireParameters("field"));
-        add(Auth.class);
+        add(AuthenticationActeur.class);
         add(AuthorizedChecker.class);
         add(CreateCollectionPolicy.DONT_CREATE.toActeur());
         add(TimeCollectionFinder.class);

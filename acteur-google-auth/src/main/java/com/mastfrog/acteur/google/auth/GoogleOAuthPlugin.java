@@ -102,10 +102,6 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
     public String getRedirectURL(UserFactory.LoginState state) {
         URL callbackUrl = paths.constructURL(Path.parse(plugins.getLandingPageBasePath()).append(code()), true);
 
-        System.out.println("Callback url is " + callbackUrl);
-        
-        System.out.println("SCOPES IS " + scopes);
-
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(transport,
                 factory, clientId, clientSecret,
                 scopes)
@@ -118,7 +114,6 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
 
         String u = url.build();
 
-        System.out.println("URL: " + u);
         return u;
     }
 
@@ -136,7 +131,6 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
     public GoogleCredential getCredentialForCode(String code) throws IOException, MalformedURLException, URISyntaxException {
         Checks.notNull("code", code);
         URL callbackUrl = paths.constructURL(Path.parse(plugins.getLandingPageBasePath()).append(code()), true);
-        System.out.println("REDIR URI IS " + callbackUrl);
         GoogleTokenResponse response =
                 new GoogleAuthorizationCodeTokenRequest(transport,
                 factory, clientId, clientSecret,
@@ -160,7 +154,6 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
     public GoogleCredential credentialForEvent(Event evt) {
         String code = evt.getParameter("code");
         if (code == null) {
-            System.out.println("NO CODE IN " + evt.getPath() + " with " + evt.getParametersAsMap());
             return null;
         }
         try {

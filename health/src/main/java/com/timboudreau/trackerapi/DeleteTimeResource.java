@@ -5,17 +5,17 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
-import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.util.Method;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
+import static com.timboudreau.trackerapi.Properties.*;
+import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import com.timboudreau.trackerapi.support.CreateCollectionPolicy;
 import com.timboudreau.trackerapi.support.TimeCollectionFinder;
 import java.io.IOException;
-import static com.timboudreau.trackerapi.Properties.*;
-import com.timboudreau.trackerapi.support.AuthorizedChecker;
 
 /**
  *
@@ -28,7 +28,7 @@ class DeleteTimeResource extends Page {
         add(af.matchPath(Timetracker.URL_PATTERN_TIME));
         add(af.matchMethods(Method.DELETE));
         add(af.banParameters("type"));
-        add(Auth.class);
+        add(AuthenticationActeur.class);
         add(AuthorizedChecker.class);
         add(CreateCollectionPolicy.DONT_CREATE.toActeur());
         add(TimeCollectionFinder.class);

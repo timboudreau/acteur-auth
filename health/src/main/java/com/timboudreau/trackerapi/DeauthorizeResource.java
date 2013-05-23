@@ -5,7 +5,7 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
-import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mastfrog.acteur.util.Method;
 import com.mongodb.BasicDBObject;
@@ -30,7 +30,7 @@ public class DeauthorizeResource extends Page {
     DeauthorizeResource(ActeurFactory af) {
         add(af.matchPath("^users/.*?/deauthorize/.*?"));
         add(af.matchMethods(Method.PUT, Method.POST));
-        add(Auth.class);
+        add(AuthenticationActeur.class);
         add(AuthorizedChecker.class);
         add(UserCollectionFinder.class);
         add(Authorizer.class);

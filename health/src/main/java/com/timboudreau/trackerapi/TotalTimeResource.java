@@ -1,23 +1,23 @@
 package com.timboudreau.trackerapi;
 
-import com.timboudreau.trackerapi.support.Intervals;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
-import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.util.Method;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import static com.timboudreau.trackerapi.Properties.*;
+import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import com.timboudreau.trackerapi.support.CreateCollectionPolicy;
+import com.timboudreau.trackerapi.support.Intervals;
 import com.timboudreau.trackerapi.support.TimeCollectionFinder;
 import java.io.IOException;
 import org.joda.time.Interval;
-import static com.timboudreau.trackerapi.Properties.*;
-import com.timboudreau.trackerapi.support.AuthorizedChecker;
 
 /**
  *
@@ -32,7 +32,7 @@ final class TotalTimeResource extends Page {
         add(af.matchPath(PAT));
         add(af.matchMethods(Method.GET, Method.HEAD));
         add(af.banParameters("type"));
-        add(Auth.class);
+        add(AuthenticationActeur.class);
         add(AuthorizedChecker.class);
         add(CreateCollectionPolicy.DONT_CREATE.toActeur());
         add(TimeCollectionFinder.class);

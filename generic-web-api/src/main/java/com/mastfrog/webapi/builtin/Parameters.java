@@ -49,7 +49,6 @@ public class Parameters {
     }
 
     public void populate(HttpRequestBuilder b) {
-        System.out.println("PARAMS POPUPLATE " + pairs + " " + adhoc);
         for (Map.Entry<Enum<?>, String> e : pairs.entrySet()) {
             b.addQueryPair(e.getKey().toString(), e.getValue());
         }

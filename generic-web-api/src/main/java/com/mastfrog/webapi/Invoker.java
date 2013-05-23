@@ -56,7 +56,6 @@ public class Invoker<T extends Enum<T> & WebCallEnum> {
         }
         token = "{{" + token + "}}";
         int ix = in.indexOf(token);
-        System.out.println("Replace " + token + " ix " + ix);
         if (ix >= 0) {
             try {
                 String val = URLEncoder.encode(with.toString(), "UTF-8");

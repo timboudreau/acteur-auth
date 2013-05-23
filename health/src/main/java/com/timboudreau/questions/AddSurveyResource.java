@@ -6,7 +6,7 @@ import com.google.inject.name.Named;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Page;
-import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mastfrog.acteur.server.PathFactory;
 import com.mastfrog.acteur.util.Headers;
@@ -34,7 +34,7 @@ public class AddSurveyResource extends Page {
     AddSurveyResource(ActeurFactory af) {
         add(af.matchPath(QUESTION_PATTERN));
         add(af.matchMethods(Method.PUT, Method.POST));
-        add(Auth.class);
+        add(AuthenticationActeur.class);
         add(SurveyWriter.class);
     }
 

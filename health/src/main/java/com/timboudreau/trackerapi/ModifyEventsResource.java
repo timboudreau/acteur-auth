@@ -6,20 +6,20 @@ import com.mastfrog.acteur.Acteur.RespondWith;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
-import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.util.Method;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
+import static com.timboudreau.trackerapi.Properties.*;
 import com.timboudreau.trackerapi.support.CreateCollectionPolicy;
 import com.timboudreau.trackerapi.support.TimeCollectionFinder;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
-import java.util.Map;
-import static com.timboudreau.trackerapi.Properties.*;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -34,7 +34,7 @@ public final class ModifyEventsResource extends Page {
         add(af.matchPath(PAT));
         add(af.matchMethods(Method.PUT, Method.POST, Method.DELETE));
         add(af.banParameters(type));
-        add(Auth.class);
+        add(AuthenticationActeur.class);
         add(CreateCollectionPolicy.DONT_CREATE.toActeur());
         add(TimeCollectionFinder.class);
         if (evt.getMethod() != Method.DELETE) {

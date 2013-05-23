@@ -5,9 +5,8 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
-import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
-import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.Method;
 import com.mastfrog.acteur.util.PasswordHasher;
 import com.mongodb.BasicDBObject;
@@ -17,7 +16,6 @@ import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import com.timboudreau.trackerapi.support.UserCollectionFinder;
-import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -32,7 +30,7 @@ public class SetPasswordResource extends Page {
     SetPasswordResource(ActeurFactory af) {
         add(af.matchPath("^users/(.*?)/password$"));
         add(af.matchMethods(Method.PUT, Method.POST));
-        add(Auth.class);
+        add(AuthenticationActeur.class);
         add(AuthorizedChecker.class);
         add(UserCollectionFinder.class);
         add(SetPasswordActeur.class);

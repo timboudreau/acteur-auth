@@ -66,12 +66,10 @@ class BasicAuthenticationStrategy extends AuthenticationStrategy {
         Object userObject = uf.toUserObject(user);
         Optional<String> hasho = uf.getPasswordHash(user);
         if (!hasho.isPresent()) {
-            System.out.println("NO PW ON " + user + " (" + user.getClass() + ")");
             return new Result<>(userObject, credentials.username, null, ResultType.BAD_RECORD, false, dn);
         }
         String hash = hasho.get();
         if (!hasher.checkPassword(credentials.password, hash)) {
-            System.out.println("compare " + credentials.password + " and " + hash + " failed");
             return new Result<>(userObject, credentials.username, hash, ResultType.BAD_PASSWORD, false, dn);
         }
         scopeContents.add(credentials);

@@ -47,15 +47,12 @@ final class CompositeAuthenticationStrategy extends AuthenticationStrategy {
         hook.set(compositeHook);
         Result res = null;
         for (AuthenticationStrategy a : all) {
-            System.out.println("TRY STRATEGY " + a);
             if (!a.isEnabled(evt)) {
-                System.out.println("  not enabled, skip");
                 continue;
             }
             Set<Object> s = new HashSet<>();
             AtomicReference<FailHook> ref = new AtomicReference<>();
             Result<?> r = a.authenticate(evt, ref, s, response);
-            System.out.println("GOT " + r + " from " + a);
             if (r.isSuccess()) {
                 scopeContents.addAll(s);
                 hook.set(null);

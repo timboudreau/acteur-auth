@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Page;
-import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.util.CacheControlTypes;
 import com.mastfrog.acteur.util.Method;
 import com.timboudreau.trackerapi.support.AuthorizedChecker;
@@ -23,7 +23,7 @@ public class GetSurveyResource extends Page {
     GetSurveyResource(ActeurFactory af) {
         add(af.matchPath(SURVEY_PATTERN));
         add(af.matchMethods(Method.GET));
-        add(Auth.class);
+        add(AuthenticationActeur.class);
         add(AuthorizedChecker.class);
         add(FindSurveyActeur.class);
         add(af.sendNotModifiedIfETagHeaderMatches());

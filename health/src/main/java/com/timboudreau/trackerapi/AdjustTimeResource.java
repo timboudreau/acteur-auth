@@ -5,19 +5,19 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
-import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.util.Method;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
-import com.timboudreau.trackerapi.support.CreateCollectionPolicy;
-import com.timboudreau.trackerapi.support.TimeCollectionFinder;
-import java.io.IOException;
 import static com.timboudreau.trackerapi.Properties.*;
 import com.timboudreau.trackerapi.support.AuthorizedChecker;
+import com.timboudreau.trackerapi.support.CreateCollectionPolicy;
+import com.timboudreau.trackerapi.support.TimeCollectionFinder;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import java.io.IOException;
 
 /**
  *
@@ -37,7 +37,7 @@ class AdjustTimeResource extends Page {
         add(af.parametersMayNotBeCombined("newEnd", "shift", "moveTo"));
         add(af.parametersMustBeNumbersIfTheyArePresent(false, true, "newStart", "newEnd", "shift", "moveTo"));
         add(af.parametersMustBeNumbersIfTheyArePresent(false, false, "length"));
-        add(Auth.class);
+        add(AuthenticationActeur.class);
         add(AuthorizedChecker.class);
         add(CreateCollectionPolicy.DONT_CREATE.toActeur());
         add(TimeCollectionFinder.class);

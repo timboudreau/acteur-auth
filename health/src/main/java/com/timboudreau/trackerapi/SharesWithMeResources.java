@@ -6,7 +6,7 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
-import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.mongo.CursorWriterActeur;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mastfrog.acteur.util.Headers;
@@ -28,7 +28,7 @@ public class SharesWithMeResources extends Page {
     SharesWithMeResources(ActeurFactory af) {
         add(af.matchPath("^users/.*?/sharers/?$"));
         add(af.matchMethods(Method.GET));
-        add(Auth.class);
+        add(AuthenticationActeur.class);
         add(UserCollectionFinder.class);
         add(FindSharers.class);
         add(CursorWriterActeur.class);

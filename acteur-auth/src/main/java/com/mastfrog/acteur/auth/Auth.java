@@ -26,23 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author Tim Boudreau
  */
-public class Auth extends Acteur {
-
-    /**
-     * Settings key for boolean property determining whether HTTP Basic
-     * authentication can be used.
-     */
-    public static final String SETTINGS_KEY_ENABLE_BASIC_AUTH = "basic.auth";
-    /**
-     * Settings key for boolean property determining whether Cookies are used to
-     * authenticate.
-     */
-    public static final String SETTINGS_KEY_ENABLE_COOKIE_AUTH = "cookie.auth";
-    /**
-     * Header which clients can send to suppress the
-     * <code>WWW-Authenticate</code> response header.
-     */
-    public static final String SKIP_HEADER = "X-No-Authenticate";
+final class Auth extends AuthenticationActeur {
 
     @Inject
     Auth(AuthenticationStrategy strategy, Event evt, UserFactory<?> uf, OAuthPlugins plugins) {

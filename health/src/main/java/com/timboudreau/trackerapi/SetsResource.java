@@ -7,7 +7,7 @@ import com.mastfrog.acteur.Acteur.RespondWith;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.Page;
-import com.mastfrog.acteur.auth.Auth;
+import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mastfrog.acteur.util.Method;
 import com.mongodb.DB;
@@ -32,7 +32,7 @@ public class SetsResource extends Page {
         add(af.matchPath(PAT));
         add(af.matchMethods(Method.GET, Method.HEAD));
         add(af.banParameters(type));
-        add(Auth.class);
+        add(AuthenticationActeur.class);
         add(AuthorizedChecker.class);
         add(CreateCollectionPolicy.DONT_CREATE.toActeur());
         add(ListSetsActeur.class);

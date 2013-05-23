@@ -15,7 +15,6 @@ import com.mastfrog.acteur.util.Method;
 import com.mastfrog.acteur.util.PasswordHasher;
 import com.mastfrog.acteur.util.Realm;
 import com.mastfrog.settings.Settings;
-import com.mastfrog.util.GUIDFactory;
 import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.DefaultCookie;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -40,6 +39,15 @@ final class TestLoginPage extends Page {
         add(TestLoginActeur.class);
     }
 
+    @Override
+    protected String getDescription() {
+        return "Allows a client to determine if it is already logged in "
+                + "as one or more users.  URL parameter failwith can be an HTTP "
+                + "response code to give if login fails;  URL parameter "
+                + "logout=true will log the user out (if using cookie-based "
+                + "authentication).";
+    }
+    
     static final class TestLoginActeur extends Acteur {
 
         private final OAuthPlugins plugins;
