@@ -4,8 +4,6 @@ import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mastfrog.acteur.auth.MockUserFactory.MockUser;
-import com.mastfrog.acteur.auth.UniqueIDs;
-import com.mastfrog.acteur.auth.UserFactory;
 import com.mastfrog.util.Checks;
 import java.util.Collections;
 import java.util.HashMap;
@@ -164,7 +162,33 @@ public class MockUserFactory extends UserFactory<MockUser> {
     public String getUserName(MockUser obj) {
         return (String) obj.get("name");
     }
+    
+    @Override
+    public void putData(MockUser user, String name, Map<String, Object> data) {
+        Checks.notNull("data", data);
+        Checks.notNull("user", user);
+        Checks.notNull("name", name);
+        Map<String,Object> dta = (Map<String,Object>) user.get("data");
+        if (dta == null) {
+            dta = new HashMap<>();
+        }
+        dta.put(name, data);
+    }
 
+    public Map<String,Object> getData(MockUser user, String name) {
+        Checks.notNull("name", name);
+        Checks.notNull("user", user);
+        Map<String,Object> dta = (Map<String,Object>) user.get("data");
+        if (dta == null) {
+            return Collections.emptyMap();
+        }
+        Map<String,Object> result = (Map<String,Object>) dta.get(name);
+        if (result == null) {
+            return Collections.emptyMap();
+        }
+        return result;
+    }
+    
     static class MockUser extends HashMap<String, Object> {
 
         MockUser(String name) {

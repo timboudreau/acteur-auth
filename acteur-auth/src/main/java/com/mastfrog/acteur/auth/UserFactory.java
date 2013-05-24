@@ -96,6 +96,14 @@ public abstract class UserFactory<T> {
     public abstract String getUserDisplayName(T obj);
     
     public abstract String getUserName(T obj);
+
+    public final Map<String,Object> getData(T user, OAuthPlugin fo) {
+        return getData(user, fo.code());
+    }
+
+    public abstract Map<String,Object> getData(T user, String name);
+
+    public abstract void putData(T user, String name, Map<String,Object> data);
     /**
      * Create and store a new random string which can be passed to an oauth
      * callback

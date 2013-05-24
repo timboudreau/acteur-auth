@@ -62,7 +62,8 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
         DBObject query = new BasicDBObject("_id", on.get("_id"));
 
         DBObject update = new BasicDBObject("$set", new BasicDBObject("pass", hash)).append("$inc",
-                new BasicDBObject("version", 1));
+                new BasicDBObject("version", 1))
+                .append("$set", new BasicDBObject("lastModified", DateTime.now().getMillis()));
 
         WriteResult res = users.update(query, update, false, false, WriteConcern.FSYNCED);
     }
@@ -78,7 +79,7 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
 
         DBObject slugObj = new BasicDBObject("slug", slug.slug)
                 .append("created", slug.created.getMillis());
-        DBObject update = new BasicDBObject("$set", new BasicDBObject("slugs." + slug.name, slugObj)).append("$inc",
+        DBObject update = new BasicDBObject("$set", new BasicDBObject("slugs." + slug.name, slugObj).append("lastModified", DateTime.now().getMillis())).append("$inc",
                 new BasicDBObject("version", 1));
         WriteResult res = users.update(query, update, false, false, WriteConcern.FSYNCED);
     }
@@ -199,6 +200,7 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
         BasicDBObject update = new BasicDBObject("$addToSet", new BasicDBObject("authorizes", authorized));
         BasicDBObject inc = new BasicDBObject("version", 1);
         update.append("$inc", inc);
+        update.append("$set", new BasicDBObject("lastModified", DateTime.now().getMillis()));
         WriteResult res = users.update(query, update, false, false, WriteConcern.FSYNCED);
     }
 
@@ -207,6 +209,7 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
         BasicDBObject update = new BasicDBObject("$pull", new BasicDBObject("authorizes", authorized));
         BasicDBObject inc = new BasicDBObject("version", 1);
         update.append("$inc", inc);
+        update.append("$set", new BasicDBObject("lastModified", DateTime.now().getMillis()));
         WriteResult res = users.update(query, update, false, false, WriteConcern.FSYNCED);
     }
 
@@ -218,5 +221,25 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
     @Override
     public String getUserName(DBObject obj) {
         return ((List<String>) obj.get("name")).iterator().next();
+    }
+
+    @Override
+    public Map<String, Object> getData(DBObject user, String name) {
+        Map<String,Object> m = (Map<String,Object>) user.get("data_" + name);
+        if (m == null) {
+            return Collections.emptyMap();
+        }
+        return m;
+    }
+
+    @Override
+    public void putData(DBObject user, String name, Map<String, Object> data) {
+        String nm = "data_" + name;
+        BasicDBObject query = new BasicDBObject("_id", user.get("_id"));
+        BasicDBObject update = new BasicDBObject("$set", new BasicDBObject(nm, new BasicDBObject(data)));
+        BasicDBObject inc = new BasicDBObject("version", 1);
+        update.append("$inc", inc);
+        update.append("$set", new BasicDBObject("lastModified", DateTime.now().getMillis()));
+        WriteResult res = users.update(query, update, false, false, WriteConcern.ACKNOWLEDGED);
     }
 }

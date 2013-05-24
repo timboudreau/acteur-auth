@@ -1,5 +1,7 @@
 package com.mastfrog.acteur.auth;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
@@ -16,6 +18,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.util.Map;
+import org.openide.util.NbCollections;
 
 /**
  *
@@ -25,11 +29,13 @@ final class OAuthLandingPageActeur extends Acteur {
 
     private final OAuthPlugins plugins;
     private final HomePageRedirector redir;
+    private final ObjectMapper mapper;
 
     @Inject
-    OAuthLandingPageActeur(Event evt, OAuthPlugins plugins, UserFactory<?> users, Settings settings, HomePageRedirector redir) throws URISyntaxException, IOException {
+    OAuthLandingPageActeur(Event evt, ObjectMapper mapper, OAuthPlugins plugins, UserFactory<?> users, Settings settings, HomePageRedirector redir) throws URISyntaxException, IOException {
         this.redir = redir;
         this.plugins = plugins;
+        this.mapper = mapper;
         // The URL should be in the form $BASE/$CODE
         String pluginType = evt.getPath().getLastElement().toString();
         // Try to find a plugin matching this code
@@ -62,6 +68,14 @@ final class OAuthLandingPageActeur extends Acteur {
         finish(plugin, evt, users, stateo.get());
     }
 
+    private Map<String,Object> toMap(RemoteUserInfo info) throws JsonProcessingException, IOException {
+        if (info instanceof Map) {
+            return NbCollections.checkedMapByCopy(info, String.class, Object.class, false);
+        }
+        String s = mapper.writeValueAsString(info);
+        return mapper.readValue(s, Map.class);
+    }
+    
     private <T, R> void finish(OAuthPlugin<T> plugin, Event evt, UserFactory<R> users, LoginState state) throws URISyntaxException, IOException {
         // Get the plugin, such as a GoogleCredential
         T credential = plugin.credentialForEvent(evt);
@@ -89,12 +103,14 @@ final class OAuthLandingPageActeur extends Acteur {
                 slug = users.newSlug(plugin.code());
                 // Overwrite the old one
                 users.putSlug(user, slug);
+                users.putData(user, plugin.code(), toMap(rui));
             }
         } else {
             // Create a new slug for the new user
             slug = users.newSlug(plugin.code());
             // Create a new user
             user = users.newUser(rui.userName(), slug, rui.displayName(), rui);
+            users.putData(user, plugin.code(), toMap(rui));
         }
         // Encode the slug into a cookie - this hashes the slug (which is a random
         // string anyway) with a salt and the user name
