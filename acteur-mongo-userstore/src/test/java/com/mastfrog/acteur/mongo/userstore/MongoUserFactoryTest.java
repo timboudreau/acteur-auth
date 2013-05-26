@@ -93,7 +93,7 @@ public class MongoUserFactoryTest {
         assertEquals(ls.created, ls2.created);
 
         DateTime now = DateTime.now();
-        uf.putSlug(ob, new Slug("gg", "xyz", now));
+        uf.putSlug(ob, new Slug("gg", "xyz", now.getMillis()));
         ob = uf.findUserByName(userName).get();
 
         Optional<Slug> slug3 = uf.getSlug("gg", ob, true);
@@ -101,7 +101,7 @@ public class MongoUserFactoryTest {
         Slug s = slug3.get();
         assertEquals("gg", s.name);
         assertEquals("xyz", s.slug);
-        assertEquals(now, s.created);
+        assertEquals(now, s.created());
     }
 
     static class M extends AbstractModule {

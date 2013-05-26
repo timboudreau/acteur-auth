@@ -46,7 +46,7 @@ public class MockUserFactory extends UserFactory<MockUser> {
 
     @Override
     public void setPasswordHash(MockUser on, String hash) {
-        System.out.println("Set pw hach " + on + " to "+ hash);
+        System.out.println("Set pw hach " + on + " to " + hash);
         on.put("pass", hash);
     }
 
@@ -80,7 +80,7 @@ public class MockUserFactory extends UserFactory<MockUser> {
     }
 
     @Override
-    public MockUser newUser(String name, Slug slug, String displayName, Map<String, Object> properties) {
+    public MockUser newUser(String name, Slug slug, String displayName, Map<String, Object> properties, OAuthPlugin plugin) {
         System.out.println("CREATE  " + name);
         if (all.containsKey(name)) {
             throw new IllegalStateException(name);
@@ -95,14 +95,16 @@ public class MockUserFactory extends UserFactory<MockUser> {
             }
             slugs.put(slug.name, slug);
         }
-        mu.putAll(properties);
+        if (plugin != null && properties != null) {
+            putData(mu, plugin.name, properties);
+        }
         all.put(name, mu);
         return mu;
     }
 
     @Override
     public MockUser newUser(String name, String hashedPassword, String displayName, Map<String, Object> properties) {
-        MockUser result = newUser(name, (Slug) null, displayName, properties);
+        MockUser result = newUser(name, (Slug) null, displayName, properties, null);
         setPasswordHash(result, hashedPassword);
         return result;
     }
@@ -162,33 +164,33 @@ public class MockUserFactory extends UserFactory<MockUser> {
     public String getUserName(MockUser obj) {
         return (String) obj.get("name");
     }
-    
+
     @Override
     public void putData(MockUser user, String name, Map<String, Object> data) {
         Checks.notNull("data", data);
         Checks.notNull("user", user);
         Checks.notNull("name", name);
-        Map<String,Object> dta = (Map<String,Object>) user.get("data");
+        Map<String, Object> dta = (Map<String, Object>) user.get("data");
         if (dta == null) {
             dta = new HashMap<>();
         }
         dta.put(name, data);
     }
 
-    public Map<String,Object> getData(MockUser user, String name) {
+    public Map<String, Object> getData(MockUser user, String name) {
         Checks.notNull("name", name);
         Checks.notNull("user", user);
-        Map<String,Object> dta = (Map<String,Object>) user.get("data");
+        Map<String, Object> dta = (Map<String, Object>) user.get("data");
         if (dta == null) {
             return Collections.emptyMap();
         }
-        Map<String,Object> result = (Map<String,Object>) dta.get(name);
+        Map<String, Object> result = (Map<String, Object>) dta.get(name);
         if (result == null) {
             return Collections.emptyMap();
         }
         return result;
     }
-    
+
     static class MockUser extends HashMap<String, Object> {
 
         MockUser(String name) {

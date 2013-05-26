@@ -109,6 +109,15 @@ public abstract class OAuthPlugin<CredentialType> {
      * @return User info, or null if none can be obtained
      */
     public abstract RemoteUserInfo getRemoteUserInfo(CredentialType credential) throws IOException, JsonParseException, JsonMappingException;
+    
+    public <T> String getUserPictureURL(UserFactory<T> uf, T user) {
+        Map<String,Object> m = uf.getData(user, this);
+        return m == null ? null : getUserPictureURL(m);
+    }
+    
+    protected String getUserPictureURL(Map<String,Object> data) {
+        return null;
+    }
 
     public String toString() {
         return code + " (" + name + ")";

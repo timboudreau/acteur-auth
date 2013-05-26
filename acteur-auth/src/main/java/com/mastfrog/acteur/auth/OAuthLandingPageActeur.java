@@ -12,6 +12,7 @@ import com.mastfrog.acteur.auth.UserFactory.Slug;
 import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.settings.Settings;
 import com.mastfrog.url.Host;
+import com.mastfrog.url.Path;
 import io.netty.handler.codec.http.DefaultCookie;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
@@ -36,10 +37,27 @@ final class OAuthLandingPageActeur extends Acteur {
         this.redir = redir;
         this.plugins = plugins;
         this.mapper = mapper;
+
+        Path base = Path.parse(plugins.getLandingPageBasePath());
+
         // The URL should be in the form $BASE/$CODE
-        String pluginType = evt.getPath().getLastElement().toString();
+        // For cases such as Twitter, which does not send state as part of the
+        // URL, we encode it as the last path parameter
+        String pluginType = evt.getPath().getElement(base.size()).toString();
         // Try to find a plugin matching this code
         Optional<OAuthPlugin<?>> plugino = plugins.find(pluginType);
+        
+        System.out.println("USING PLUGIN TYPE " + pluginType + " as " + (plugino.isPresent() ? "" + plugino.get() : "null"));
+        
+        System.out.println("*&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+        System.out.println("StateForEvent in " + evt.getPath());
+        for (Map.Entry<String,String> e : evt.getRequest().headers()) {
+            System.out.println(e.getKey() + ": " + e.getValue());
+        }
+        System.out.println("*&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+                
+        
+
         if (!plugino.isPresent()) {
             setState(new RespondWith(HttpResponseStatus.BAD_REQUEST,
                     "No plugin with code " + pluginType + " in " + plugins));
@@ -49,6 +67,9 @@ final class OAuthLandingPageActeur extends Acteur {
         // Get the random string we sent to the OAuth service, which identifies
         // valid requests
         String state = plugin.stateForEvent(evt);
+        if (evt.getPath().size() > base.size() + 1) {
+            state = evt.getPath().getLastElement().toString();
+        }
         if (state == null) {
             setState(new RespondWith(HttpResponseStatus.BAD_REQUEST, "No state in url " + evt.getRequest()));
             return;
@@ -61,21 +82,21 @@ final class OAuthLandingPageActeur extends Acteur {
             return;
         }
         LoginState st = stateo.get();
-        if (st.used){
+        if (st.used) {
             setState(new RespondWith(HttpResponseStatus.BAD_REQUEST, "Already used credential " + state));
             return;
         }
         finish(plugin, evt, users, stateo.get());
     }
 
-    private Map<String,Object> toMap(RemoteUserInfo info) throws JsonProcessingException, IOException {
+    private Map<String, Object> toMap(RemoteUserInfo info) throws JsonProcessingException, IOException {
         if (info instanceof Map) {
             return NbCollections.checkedMapByCopy(info, String.class, Object.class, false);
         }
         String s = mapper.writeValueAsString(info);
         return mapper.readValue(s, Map.class);
     }
-    
+
     private <T, R> void finish(OAuthPlugin<T> plugin, Event evt, UserFactory<R> users, LoginState state) throws URISyntaxException, IOException {
         // Get the plugin, such as a GoogleCredential
         T credential = plugin.credentialForEvent(evt);
@@ -109,7 +130,7 @@ final class OAuthLandingPageActeur extends Acteur {
             // Create a new slug for the new user
             slug = users.newSlug(plugin.code());
             // Create a new user
-            user = users.newUser(rui.userName(), slug, rui.displayName(), rui);
+            user = users.newUser(rui.userName(), slug, rui.displayName(), rui, plugin);
             users.putData(user, plugin.code(), toMap(rui));
         }
         // Encode the slug into a cookie - this hashes the slug (which is a random

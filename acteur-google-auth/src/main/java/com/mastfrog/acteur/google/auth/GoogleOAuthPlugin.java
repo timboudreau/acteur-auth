@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -98,6 +99,10 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
         return true;
     }
 
+    protected String getUserPictureURL(Map<String,Object> data) {
+        return (String) data.get("picture");
+    }    
+    
     @Override
     public String getRedirectURL(UserFactory.LoginState state) {
         URL callbackUrl = paths.constructURL(Path.parse(plugins.getLandingPageBasePath()).append(code()), true);

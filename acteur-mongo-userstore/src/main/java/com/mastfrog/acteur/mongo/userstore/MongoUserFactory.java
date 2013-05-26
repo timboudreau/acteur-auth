@@ -2,6 +2,7 @@ package com.mastfrog.acteur.mongo.userstore;
 
 import com.google.common.base.Optional;
 import com.google.inject.name.Named;
+import com.mastfrog.acteur.auth.OAuthPlugin;
 import com.mastfrog.acteur.auth.UniqueIDs;
 import com.mastfrog.acteur.auth.UserFactory;
 import com.mastfrog.util.Checks;
@@ -78,7 +79,7 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
         DBObject query = new BasicDBObject("_id", on.get("_id"));
 
         DBObject slugObj = new BasicDBObject("slug", slug.slug)
-                .append("created", slug.created.getMillis());
+                .append("created", slug.created);
         DBObject update = new BasicDBObject("$set", new BasicDBObject("slugs." + slug.name, slugObj).append("lastModified", DateTime.now().getMillis())).append("$inc",
                 new BasicDBObject("version", 1));
         WriteResult res = users.update(query, update, false, false, WriteConcern.FSYNCED);
@@ -91,7 +92,7 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
             DBObject slugObj = (DBObject) slugs.get(name);
             if (slugObj != null) {
                 Number n = (Number) slugObj.get("created");
-                return new Slug(name, (String) slugObj.get("slug"), new DateTime(n.longValue()));
+                return new Slug(name, (String) slugObj.get("slug"), n.longValue());
             }
         }
         return null;
@@ -123,17 +124,17 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
     }
 
     @Override
-    public DBObject newUser(String name, Slug slug, String displayName, Map<String, Object> properties) {
+    public DBObject newUser(String name, Slug slug, String displayName, Map<String, Object> properties, OAuthPlugin plugin) {
         DBObject query = new BasicDBObject("name", name);
         DBObject existing = users.findOne(query);
         if (existing != null) {
             return null;
         }
-        DBObject slugData = new BasicDBObject("created", slug.created.getMillis()).append("slug", slug.slug);
+        DBObject slugData = new BasicDBObject("created", slug.created).append("slug", slug.slug);
         List<String> names = new ArrayList<>(Arrays.asList(name));
         List<ObjectId> authorizes = new ArrayList<>();
         long now = DateTime.now().getMillis();
-        DBObject toWrite = new BasicDBObject("name", names)
+        BasicDBObject toWrite = new BasicDBObject("name", names)
                 .append("displayName", displayName)
                 .append("version", 0)
                 .append("created", now)
@@ -142,6 +143,10 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
                 .append("tokens", new BasicDBObject())
                 .append("pass", ids.newRandomString())
                 .append("authorizes", authorizes);
+        if (properties != null) {
+            String nm = "data_" + plugin.code();
+            toWrite.append(nm, properties);
+        }
         WriteResult res = users.insert(toWrite);
         return toWrite;
     }

@@ -34,7 +34,7 @@ public class OAuthPluginsTest {
     @Test
     public void sanity(UserFactory f) {
         Slug slug = f.newSlug("xx");
-        Object o = f.newUser("foo", slug, "Foo", new HashMap<String, Object>());
+        Object o = f.newUser("foo", slug, "Foo", null, null);
         Set<String> s = f.getSlugNames(o);
         assertEquals(1, s.size());
         assertEquals("xx", s.iterator().next());

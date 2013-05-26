@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.Map;
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.builder.api.FacebookApi;
 import org.scribe.model.OAuthRequest;
@@ -113,6 +114,14 @@ final class FacebookOAuthPlugin extends OAuthPlugin<Token> {
         } else {
             System.out.println("PROBLEM: " + apiResponse.getCode() + " - " + apiResponse.getHeaders());
             System.out.println(apiResponse.getBody());
+        }
+        return null;
+    }
+    
+    protected String getUserPictureURL(Map<String,Object> data) {
+        String un = (String) data.get("username");
+        if (un != null) {
+            return "https://graph.facebook.com/" + un + "/picture";
         }
         return null;
     }

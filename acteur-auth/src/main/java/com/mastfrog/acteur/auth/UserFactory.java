@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import java.util.Map;
 import java.util.Set;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeUtils;
 import org.joda.time.Duration;
 
 /**
@@ -74,7 +75,7 @@ public abstract class UserFactory<T> {
 
     public final Slug newSlug(String name) {
         String nue = ids.newId();
-        return new Slug(name, nue, DateTime.now());
+        return new Slug(name, nue, DateTimeUtils.currentTimeMillis());
     }
 
     protected abstract void putSlug(T on, Slug slug);
@@ -87,7 +88,7 @@ public abstract class UserFactory<T> {
 
     public abstract Set<String> getSlugNames(T on);
 
-    public abstract T newUser(String name, Slug slug, String displayName, Map<String, Object> properties);
+    public abstract T newUser(String name, Slug slug, String displayName, Map<String, Object> properties, OAuthPlugin plugin);
 
     public abstract T newUser(String name, String hashedPassword, String displayName, Map<String, Object> properties);
 
@@ -165,16 +166,20 @@ public abstract class UserFactory<T> {
 
         public final String name;
         public final String slug;
-        public final DateTime created;
+        public final long created;
 
-        public Slug(String name, String slug, DateTime created) {
+        public Slug(String name, String slug, long created) {
             this.name = name;
             this.slug = slug;
             this.created = created;
         }
+        
+        public DateTime created() {
+            return new DateTime(created);
+        }
 
         public Duration age() {
-            return new Duration(created, DateTime.now());
+            return new Duration(created(), DateTime.now());
         }
         
         public String toString() {
