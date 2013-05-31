@@ -482,7 +482,6 @@ class MockEvent implements Event {
                 throw new UnsupportedOperationException();
             }
 
-            @Override
             public ChannelPromise voidPromise() {
                 throw new UnsupportedOperationException();
             }

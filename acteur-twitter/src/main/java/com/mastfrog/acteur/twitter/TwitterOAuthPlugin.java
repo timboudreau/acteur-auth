@@ -104,8 +104,13 @@ public class TwitterOAuthPlugin extends OAuthPlugin<TwitterToken> {
 
     @Override
     protected String getUserPictureURL(Map<String, Object> data) {
-        String screenName = (String) data.get("screen_name"); //XXX this is not it
-        return "https://api.twitter.com/1/users/profile_image?screen_name=" + screenName + "&size=bigger";
+        String ur = (String) data.get("picture");
+        if (ur == null) {
+            System.out.println("PICTURE DATA: " + data);
+            String screenName = (String) data.get("screen_name"); //XXX this is not it
+            ur = "https://api.twitter.com/1/users/profile_image?screen_name=" + screenName + "&size=bigger";
+        }
+        return ur;
     }
 
     @Override

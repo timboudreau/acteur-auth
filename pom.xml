@@ -17,5 +17,6 @@
         <module>generic-web-api</module>
         <module>health</module>
     <module>acteur-twitter</module>
+    <module>acteur-linkedin</module>
   </modules>
 </project>

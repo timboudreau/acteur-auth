@@ -374,8 +374,8 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
             getReponseHeaders().addCacheControl(CacheControlTypes.Public);
             getReponseHeaders().addCacheControl(CacheControlTypes.must_revalidate);
             getReponseHeaders().addCacheControl(CacheControlTypes.max_age, Duration.standardHours(2));
-            getReponseHeaders().setExpires(DateTime.now().plus(Duration.standardDays(2)));
-            String pth = "^" + settings.getString(SETTINGS_KEY_OAUTH_TYPES_PAGE_PATH, "auths$");
+            getReponseHeaders().setExpires(DateTime.now().plus(Duration.standardHours(2)));
+            String pth = "^" + settings.getString(SETTINGS_KEY_OAUTH_TYPES_PAGE_PATH, "authtypes") + "$";
             add(af.matchMethods(GET));
             add(af.matchPath(pth));
             add(af.sendNotModifiedIfIfModifiedSinceHeaderMatches());

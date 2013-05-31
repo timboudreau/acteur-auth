@@ -65,7 +65,7 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
             PathFactory paths,
             Settings settings, OAuthPlugins plugins, ObjectMapper mapper, UserFactory<?> users,
             JacksonFactory factory, HttpTransport transport) {
-        super("Google", "gg", "http://searchengineland.com/images/icons/GoogleCurrents-24x24.png", plugins);
+        super("Google", "gg", "/g-small.png", plugins);
 //        super("Google", "gg", "http://productforums.google.com/forum/google.png", plugins);
 
         if (!splitAndAdd(settings.getString(SETTINGS_KEY_SCOPES), scopes)) {

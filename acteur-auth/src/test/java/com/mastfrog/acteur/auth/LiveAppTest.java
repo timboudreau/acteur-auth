@@ -106,7 +106,7 @@ public class LiveAppTest {
         String encoded = plugins.encodeCookieValue(info.userName, saved.slug).split(":")[0];
         assertEquals(encoded, slug);
 
-        Map[] m = harness.get("auths").go().assertStatus(OK).content(Map[].class);
+        Map[] m = harness.get("authtypes").go().assertStatus(OK).content(Map[].class);
         assertEquals(1, m.length);
         Map mm = m[0];
         assertEquals("fk", mm.get("code"));
