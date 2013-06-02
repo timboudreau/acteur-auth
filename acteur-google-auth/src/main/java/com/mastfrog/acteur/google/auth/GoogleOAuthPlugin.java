@@ -130,7 +130,7 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
 
     @Override
     public boolean revalidateCredential(String userName, String code) {
-        return false;
+        return true;
     }
 
     public GoogleCredential getCredentialForCode(String code) throws IOException, MalformedURLException, URISyntaxException {
@@ -146,13 +146,18 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
                 .setTransport(transport)
                 .setJsonFactory(factory)
                 .setClientSecrets(clientId, clientSecret).build();
-
+        
         return cred.setFromTokenResponse(response);
     }
 
     @Override
     public String stateForEvent(Event evt) {
         return evt.getParameter("state");
+    }
+
+    @Override
+    protected String credentialToString(GoogleCredential credential) {
+        return credential.getAccessToken();
     }
 
     @Override

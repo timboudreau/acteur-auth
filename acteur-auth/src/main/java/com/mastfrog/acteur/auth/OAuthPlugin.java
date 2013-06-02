@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.auth.UserFactory.LoginState;
-import com.mastfrog.url.URL;
 import java.io.IOException;
 import java.util.Map;
 import org.joda.time.Duration;
@@ -99,6 +98,14 @@ public abstract class OAuthPlugin<CredentialType> {
     public abstract CredentialType credentialForEvent(Event evt);
 
     public abstract boolean revalidateCredential(String userName, String accessToken);
+    
+    protected String credentialToString(CredentialType credential) {
+        return credential.toString();
+    }
+    
+    final <T> void saveToken(UserFactory<T> uf, T user, CredentialType credential) {
+        uf.putAccessToken(user, credentialToString(credential), code());
+    }
 
     /**
      * Take a credential and fetch enough info about the user in the

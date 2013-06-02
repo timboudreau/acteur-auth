@@ -22,8 +22,8 @@ import org.joda.time.DateTimeUtils;
 
 /**
  * A source of unlikely-to-collide, hard-to-guess random url-safe strings,
- * incorporating a system-specific component and the MAC address of the
- * network cards on the system.
+ * incorporating a system-specific component and the MAC address of the network
+ * cards on the system.
  *
  * @author Tim Boudreau
  */
@@ -122,9 +122,13 @@ public final class UniqueIDs {
     public String toString() {
         return base;
     }
-    
+
     public String newRandomString() {
-        byte[] bytes = new byte[16];
+        return newRandomString(16);
+    }
+
+    public String newRandomString(int count) {
+        byte[] bytes = new byte[count];
         random.nextBytes(bytes);
         return bytesToString(bytes) + '-' + bytesToString(longToBytes(vmid));
     }

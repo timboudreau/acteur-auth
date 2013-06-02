@@ -47,17 +47,6 @@ final class OAuthLandingPageActeur extends Acteur {
         // Try to find a plugin matching this code
         Optional<OAuthPlugin<?>> plugino = plugins.find(pluginType);
         
-        System.out.println("USING PLUGIN TYPE " + pluginType + " as " + (plugino.isPresent() ? "" + plugino.get() : "null"));
-        
-        System.out.println("*&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-        System.out.println("StateForEvent in " + evt.getPath());
-        for (Map.Entry<String,String> e : evt.getRequest().headers()) {
-            System.out.println(e.getKey() + ": " + e.getValue());
-        }
-        System.out.println("*&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-                
-        
-
         if (!plugino.isPresent()) {
             setState(new RespondWith(HttpResponseStatus.BAD_REQUEST,
                     "No plugin with code " + pluginType + " in " + plugins));
@@ -125,6 +114,7 @@ final class OAuthLandingPageActeur extends Acteur {
                 // Overwrite the old one
                 users.putSlug(user, slug);
                 users.putData(user, plugin.code(), toMap(rui));
+                plugin.saveToken(users, user, credential);
             }
         } else {
             // Create a new slug for the new user
@@ -132,12 +122,14 @@ final class OAuthLandingPageActeur extends Acteur {
             // Create a new user
             user = users.newUser(rui.userName(), slug, rui.displayName(), rui, plugin);
             users.putData(user, plugin.code(), toMap(rui));
+            plugin.saveToken(users, user, credential);
         }
         // Encode the slug into a cookie - this hashes the slug (which is a random
         // string anyway) with a salt and the user name
         String cookieValue = plugins.encodeCookieValue(rui.userName(), slug.slug);
         DefaultCookie ck = new DefaultCookie(plugin.code(), cookieValue);
-        Host host = evt.getHeader(Headers.HOST);
+        
+        Host host = plugins.cookieHost() == null ? evt.getHeader(Headers.HOST) : Host.parse(plugins.cookieHost());
         if (host == null) {
             // If we can't figure out our own host, we're hosed - the cookie
             // won't be saved anyway

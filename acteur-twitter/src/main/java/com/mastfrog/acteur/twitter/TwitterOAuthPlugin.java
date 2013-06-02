@@ -67,7 +67,7 @@ public class TwitterOAuthPlugin extends OAuthPlugin<TwitterToken> {
             return Exceptions.chuck(ex);
         }
     }
-    
+
     private OAuthResult start(String state) throws IOException, InterruptedException, GeneralSecurityException {
         Path pth = Path.builder().add(plugins.getLandingPageBasePath()).add(code()).create();
         com.mastfrog.url.URL url = paths.constructURL(pth, true);
@@ -77,14 +77,11 @@ public class TwitterOAuthPlugin extends OAuthPlugin<TwitterToken> {
 
     @Override
     public boolean revalidateCredential(String userName, String accessToken) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return true;
     }
 
     @Override
     public TwitterToken credentialForEvent(Event evt) {
-        System.out.println("EVENT IS " + evt.getPath());
-        System.out.println("Credential for event " + evt.getParametersAsMap());
-
         String token = evt.getParameter("oauth_token");
         String verifier = evt.getParameter("oauth_verifier");
         return new TwitterToken(token, verifier);
@@ -106,20 +103,24 @@ public class TwitterOAuthPlugin extends OAuthPlugin<TwitterToken> {
     protected String getUserPictureURL(Map<String, Object> data) {
         String ur = (String) data.get("picture");
         if (ur == null) {
-            System.out.println("PICTURE DATA: " + data);
-            String screenName = (String) data.get("screen_name"); //XXX this is not it
-            ur = "https://api.twitter.com/1/users/profile_image?screen_name=" + screenName + "&size=bigger";
+            String screenName = (String) data.get("screen_name");
+            if (screenName != null) {
+                ur = "https://api.twitter.com/1/users/profile_image?screen_name=" + screenName + "&size=bigger";
+            }
         }
         return ur;
     }
 
     @Override
+    protected String credentialToString(TwitterToken credential) {
+        return credential.token;
+    }
+
+    @Override
     public RemoteUserInfo getRemoteUserInfo(TwitterToken credential) throws IOException, JsonParseException, JsonMappingException {
-        System.out.println("GET REMOTE USER INFO: " + credential);
         TwitterSign sg = new TwitterSign(consumerKey, consumerSecret, null, client);
         try {
             AuthorizationResponse auth = sg.getTwitterAccessTokenFromAuthorizationCode(credential.verifier, credential.token, ids.newId());
-            System.out.println("Got Auth Response: " + auth);
 
             if (auth == null) {
                 return null;
@@ -127,11 +128,10 @@ public class TwitterOAuthPlugin extends OAuthPlugin<TwitterToken> {
             String nonce = ids.newId();
             // Sign with a new nonce for *every* request - really?!
             OAuthResult r = start(nonce);
-            
+
             sg = new TwitterSign(consumerKey, consumerSecret, null, client);
-            
+
             //PENDING - need to store the access token
-            
 //            users.putAccessToken(sg, code, name);
             return sg.getUserInfo(ids.newId(), credential, auth);
         } catch (InterruptedException | GeneralSecurityException ex) {

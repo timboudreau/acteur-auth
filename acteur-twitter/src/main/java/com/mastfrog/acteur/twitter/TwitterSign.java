@@ -223,7 +223,6 @@ public class TwitterSign {
                 + twitter_consumer_key + "&oauth_nonce=" + oauth_nonce
                 + "&oauth_signature_method=" + oauth_signature_method
                 + "&oauth_timestamp=" + oauth_timestamp + "&oauth_version=1.0";
-        System.out.println("parameter_string=" + parameter_string); // print out parameter string for error checking, if you want
 
         // specify the proper twitter API endpoint at which to direct this request
         String twitter_endpoint = "https://api.twitter.com/oauth/request_token";
@@ -242,7 +241,6 @@ public class TwitterSign {
         // each request to the twitter API 1.1 requires an "Authorization: BLAH" header. The following is what BLAH should look like
         String authorization_header_string = "OAuth oauth_consumer_key=\"" + twitter_consumer_key + "\",oauth_signature_method=\"HMAC-SHA1\",oauth_timestamp=\""
                 + oauth_timestamp + "\",oauth_nonce=\"" + oauth_nonce + "\",oauth_version=\"1.0\",oauth_signature=\"" + encode(oauth_signature) + "\"";
-        System.out.println("authorization_header_string=" + authorization_header_string); 	// print out authorization_header_string for error checking
 
         String oauth_token = "";
         String oauth_token_secret = "";
@@ -296,7 +294,6 @@ public class TwitterSign {
         // the parameter string must be in alphabetical order
         String parameter_string = "oauth_consumer_key=" + twitter_consumer_key + "&oauth_nonce=" + oauth_nonce + "&oauth_signature_method=" + oauth_signature_method
                 + "&oauth_timestamp=" + oauth_timestamp + "&oauth_token=" + encode(oauth_token) + "&oauth_version=1.0";
-        System.out.println("parameter_string=" + parameter_string);
 
         String twitter_endpoint = "https://api.twitter.com/oauth/access_token";
         String twitter_endpoint_host = "api.twitter.com";
@@ -304,7 +301,6 @@ public class TwitterSign {
         String signature_base_string = get_or_post + "&" + encode(twitter_endpoint) + "&" + encode(parameter_string);
 
         String oauth_signature = computeSignature(signature_base_string, twitter_consumer_secret + "&");  // note the & at the end. Normally the user access_token would go here, but we don't know it yet
-        System.out.println("oauth_signature=" + encode(oauth_signature));
 
         String authorization_header_string = "OAuth oauth_consumer_key=\"" + twitter_consumer_key + "\",oauth_signature_method=\"HMAC-SHA1\",oauth_timestamp=\"" + oauth_timestamp
                 + "\",oauth_nonce=\"" + oauth_nonce + "\",oauth_version=\"1.0\",oauth_signature=\"" + encode(oauth_signature) + "\",oauth_token=\"" + encode(oauth_token) + "\"";
@@ -373,15 +369,12 @@ public class TwitterSign {
                 + "&oauth_timestamp=" + oauth_timestamp + "&oauth_token="
                 + encode(oauth_token) + "&oauth_version=1.0";
 
-        System.out.println("parameter_string=" + parameter_string);
 
         String signature_base_string = get_or_post + "&" + twitter_endpoint + "&" + encode(parameter_string);
 
-        System.out.println("SIGNATURE BASE: " + signature_base_string);
 
 //        String oauth_signature  = computeSignature(signature_base_string, twitter_consumer_secret + "&");  // note the & at the end. Normally the user access_token would go here, but we don't know it yet
         String oauth_signature = computeSignature(signature_base_string, twitter_consumer_secret + "&");  // note the & at the end. Normally the user access_token would go here, but we don't know it yet
-        System.out.println("oauth_signature=" + encode(oauth_signature));
 
         /*
          OAuth oauth_consumer_key="cI5QfItOsHq08gRBWGFzmg",
@@ -498,9 +491,7 @@ public class TwitterSign {
                 content.append(key).append('=').append(pairs.get(key));
             }
             sb.append(encode(content.toString()));
-            System.out.println("SIGSTRING: " + sb);
             String oauth_signature = generateSignature(sb.toString(), auth);
-            System.out.println("SIGNATURE: " + oauth_signature);
             return oauth_signature;
         }
 
@@ -548,8 +539,6 @@ public class TwitterSign {
 
         String franken = a.xgenerateAuthorizationHeader(oauth_nonce, "GET", "/1.1/account/verify_credentials.json", new HttpParameter[0], new twitter4j.auth.AccessToken(auth.accessToken, auth.accessTokenSecret));
 
-        System.out.println("OAUTH PARAMS FROM TW: " + franken);
-        System.out.println("HEADER1:" + hdr);
 
         OAuthAuthorization oa = new OAuthAuthorization(twitter.getConfiguration());
         oa.setOAuthConsumer(twitter_consumer_key, twitter_consumer_secret);
@@ -559,7 +548,6 @@ public class TwitterSign {
                 "https://api.twitter.com/twitter4j.internal.http.HttpRequest",
                 new HttpParameter[0], oa, Collections.<String, String>emptyMap());
 
-        System.out.println("AUTH HEADER FROM TW4: " + a.getAuthorizationHeader(r));
 
         ResponseLatch latch = new ResponseLatch();
         RH rh = new RH();
@@ -582,8 +570,6 @@ public class TwitterSign {
         latch.latch.await(1, TimeUnit.MINUTES);
 
         String responseBody = rh.getResponse();
-
-        System.out.println("RESPONSE BODY IS: " + responseBody);
 
         RUI rui = new RUI();
         if (responseBody == null) {
@@ -609,7 +595,6 @@ public class TwitterSign {
         twitter.setOAuthAccessToken(new AccessToken(auth.accessToken, auth.accessTokenSecret));
         try {
             User user = twitter.verifyCredentials();
-            System.out.println("USER: " + user);
 
             RUI rui = new RUI();
             rui.put("displayName", user.getName());
@@ -650,7 +635,6 @@ public class TwitterSign {
 
         String responseBody = rh.getResponse();
 
-        System.out.println("RESPONSE BODY IS: " + responseBody);
 
         RUI rui = new RUI();
         if (responseBody == null) {
@@ -670,14 +654,11 @@ public class TwitterSign {
         String authorization_header_string = getAuthorizationHeader(Method.GET,
                 "https%3A%2F%2Fapi.twitter.com%2F1.1%2Faccount%2Fverify_credentials.json", auth.accessToken, oauth_nonce);
 
-        System.out.println("URL: " + url);
 
-        System.out.println("AUTH HEADER: " + authorization_header_string);
 
         ResponseLatch latch = new ResponseLatch();
         RH rh = new RH();
 
-        System.out.println("MAKING REQUEST TO " + url);
 
         client.get().setURL(url).addHeader(Headers.stringHeader("Authorization"), authorization_header_string)
                 .addHeader(Headers.stringHeader("Accept"), "*/*")
@@ -690,7 +671,6 @@ public class TwitterSign {
 
         String responseBody = rh.getResponse();
 
-        System.out.println("RESPONSE BODY IS: " + responseBody);
 
         RUI rui = new RUI();
         if (responseBody == null) {
@@ -722,8 +702,6 @@ public class TwitterSign {
         mac.init(spec);
         byteHMAC = mac.doFinal(data.getBytes());
         String sig = BASE64Encoder.encode(byteHMAC);
-        System.out.println("TSIGSTRING: " + data);
-        System.out.println("TSIGNATURE: " + sig);
         return sig;
     }
 

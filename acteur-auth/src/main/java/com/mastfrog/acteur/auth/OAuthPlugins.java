@@ -76,7 +76,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
         useDisplayNameCookie = settings.getBoolean(SETTINGS_KEY_USE_DISPLAY_NAME_COOKIE, true);
         this.displayNameCookieMaxAge = Duration.standardDays(displayNameCookieMaxAge);
         salt = settings.getString(SETTINGS_KEY_COOKIE_SALT, DEFAULT_COOKIE_SALT);
-        if (deps.isProductionMode() && salt == DEFAULT_COOKIE_SALT) {
+        if (deps.isProductionMode() && salt == DEFAULT_COOKIE_SALT) { // == test ok
             throw new ConfigurationError("Will not run in production mode "
                     + "with the default cookie salt which makes auth cookies "
                     + "predictable.  Set '" + SETTINGS_KEY_COOKIE_SALT + "' "
@@ -96,6 +96,10 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
         cookieHost = settings.getString(SETTINGS_KEY_OAUTH_COOKIE_HOST);
     }
 
+    String cookieHost() {
+        return cookieHost;
+    }
+    
     List<Integer> cookiePortList() {
         List<Integer> l = new ArrayList(cookiePorts().length);
         for (int i : cookiePorts()) {
@@ -184,6 +188,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
             displayNameCookie.setPorts(cookiePortList());
             displayNameCookie.setPath(cookieBasePath());
             displayNameCookie.setMaxAge(displayNameCookieMaxAge.getStandardSeconds());
+            
             response.add(Headers.SET_COOKIE, displayNameCookie);
         }
     }

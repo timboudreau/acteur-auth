@@ -81,7 +81,7 @@ final class FacebookOAuthPlugin extends OAuthPlugin<Token> {
 
     @Override
     public boolean revalidateCredential(String userName, String code) {
-        return false;
+        return true;
     }
 
     public Token getCredentialForCode(String code) {
@@ -116,6 +116,11 @@ final class FacebookOAuthPlugin extends OAuthPlugin<Token> {
             System.out.println(apiResponse.getBody());
         }
         return null;
+    }
+
+    @Override
+    protected String credentialToString(Token credential) {
+        return credential.getToken();
     }
     
     protected String getUserPictureURL(Map<String,Object> data) {
