@@ -1,7 +1,7 @@
 package com.mastfrog.acteur.auth;
 
 import com.google.inject.ImplementedBy;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Response;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
@@ -20,7 +20,7 @@ abstract class AuthenticationStrategy {
      * @param evt An event
      * @return True if it should be tried
      */
-    protected boolean isEnabled(Event evt) {
+    protected boolean isEnabled(HttpEvent evt) {
         return true;
     }
 
@@ -30,9 +30,9 @@ abstract class AuthenticationStrategy {
      * @param evt An event
      * @return a result
      */
-    protected abstract Result<?> authenticate(Event evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response);
+    protected abstract Result<?> authenticate(HttpEvent evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response);
     
-    protected void authenticated(Event evt, Response response) {
+    protected void authenticated(HttpEvent evt, Response response) {
         
     }
 
@@ -44,6 +44,6 @@ abstract class AuthenticationStrategy {
          *
          * @param evt
          */
-        void onAuthenticationFailed(Event evt, Response response);
+        void onAuthenticationFailed(HttpEvent evt, Response response);
     }
 }

@@ -2,7 +2,7 @@ package com.timboudreau.questions;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.util.Exceptions;
 import com.timboudreau.questions.pojos.Survey;
 import java.io.IOException;
@@ -13,17 +13,17 @@ import java.io.IOException;
  */
 final class SurveyProvider implements Provider<Survey> {
 
-    private final Provider<Event> evt;
+    private final Provider<HttpEvent> evt;
 
     @Inject
-    SurveyProvider(Provider<Event> evt) {
+    SurveyProvider(Provider<HttpEvent> evt) {
         this.evt = evt;
     }
 
     @Override
     public Survey get() {
         try {
-            Event e = evt.get();
+            HttpEvent e = evt.get();
             return e.getContentAsJSON(Survey.class);
         } catch (IOException ex) {
             return Exceptions.chuck(ex);

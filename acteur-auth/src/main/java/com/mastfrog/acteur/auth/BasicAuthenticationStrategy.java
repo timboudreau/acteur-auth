@@ -2,7 +2,7 @@ package com.mastfrog.acteur.auth;
 
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Response;
 import static com.mastfrog.acteur.auth.Auth.SKIP_HEADER;
 import com.mastfrog.acteur.util.BasicCredentials;
@@ -40,13 +40,13 @@ class BasicAuthenticationStrategy extends AuthenticationStrategy {
     }
 
     @Override
-    protected boolean isEnabled(Event evt) {
+    protected boolean isEnabled(HttpEvent evt) {
 //        return !"true".equals(evt.getHeader(SKIP_HEADER));
         return true;
     }
 
     @Override
-    protected Result<?> authenticate(Event evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response) {
+    protected Result<?> authenticate(HttpEvent evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response) {
         BasicCredentials credentials = evt.getHeader(Headers.AUTHORIZATION);
         if (credentials == null) {
             onFail.set(new FailHookImpl());
@@ -55,7 +55,7 @@ class BasicAuthenticationStrategy extends AuthenticationStrategy {
         return tryAuthenticate(evt, users, credentials, onFail, scopeContents, response);
     }
 
-    private <T> Result<?> tryAuthenticate(Event evt, UserFactory<T> uf, BasicCredentials credentials, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response) {
+    private <T> Result<?> tryAuthenticate(HttpEvent evt, UserFactory<T> uf, BasicCredentials credentials, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response) {
         Optional<T> u = uf.findUserByName(credentials.username);
         if (!u.isPresent()) {
             onFail.set(new FailHookImpl());
@@ -102,7 +102,7 @@ class BasicAuthenticationStrategy extends AuthenticationStrategy {
     class FailHookImpl implements FailHook {
 
         @Override
-        public void onAuthenticationFailed(Event evt, Response response) {
+        public void onAuthenticationFailed(HttpEvent evt, Response response) {
             if ("true".equals(evt.getHeader(SKIP_HEADER)) || !sendAuthHeader) {
                 return;
             }

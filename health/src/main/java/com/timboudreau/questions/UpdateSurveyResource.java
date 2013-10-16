@@ -6,7 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
@@ -56,7 +56,7 @@ public class UpdateSurveyResource extends Page {
     private static class MustHaveSomeParameters extends Acteur {
 
         @Inject
-        MustHaveSomeParameters(Event evt) {
+        MustHaveSomeParameters(HttpEvent evt) {
             if (evt.getParametersAsMap().isEmpty()) {
                 setState(new RespondWith(HttpResponseStatus.BAD_REQUEST,
                         "Must have URL parameters for what to change"));
@@ -73,7 +73,7 @@ public class UpdateSurveyResource extends Page {
     private static final class UpdateSurveyActeur extends Acteur {
 
         @Inject
-        UpdateSurveyActeur(Event evt, DBObject obj, @Named("surveys") DBCollection surveys,
+        UpdateSurveyActeur(HttpEvent evt, DBObject obj, @Named("surveys") DBCollection surveys,
                 ObjectMapper mapper) throws JsonProcessingException, UnsupportedEncodingException {
             String userId = evt.getPath().getElement(3).toString();
             userId = URLDecoder.decode(userId, "UTF-8");
@@ -89,7 +89,7 @@ public class UpdateSurveyResource extends Page {
             }
         }
 
-        private BasicDBObject createEditFrom(Event evt, ObjectId id) {
+        private BasicDBObject createEditFrom(HttpEvent evt, ObjectId id) {
             Map<String, Object> m = new HashMap<String, Object>(evt.getParametersAsMap());
 
             BasicDBObject result = new BasicDBObject();

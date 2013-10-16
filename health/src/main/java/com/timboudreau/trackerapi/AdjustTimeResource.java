@@ -3,7 +3,7 @@ package com.timboudreau.trackerapi;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.util.Method;
@@ -53,7 +53,7 @@ class AdjustTimeResource extends Page {
     private static class Adjuster extends Acteur {
 
         @Inject
-        public Adjuster(Event evt, DBCollection collection, BasicDBObject query, AdjustParameters params) throws IOException {
+        public Adjuster(HttpEvent evt, DBCollection collection, BasicDBObject query, AdjustParameters params) throws IOException {
             query.put(type, time);
             query.remove(detail);
 

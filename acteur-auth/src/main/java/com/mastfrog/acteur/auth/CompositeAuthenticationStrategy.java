@@ -1,7 +1,7 @@
 package com.mastfrog.acteur.auth;
 
 import com.google.inject.Inject;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Response;
 import com.mastfrog.settings.Settings;
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ final class CompositeAuthenticationStrategy extends AuthenticationStrategy {
     }
 
     @Override
-    protected Result<?> authenticate(Event evt, AtomicReference<? super FailHook> hook, Collection<? super Object> scopeContents, Response response) {
+    protected Result<?> authenticate(HttpEvent evt, AtomicReference<? super FailHook> hook, Collection<? super Object> scopeContents, Response response) {
         List<AtomicReference<FailHook>> fails = new ArrayList<>();
         CompositeFailHook compositeHook = new CompositeFailHook(fails);
         hook.set(compositeHook);
@@ -83,7 +83,7 @@ final class CompositeAuthenticationStrategy extends AuthenticationStrategy {
         }
 
         @Override
-        public void onAuthenticationFailed(Event evt, Response response) {
+        public void onAuthenticationFailed(HttpEvent evt, Response response) {
             for (AtomicReference<FailHook> fh : all) {
                 FailHook hook = fh.get();
                 if (hook != null) {

@@ -3,7 +3,7 @@ package com.timboudreau.trackerapi;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
@@ -39,7 +39,7 @@ public class SetPasswordResource extends Page {
     static class SetPasswordActeur extends Acteur {
 
         @Inject
-        SetPasswordActeur(DBCollection coll, Event evt, PasswordHasher hasher, TTUser user) throws IOException {
+        SetPasswordActeur(DBCollection coll, HttpEvent evt, PasswordHasher hasher, TTUser user) throws IOException {
             String userName = evt.getPath().getElement(1).toString();
             String pw = evt.getContent().toString(Charset.forName("UTF-8"));
             if (pw.length() < SignUpResource.SignerUpper.MIN_PASSWORD_LENGTH) {

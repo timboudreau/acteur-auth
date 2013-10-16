@@ -6,13 +6,11 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Application;
 import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.ImplicitBindings;
 import com.mastfrog.acteur.auth.MockUserFactory.MockUser;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.State;
-import com.mastfrog.acteur.auth.Auth;
-import com.mastfrog.acteur.auth.OAuthPlugins;
-import com.mastfrog.acteur.auth.UserFactory;
 import com.mastfrog.acteur.util.HeaderValueType;
 import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.acteur.util.Method;
@@ -45,13 +43,13 @@ public class MockApp extends Application {
         this.uf = uf;
     }
 
-    public CountDownLatch event(Event evt) {
+    public CountDownLatch event(HttpEvent evt) {
         CountDownLatch latch = super.onEvent(evt, evt.getChannel());
         return latch;
     }
 
     @Override
-    protected void onAfterRespond(RequestID id, Event event, Acteur acteur, Page page, State state, HttpResponseStatus status, HttpResponse response) {
+    protected void onAfterRespond(RequestID id, Event<?> event, Acteur acteur, Page page, State state, HttpResponseStatus status, HttpResponse response) {
         if (hook != null) {
             hook.clear();
             hook.acteur = acteur;
@@ -66,12 +64,12 @@ public class MockApp extends Application {
     }
 
     @Override
-    protected HttpResponse decorateResponse(Event event, Page page, Acteur action, HttpResponse response) {
+    protected HttpResponse decorateResponse(Event<?> event, Page page, Acteur action, HttpResponse response) {
         return hook.response = super.decorateResponse(event, page, action, response); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    protected HttpResponse createNotFoundResponse(Event event) {
+    protected HttpResponse createNotFoundResponse(Event<?> event) {
         System.out.println("NOT FOUND: " + event);
         HttpResponse res = super.createNotFoundResponse(event);
         if (hook != null) {

@@ -6,7 +6,7 @@ import com.google.inject.name.Named;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Application;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
@@ -64,7 +64,7 @@ final class RecordTimeConnectionIsOpenResource extends Page {
         private final AtomicBoolean isRunning = new AtomicBoolean(true);
 
         @Inject
-        LiveTime(@Named("periodicLiveWrites") final boolean pings, final Event evt, final Provider<DBCollection> coll, TTUser user, Application application, final Provider<LiveWriter> writer) {
+        LiveTime(@Named("periodicLiveWrites") final boolean pings, final HttpEvent evt, final Provider<DBCollection> coll, TTUser user, Application application, final Provider<LiveWriter> writer) {
             System.out.println("RecordTimeConnectionIsOpenResource LiveTime init");
             toWrite.append(by, user.idAsString())
                     .append(start, created)
@@ -139,7 +139,7 @@ final class RecordTimeConnectionIsOpenResource extends Page {
             }
         }
 
-        static String buildQueryFromURLParameters(final Event evt, BasicDBObject toWrite, String... ignore) {
+        static String buildQueryFromURLParameters(final HttpEvent evt, BasicDBObject toWrite, String... ignore) {
             Arrays.sort(ignore);
             if (evt.getParametersAsMap().size() > AddTimeResource.MAX_PROPERTIES) {
                 return "Too many URL parameters - max is "

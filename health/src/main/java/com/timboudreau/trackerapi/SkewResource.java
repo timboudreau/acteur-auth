@@ -5,7 +5,7 @@ import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.util.Method;
@@ -23,7 +23,7 @@ public class SkewResource extends Page {
     private final long now = System.currentTimeMillis();
 
     @Inject
-    SkewResource(ActeurFactory af, Event evt, Provider<ObjectMapper> mapper) throws IOException {
+    SkewResource(ActeurFactory af, HttpEvent evt, Provider<ObjectMapper> mapper) throws IOException {
         add(af.matchPath("^skew$"));
         add(af.matchMethods(Method.GET));
         add(AuthenticationActeur.class);

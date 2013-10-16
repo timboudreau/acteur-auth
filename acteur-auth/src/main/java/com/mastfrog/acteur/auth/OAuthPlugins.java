@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.Response;
 import com.mastfrog.acteur.auth.TestLoginPage.TestLoginActeur;
@@ -170,7 +170,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
         return result;
     }
 
-    private final Host getHost(Event evt) {
+    private final Host getHost(HttpEvent evt) {
         Host host = evt.getHeader(Headers.HOST);
         if (cookieHost != null) {
             host = Host.parse(cookieHost);
@@ -180,7 +180,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
         return host;
     }
 
-    public void createDisplayNameCookie(Event evt, Response response, String displayName) {
+    public void createDisplayNameCookie(HttpEvent evt, Response response, String displayName) {
         if (useDisplayNameCookie) {
             DefaultCookie displayNameCookie = new DefaultCookie(DISPLAY_NAME_COOKIE_NAME, displayName);
             displayNameCookie.setDomain(getHost(evt).toString()); //XXX use a setting?
@@ -193,7 +193,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
         }
     }
 
-    public boolean hasDisplayNameCookie(Event evt) {
+    public boolean hasDisplayNameCookie(HttpEvent evt) {
         Cookie[] cookies = evt.getHeader(Headers.COOKIE);
         if (cookies == null) {
             return false;
@@ -206,7 +206,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
         return false;
     }
 
-    public void logout(Event evt, Response response) {
+    public void logout(HttpEvent evt, Response response) {
         Checks.notNull("response", response);
         Checks.notNull("evt", evt);
         Cookie[] cks = evt.getHeader(Headers.COOKIE);

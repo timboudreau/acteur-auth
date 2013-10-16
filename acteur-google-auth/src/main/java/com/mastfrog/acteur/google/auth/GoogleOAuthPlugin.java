@@ -14,7 +14,7 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.auth.OAuthPlugin;
 import com.mastfrog.acteur.auth.OAuthPlugins;
 import com.mastfrog.acteur.auth.UserFactory;
@@ -151,7 +151,7 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
     }
 
     @Override
-    public String stateForEvent(Event evt) {
+    public String stateForEvent(HttpEvent evt) {
         return evt.getParameter("state");
     }
 
@@ -161,7 +161,7 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
     }
 
     @Override
-    public GoogleCredential credentialForEvent(Event evt) {
+    public GoogleCredential credentialForEvent(HttpEvent evt) {
         String code = evt.getParameter("code");
         if (code == null) {
             return null;

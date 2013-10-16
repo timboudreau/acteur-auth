@@ -3,7 +3,7 @@ package com.timboudreau.trackerapi;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.util.CacheControl;
 import com.mastfrog.acteur.util.CacheControlTypes;
@@ -29,7 +29,7 @@ final class CORSResource extends Page {
     private static final class CorsHeaders extends Acteur {
 
         @Inject
-        CorsHeaders(Event evt) {
+        CorsHeaders(HttpEvent evt) {
             add(Headers.stringHeader("Access-Control-Allow-Origin"), "*");
             add(Headers.ACCESS_CONTROL_ALLOW, new Method[]{Method.GET, Method.POST, Method.PUT, Method.DELETE, Method.OPTIONS});
             add(Headers.stringHeader("Access-Control-Allow-Headers"), "content-type, accept, X-Requested-With");

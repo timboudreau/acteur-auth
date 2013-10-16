@@ -1,7 +1,7 @@
 package com.mastfrog.acteur.auth;
 
 import com.google.inject.Inject;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.auth.FakeOAuthPlugin.FakeCredential;
 import com.mastfrog.acteur.auth.OAuthPlugin;
 import com.mastfrog.acteur.auth.OAuthPlugins;
@@ -33,12 +33,12 @@ class FakeOAuthPlugin extends OAuthPlugin<FakeCredential> {
     }
 
     @Override
-    public String stateForEvent(Event evt) {
+    public String stateForEvent(HttpEvent evt) {
         return evt.getParameter("state");
     }
 
     @Override
-    public FakeCredential credentialForEvent(Event evt) {
+    public FakeCredential credentialForEvent(HttpEvent evt) {
         FakeCredential fc = new FakeCredential(stateForEvent(evt));
         Info info = infos.get(fc);
         if (info == null) {

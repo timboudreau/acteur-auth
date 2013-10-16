@@ -5,7 +5,7 @@ import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.OAuthPlugins.PluginInfo;
 import com.mastfrog.acteur.auth.UserFactory.Slug;
@@ -54,7 +54,7 @@ final class TestLoginPage extends Page {
         private final HomePageRedirector redir;
 
         @Inject
-        TestLoginActeur(Event evt, OAuthPlugins plugins, AuthenticationStrategy auth, UserFactory<?> uf, Realm realm, HomePageRedirector redir, PasswordHasher hasher) {
+        TestLoginActeur(HttpEvent evt, OAuthPlugins plugins, AuthenticationStrategy auth, UserFactory<?> uf, Realm realm, HomePageRedirector redir, PasswordHasher hasher) {
             this.plugins = plugins;
             this.redir = redir;
             int code = OK.code();
@@ -124,7 +124,7 @@ final class TestLoginPage extends Page {
             }
         }
 
-        private <T> void loginAs(Event evt, BasicCredentials creds, UserFactory<T> uf, Result result, PasswordHasher hasher) {
+        private <T> void loginAs(HttpEvent evt, BasicCredentials creds, UserFactory<T> uf, Result result, PasswordHasher hasher) {
             Optional<T> usero = uf.findUserByName(creds.username);
             if (usero.isPresent()) {
                 T user = usero.get();
@@ -147,7 +147,7 @@ final class TestLoginPage extends Page {
             }
         }
 
-        private <T> void loginAs(Event evt, UserInfo info, OAuthPlugin with, UserFactory<T> uf, PluginInfo pi, Result result) {
+        private <T> void loginAs(HttpEvent evt, UserInfo info, OAuthPlugin with, UserFactory<T> uf, PluginInfo pi, Result result) {
             Optional<T> userObject = uf.findUserByName(info.userName);
             if (userObject.isPresent()) {
                 T obj = userObject.get();

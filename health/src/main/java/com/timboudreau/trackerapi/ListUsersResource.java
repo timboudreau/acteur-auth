@@ -3,7 +3,7 @@ package com.timboudreau.trackerapi;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.mongo.CursorWriter;
 import com.mastfrog.acteur.mongo.CursorWriterActeur;
@@ -43,7 +43,7 @@ class ListUsersResource extends Page {
         final AtomicBoolean first = new AtomicBoolean(true);
 
         @Inject
-        UF(DBCollection coll, Event evt) {
+        UF(DBCollection coll, HttpEvent evt) {
             final boolean simple = "true".equals(evt.getParameter("simple"));
             cursor = simple ? coll.find(new BasicDBObject(), new BasicDBObject("_id", 1).append("name", 1).append("displayName", 1).append("created", 1)) : coll.find();
             setState(new ConsumedLockedState(cursor, new CursorWriter.MapFilter() {

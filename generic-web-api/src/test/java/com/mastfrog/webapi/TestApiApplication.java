@@ -6,6 +6,7 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Application;
 import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.server.ServerModule;
 import com.mastfrog.acteur.util.Method;
@@ -46,22 +47,22 @@ class TestApiApplication extends Application {
     }
 
     @Override
-    public CountDownLatch onEvent(Event event, Channel channel) {
-        System.out.println("ON EVENT " + event.getMethod() + " path '" + event.getPath() + "'");
+    public CountDownLatch onEvent(Event<?> event, Channel channel) {
+        System.out.println("ON EVENT " + ((HttpEvent)event).getMethod() + " path '" + ((HttpEvent)event).getPath() + "'");
         System.out.println("URI: " + ((FullHttpRequest) event.getRequest()).getUri());
 
         return super.onEvent(event, channel); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    protected HttpResponse createNotFoundResponse(Event event) {
-        System.out.println("RESPONSE " + 404 + " for " + event.getPath());
+    protected HttpResponse createNotFoundResponse(Event<?> event) {
+        System.out.println("RESPONSE " + 404 + " for " + ((HttpEvent)event).getPath());
         return super.createNotFoundResponse(event); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    protected HttpResponse decorateResponse(Event event, Page page, Acteur action, HttpResponse response) {
-        System.out.println("RESPONSE " + response.getStatus() + " for " + event.getPath());
+    protected HttpResponse decorateResponse(Event<?> event, Page page, Acteur action, HttpResponse response) {
+        System.out.println("RESPONSE " + response.getStatus() + " for " + ((HttpEvent)event).getPath());
         return super.decorateResponse(event, page, action, response); //To change body of generated methods, choose Tools | Templates.
     }
 

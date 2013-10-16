@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.mongo.CursorWriterActeur;
@@ -41,7 +41,7 @@ public class SharesWithMeResources extends Page {
     
     private static class FindSharers extends Acteur {
         @Inject
-        FindSharers(Event evt, TTUser user, DBCollection coll, ObjectMapper mapper) throws IOException {
+        FindSharers(HttpEvent evt, TTUser user, DBCollection coll, ObjectMapper mapper) throws IOException {
             add(Headers.stringHeader("UserID"), user.id().toStringMongod());
             BasicDBObject projection = new BasicDBObject("_id", 1).append("name", 1).append("displayName", 1);
             DBCursor cursor = coll.find(new BasicDBObject("authorizes", user.id()), projection);

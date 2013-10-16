@@ -24,13 +24,9 @@ import static com.mastfrog.acteur.mongo.userstore.MongoUserFactory.USERS_COLLECT
 import com.mastfrog.acteur.server.PathFactory;
 import com.mastfrog.acteur.util.Realm;
 import com.mastfrog.settings.Settings;
-import com.mastfrog.url.Path;
-import com.mastfrog.util.Exceptions;
 import com.mongodb.BasicDBObject;
 import com.timboudreau.questions.QuestionsModule;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import org.joda.time.DateTime;
 
@@ -76,7 +72,7 @@ final class TimetrackerAppModule extends AbstractModule {
         }
 
         @Override
-        public <T> String getRedirectURI(UserFactory<T> uf, T user, Event evt) {
+        public <T> String getRedirectURI(UserFactory<T> uf, T user, Event<?> evt) {
             String nm = uf.getUserName(user);
             return "/users/" + nm + "/";
         }

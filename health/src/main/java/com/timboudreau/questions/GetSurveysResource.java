@@ -6,7 +6,7 @@ import com.google.inject.name.Named;
 import com.google.inject.util.Providers;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.mongo.CursorWriter;
@@ -32,7 +32,7 @@ import org.bson.types.ObjectId;
 public class GetSurveysResource extends Page {
 
     @Inject
-    GetSurveysResource(ActeurFactory af, Event evt) {
+    GetSurveysResource(ActeurFactory af, HttpEvent evt) {
         add(af.matchPath(QUESTION_PATTERN));
         add(af.matchMethods(Method.GET));
         add(UserCollectionFinder.class);
@@ -50,7 +50,7 @@ public class GetSurveysResource extends Page {
 
         @Inject
         @SuppressWarnings("element-type-mismatch")
-        SurveysActeur(TTUser user, @Named("surveys") DBCollection coll, DBCollection users, ObjectMapper mapper, Event evt) {
+        SurveysActeur(TTUser user, @Named("surveys") DBCollection coll, DBCollection users, ObjectMapper mapper, HttpEvent evt) {
             String pathId = evt.getPath().getElement(1).toString();
             BasicDBObject query;
             if (!user.names().contains(pathId)) {

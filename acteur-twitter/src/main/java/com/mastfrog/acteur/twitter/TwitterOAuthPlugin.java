@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.auth.OAuthPlugin;
 import com.mastfrog.acteur.auth.OAuthPlugins;
 import com.mastfrog.acteur.auth.UniqueIDs;
@@ -54,7 +54,7 @@ public class TwitterOAuthPlugin extends OAuthPlugin<TwitterToken> {
     }
 
     @Override
-    public String stateForEvent(Event evt) {
+    public String stateForEvent(HttpEvent evt) {
         return "_nastyHack";
     }
 
@@ -81,7 +81,7 @@ public class TwitterOAuthPlugin extends OAuthPlugin<TwitterToken> {
     }
 
     @Override
-    public TwitterToken credentialForEvent(Event evt) {
+    public TwitterToken credentialForEvent(HttpEvent evt) {
         String token = evt.getParameter("oauth_token");
         String verifier = evt.getParameter("oauth_verifier");
         return new TwitterToken(token, verifier);

@@ -3,7 +3,7 @@ package com.mastfrog.acteur.auth;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.auth.UserFactory.LoginState;
 import com.mastfrog.acteur.auth.UserFactory.Slug;
 import com.mastfrog.acteur.util.Headers;
@@ -43,11 +43,11 @@ final class InitiateOAuthActeur extends Acteur {
 
     public static final String REDIRECT_ON_SUCCESS_URL_PARAMETER = "redir";
     private final UserFactory users;
-    private final Event evt;
+    private final HttpEvent evt;
     private final OAuthPlugins plugins;
 
     @Inject
-    InitiateOAuthActeur(Event evt, OAuthPlugins plugins, Settings settings, UserFactory uf, PasswordHasher hasher, Dependencies deps) throws MalformedURLException, URISyntaxException {
+    InitiateOAuthActeur(HttpEvent evt, OAuthPlugins plugins, Settings settings, UserFactory uf, PasswordHasher hasher, Dependencies deps) throws MalformedURLException, URISyntaxException {
         this.users = uf;
         this.evt = evt;
         this.plugins = plugins;
@@ -82,7 +82,7 @@ final class InitiateOAuthActeur extends Acteur {
         tryFindUserAndLogin(uf, info.get(), plugin, evt);
     }
 
-    private <T, R> void tryFindUserAndLogin(UserFactory<T> uf, UserInfo info, OAuthPlugin<R> plugin, Event evt) throws MalformedURLException, URISyntaxException {
+    private <T, R> void tryFindUserAndLogin(UserFactory<T> uf, UserInfo info, OAuthPlugin<R> plugin, HttpEvent evt) throws MalformedURLException, URISyntaxException {
         // Look up the user in the database
         Optional<T> user = uf.findUserByName(info.userName);
         if (!user.isPresent()) {
@@ -112,7 +112,7 @@ final class InitiateOAuthActeur extends Acteur {
         doRedirect(plugin);
     }
 
-    private <T> void tryToRevalidate(T user, UserFactory<T> uf, UserInfo info, Slug slug, OAuthPlugin plugin, Event evt) throws MalformedURLException, URISyntaxException {
+    private <T> void tryToRevalidate(T user, UserFactory<T> uf, UserInfo info, Slug slug, OAuthPlugin plugin, HttpEvent evt) throws MalformedURLException, URISyntaxException {
         // Get the access token stored with the user, if any, from a previous
         // login
         Optional<String> credential = uf.getAccessToken(user, plugin.code());
@@ -127,7 +127,7 @@ final class InitiateOAuthActeur extends Acteur {
         doRedirect(plugin);
     }
 
-    private <T> void finish(Event evt, T user) throws URISyntaxException {
+    private <T> void finish(HttpEvent evt, T user) throws URISyntaxException {
         // If the original request had a redirect parameter, redirect to that
         String redirTo = evt.getParameter(REDIRECT_ON_SUCCESS_URL_PARAMETER);
         if (redirTo != null) {
@@ -159,7 +159,7 @@ final class InitiateOAuthActeur extends Acteur {
         setState(new RespondWith(HttpResponseStatus.SEE_OTHER, "Redirecting to " + plugin.name()));
     }
 
-    private Cookie findCookie(Event evt, String name) {
+    private Cookie findCookie(HttpEvent evt, String name) {
         Cookie[] cookies = evt.getHeader(Headers.COOKIE);
         if (cookies != null) {
             for (Cookie ck : cookies) {

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.auth.OAuthPlugin;
 import com.mastfrog.acteur.auth.OAuthPlugins;
 import com.mastfrog.acteur.auth.UniqueIDs;
@@ -66,7 +66,7 @@ public class LinkedinOAuthPlugin extends OAuthPlugin<LinkedinToken> {
     }
 
     @Override
-    public String stateForEvent(Event evt) {
+    public String stateForEvent(HttpEvent evt) {
         return evt.getParameter("state");
     }
 
@@ -87,7 +87,7 @@ public class LinkedinOAuthPlugin extends OAuthPlugin<LinkedinToken> {
     }
 
     @Override
-    public LinkedinToken credentialForEvent(Event evt) {
+    public LinkedinToken credentialForEvent(HttpEvent evt) {
         System.out.println("EVENT IS " + evt.getPath());
         System.out.println("Credential for event " + evt.getParametersAsMap());
 

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.auth.OAuthPlugin.RemoteUserInfo;
 import com.mastfrog.acteur.auth.UserFactory.LoginState;
 import com.mastfrog.acteur.auth.UserFactory.Slug;
@@ -13,6 +13,7 @@ import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.settings.Settings;
 import com.mastfrog.url.Host;
 import com.mastfrog.url.Path;
+import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.DefaultCookie;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.IOException;
@@ -31,12 +32,14 @@ final class OAuthLandingPageActeur extends Acteur {
     private final OAuthPlugins plugins;
     private final HomePageRedirector redir;
     private final ObjectMapper mapper;
+    private final VisitorCookies visitorCookies;
 
     @Inject
-    OAuthLandingPageActeur(Event evt, ObjectMapper mapper, OAuthPlugins plugins, UserFactory<?> users, Settings settings, HomePageRedirector redir) throws URISyntaxException, IOException {
+    OAuthLandingPageActeur(HttpEvent evt, ObjectMapper mapper, OAuthPlugins plugins, UserFactory<?> users, Settings settings, HomePageRedirector redir, VisitorCookies visitorCookies) throws URISyntaxException, IOException {
         this.redir = redir;
         this.plugins = plugins;
         this.mapper = mapper;
+        this.visitorCookies = visitorCookies;
 
         Path base = Path.parse(plugins.getLandingPageBasePath());
 
@@ -86,9 +89,15 @@ final class OAuthLandingPageActeur extends Acteur {
         return mapper.readValue(s, Map.class);
     }
 
-    private <T, R> void finish(OAuthPlugin<T> plugin, Event evt, UserFactory<R> users, LoginState state) throws URISyntaxException, IOException {
+    private <T, R> void finish(OAuthPlugin<T> plugin, HttpEvent evt, UserFactory<R> users, LoginState state) throws URISyntaxException, IOException {
         // Get the plugin, such as a GoogleCredential
-        T credential = plugin.credentialForEvent(evt);
+        T credential;
+        try {
+            credential = plugin.credentialForEvent(evt);
+        } catch (IllegalArgumentException ex) {
+            badRequest(ex.getMessage());
+            return;
+        }
         // Connect to the remote service and get enough information to create
         // or login a user
         RemoteUserInfo rui = plugin.getRemoteUserInfo(credential);
@@ -142,6 +151,11 @@ final class OAuthLandingPageActeur extends Acteur {
         add(Headers.SET_COOKIE, ck);
 
         plugins.createDisplayNameCookie(evt, response(), rui.displayName());
+        
+        Cookie visitorCookie = visitorCookies.associateCookieWithUser(evt, users, user);
+        if (visitorCookie != null) {
+            add(Headers.SET_COOKIE, visitorCookie);
+        }
 
         // See if the request has a redirect already - we may have passed one
         // to the remote service and it is passing it back to us

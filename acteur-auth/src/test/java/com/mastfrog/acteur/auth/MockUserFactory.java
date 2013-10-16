@@ -182,11 +182,11 @@ public class MockUserFactory extends UserFactory<MockUser> {
         Checks.notNull("user", user);
         Map<String, Object> dta = (Map<String, Object>) user.get("data");
         if (dta == null) {
-            return Collections.emptyMap();
+            return new HashMap<>();
         }
         Map<String, Object> result = (Map<String, Object>) dta.get(name);
         if (result == null) {
-            return Collections.emptyMap();
+            return new HashMap<>();
         }
         return result;
     }

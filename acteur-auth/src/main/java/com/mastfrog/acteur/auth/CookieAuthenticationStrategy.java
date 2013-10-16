@@ -2,7 +2,7 @@ package com.mastfrog.acteur.auth;
 
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Response;
 import com.mastfrog.acteur.auth.UserFactory.Slug;
 import com.mastfrog.acteur.util.Headers;
@@ -27,7 +27,7 @@ class CookieAuthenticationStrategy extends AuthenticationStrategy {
     }
 
     @Override
-    protected Result<?> authenticate(Event evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response) {
+    protected Result<?> authenticate(HttpEvent evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response) {
         Cookie[] cookies = evt.getHeader(Headers.COOKIE);
         if (cookies == null || cookies.length == 0) {
             return new Result(ResultType.NO_CREDENTIALS, true);
@@ -48,7 +48,7 @@ class CookieAuthenticationStrategy extends AuthenticationStrategy {
         return res == null ? new Result(ResultType.NO_CREDENTIALS, true) : res;
     }
 
-    private <T, R> Result<?> tryToAuthenticate(OAuthPlugin<T> plugin, Event evt, Cookie cookie, UserFactory<R> users, Collection<? super Object> scopeContents, Response response) {
+    private <T, R> Result<?> tryToAuthenticate(OAuthPlugin<T> plugin, HttpEvent evt, Cookie cookie, UserFactory<R> users, Collection<? super Object> scopeContents, Response response) {
         Optional<UserInfo> io = plugins.decodeCookieValue(cookie.getValue());
         if (io.isPresent()) {
             UserInfo info = io.get();

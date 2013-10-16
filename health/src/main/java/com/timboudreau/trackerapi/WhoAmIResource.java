@@ -3,7 +3,7 @@ package com.timboudreau.trackerapi;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.auth.OAuthPlugins;
@@ -42,7 +42,7 @@ public class WhoAmIResource extends Page {
     private static class UserInfoActeur extends Acteur {
 
         @Inject
-        UserInfoActeur(TTUser user, DBCollection coll, Event evt, OAuthPlugins pgns) throws IOException {
+        UserInfoActeur(TTUser user, DBCollection coll, HttpEvent evt, OAuthPlugins pgns) throws IOException {
             boolean other = evt.getParameter("user") != null && !user.names().contains(evt.getParameter("user"));
             add(Headers.stringHeader("UserID"), user.id().toStringMongod());
             DBObject ob = other ? coll.findOne(new BasicDBObject("name", evt.getParameter("user")), 

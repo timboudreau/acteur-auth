@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.ResponseWriter;
 import com.mastfrog.acteur.util.Method;
@@ -26,7 +27,7 @@ public class EchoPage extends Page {
     private static class EchoActeur extends Acteur {
 
         @Inject
-        EchoActeur(Event evt) throws IOException {
+        EchoActeur(HttpEvent evt) throws IOException {
 //            String body = evt.getContentAsJSON(String.class);
 //            System.out.println("GOT BODY: " + body);
 //            setState(new RespondWith(OK, body + body + body));
@@ -40,13 +41,13 @@ public class EchoPage extends Page {
         private final String body;
 
         @Inject
-        EchoWriter(Event evt) throws IOException {
+        EchoWriter(HttpEvent evt) throws IOException {
             body = evt.getContentAsJSON(String.class);
             System.out.println("GOT BODY: " + body);
         }
 
         @Override
-        public Status write(Event evt, Output out, int iteration) throws Exception {
+        public Status write(Event<?> evt, Output out, int iteration) throws Exception {
             System.out.println("CONTENT: " + body);
             out.write(body);
             return iteration == 2 ? Status.DONE : Status.NOT_DONE;

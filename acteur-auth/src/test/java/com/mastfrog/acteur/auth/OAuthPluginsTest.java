@@ -16,7 +16,6 @@ import com.mastfrog.giulius.tests.GuiceRunner;
 import com.mastfrog.giulius.tests.TestWith;
 import com.mastfrog.netty.http.client.HttpClient;
 import com.mastfrog.url.Path;
-import java.util.HashMap;
 import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -73,7 +72,7 @@ public class OAuthPluginsTest {
         
 
         @Override
-        public <T> String getRedirectURI(UserFactory<T> uf, T user, Event evt) {
+        public <T> String getRedirectURI(UserFactory<T> uf, T user, Event<?> evt) {
             String un = uf.getUserName(user);
             Path p = Path.builder().add("users").add(un).add("index.html").create();
             return pf.toExternalPath(p).toStringWithLeadingSlash();

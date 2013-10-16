@@ -3,7 +3,7 @@ package com.timboudreau.trackerapi.support;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.mastfrog.acteur.Acteur;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -17,7 +17,7 @@ import com.timboudreau.trackerapi.Properties;
 public final class TimeCollectionFinder extends Acteur {
 
     @Inject
-    TimeCollectionFinder(Provider<DB> db, Event evt, TTUser u, CreateCollectionPolicy create) {
+    TimeCollectionFinder(Provider<DB> db, HttpEvent evt, TTUser u, CreateCollectionPolicy create) {
         Provider<DBCollection> coll;
         String userNameInURL = evt.getPath().getElement(1).toString();
 

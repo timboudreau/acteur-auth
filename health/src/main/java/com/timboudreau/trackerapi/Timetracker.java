@@ -9,6 +9,7 @@ import com.mastfrog.guicy.annotations.Namespace;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.Application;
 import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.ImplicitBindings;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.OAuthPlugins;
@@ -127,10 +128,10 @@ public class Timetracker extends Application {
     }
 
     @Override
-    protected HttpResponse decorateResponse(Event event, Page page, Acteur action, HttpResponse response) {
+    protected HttpResponse decorateResponse(Event<?> event, Page page, Acteur action, HttpResponse response) {
         response.headers().add("Server", getName());
         // Do no-cache cache control headers for everything
-        if (event.getMethod() != Method.OPTIONS) {
+        if (((HttpEvent)event).getMethod() != Method.OPTIONS) {
             CacheControl cc = new CacheControl(CacheControlTypes.Private).add(
                     CacheControlTypes.no_cache).add(CacheControlTypes.no_store);
             response.headers().add(Headers.CACHE_CONTROL.name(), Headers.CACHE_CONTROL.toString(cc));

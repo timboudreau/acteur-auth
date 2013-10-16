@@ -5,7 +5,7 @@ import com.google.common.net.MediaType;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.OAuthPlugins;
 import com.mastfrog.acteur.util.Headers;
@@ -63,11 +63,11 @@ class SignUpResource extends Page {
         public static final int MAX_USERNAME_LENGTH = 40;
         public static final int MIN_USERNAME_LENGTH = 3;
         private final DBObject nue;
-        private final Event evt;
+        private final HttpEvent evt;
         private final ObjectMapper mapper;
 
         @Inject
-        SignerUpper(DBCollection coll, Event evt, PasswordHasher crypto, ObjectMapper mapper, OAuthPlugins pgns, Publisher publisher) throws UnsupportedEncodingException, IOException {
+        SignerUpper(DBCollection coll, HttpEvent evt, PasswordHasher crypto, ObjectMapper mapper, OAuthPlugins pgns, Publisher publisher) throws UnsupportedEncodingException, IOException {
             this.mapper = mapper;
             this.evt = evt;
             add(Headers.CONTENT_TYPE, MediaType.JSON_UTF_8);

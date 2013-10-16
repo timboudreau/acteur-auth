@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
@@ -54,7 +54,7 @@ final class AddTimeResource extends Page {
     private static class CheckParameters extends Acteur {
 
         @Inject
-        CheckParameters(Event evt) {
+        CheckParameters(HttpEvent evt) {
             System.out.println("AddTimeResource checkParameters");
             try {
                 DateTime startTime = new DateTime(evt.getLongParameter(start).get());
@@ -78,7 +78,7 @@ final class AddTimeResource extends Page {
     private static class TimeAdder extends Acteur {
 
         @Inject
-        TimeAdder(Event evt, DBCollection coll, ObjectMapper mapper, TTUser user, Interval interval) throws IOException {
+        TimeAdder(HttpEvent evt, DBCollection coll, ObjectMapper mapper, TTUser user, Interval interval) throws IOException {
             long startVal = interval.getStartMillis();
             long endVal = interval.getEndMillis();
             // XXX ability to add for a different user?

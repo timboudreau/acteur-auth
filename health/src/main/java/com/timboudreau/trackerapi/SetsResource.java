@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.Acteur.RespondWith;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
@@ -46,7 +46,7 @@ public class SetsResource extends Page {
     private static class ListSetsActeur extends Acteur {
 
         @Inject
-        ListSetsActeur(Event evt, DB db, TTUser user, ObjectMapper mapper) throws IOException {
+        ListSetsActeur(HttpEvent evt, DB db, TTUser user, ObjectMapper mapper) throws IOException {
             List<String> l = new ArrayList<>();
             String pfix = new StringBuilder(evt.getPath().getElement(1).toString()).append('_').toString();
             for (String coll : db.getCollectionNames()) {

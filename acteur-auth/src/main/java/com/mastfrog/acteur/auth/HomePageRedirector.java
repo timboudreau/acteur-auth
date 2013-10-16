@@ -17,7 +17,7 @@ import com.mastfrog.settings.Settings;
 public abstract class HomePageRedirector {
     public static final String SETTINGS_KEY_OAUTH_LANDING_PAGE_REDIRECT = "oauth.landing.redirect";
 
-    public abstract <T> String getRedirectURI(UserFactory<T> uf, T user, Event evt);
+    public abstract <T> String getRedirectURI(UserFactory<T> uf, T user, Event<?> evt);
 
     static class DefaultHomePageRedirector extends HomePageRedirector {
         private final String path;
@@ -27,7 +27,7 @@ public abstract class HomePageRedirector {
         }
 
         @Override
-        public <T> String getRedirectURI(UserFactory<T> uf, T user, Event evt) {
+        public <T> String getRedirectURI(UserFactory<T> uf, T user, Event<?> evt) {
             return path;
         }
     }

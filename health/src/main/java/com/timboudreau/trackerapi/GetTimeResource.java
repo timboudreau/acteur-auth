@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.mongo.CursorWriter;
@@ -54,7 +54,7 @@ class GetTimeResource extends Page {
     private static class TimeGetter2 extends Acteur {
 
         @Inject
-        public TimeGetter2(DBCollection collection, BasicDBObject query, Event evt) {
+        public TimeGetter2(DBCollection collection, BasicDBObject query, HttpEvent evt) {
             query.put(type, time);
             String fields = evt.getParameter("fields");
             DBObject projection = null;
@@ -91,11 +91,11 @@ class GetTimeResource extends Page {
         private static final ByteBuf comma = Unpooled.copiedBuffer(new byte[]{',', '\n'});
         private final AtomicBoolean first = new AtomicBoolean(true);
         private final DBCursor cur;
-        private final Event evt;
+        private final HttpEvent evt;
         private final ObjectMapper mapper;
 
         @Inject
-        public TimeGetter(DBCollection collection, BasicDBObject query, Event evt, ObjectMapper mapper) {
+        public TimeGetter(DBCollection collection, BasicDBObject query, HttpEvent evt, ObjectMapper mapper) {
             this.mapper = mapper;
             this.evt = evt;
             query.put(type, time);

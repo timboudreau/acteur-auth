@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.Acteur.RespondWith;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.util.Method;
@@ -30,7 +30,7 @@ public final class ModifyEventsResource extends Page {
     public static final String PAT = "^users/(.*?)/update/(.*?)/(.*?)$";
 
     @Inject
-    public ModifyEventsResource(Event evt, ActeurFactory af) {
+    public ModifyEventsResource(HttpEvent evt, ActeurFactory af) {
         add(af.matchPath(PAT));
         add(af.matchMethods(Method.PUT, Method.POST, Method.DELETE));
         add(af.banParameters(type));
@@ -60,7 +60,7 @@ public final class ModifyEventsResource extends Page {
     private static class Modifier extends Acteur {
 
         @Inject
-        public Modifier(Event evt, DBCollection collection, BasicDBObject query, Body something) throws IOException {
+        public Modifier(HttpEvent evt, DBCollection collection, BasicDBObject query, Body something) throws IOException {
             query.put(type, time);
             boolean isDelete = evt.getMethod() == Method.DELETE;
             DBObject modification = new BasicDBObject(isDelete ? "$unset"

@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.util.Method;
 import java.util.Map;
@@ -26,7 +26,7 @@ public class HelloPage extends Page {
     
     private static final class HelloActeur extends Acteur {
         @Inject
-        HelloActeur(Event evt) {
+        HelloActeur(HttpEvent evt) {
             System.out.println("Create a hello acteur");
             String dn = evt.getParameter("displayName");
             String un = evt.getPath().getElement(1).toString();

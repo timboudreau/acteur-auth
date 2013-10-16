@@ -3,7 +3,7 @@ package com.timboudreau.trackerapi;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.util.Method;
@@ -38,7 +38,7 @@ public class DistinctResource extends Page {
     private static final class DistinctFinder extends Acteur {
 
         @Inject
-        DistinctFinder(Event evt, DB db, DBCollection coll) {
+        DistinctFinder(HttpEvent evt, DB db, DBCollection coll) {
             String field = evt.getParameter("field");
             BasicDBObject cmd = new BasicDBObject("distinct", coll.getName()).append("key", field);
             CommandResult res = db.command(cmd);

@@ -3,7 +3,7 @@ package com.timboudreau.trackerapi.support;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.mastfrog.acteur.Acteur;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mastfrog.settings.Settings;
 import com.mastfrog.url.Path;
@@ -24,7 +24,7 @@ import org.bson.types.ObjectId;
 public class AuthorizedChecker extends Acteur {
 
     @Inject
-    AuthorizedChecker(Event evt, TTUser user, DB db, Settings settings, @Named("users") DBCollection coll) {
+    AuthorizedChecker(HttpEvent evt, TTUser user, DB db, Settings settings, @Named("users") DBCollection coll) {
         Path pth = evt.getPath();
         String userNameInURL = pth.getElement(1).toString();
         userNameInURL = URLDecoder.decode(userNameInURL);

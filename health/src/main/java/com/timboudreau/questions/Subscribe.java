@@ -9,7 +9,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.util.Method;
 import com.mongodb.BasicDBObject;
@@ -107,12 +107,12 @@ public class Subscribe extends Page {
     private static class PushActeur extends Acteur implements ChannelFutureListener {
 
         private final Publisher publisher;
-        private final Event evt;
+        private final HttpEvent evt;
         private final DBCollection evts;
         private final ObjectMapper mapper;
 
         @Inject
-        PushActeur(Publisher publisher, Event evt, @Named("events") DBCollection evts, ObjectMapper mapper) throws JsonProcessingException {
+        PushActeur(Publisher publisher, HttpEvent evt, @Named("events") DBCollection evts, ObjectMapper mapper) throws JsonProcessingException {
             this.publisher = publisher;
             this.evt = evt;
             setState(new RespondWith(OK));

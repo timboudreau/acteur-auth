@@ -3,7 +3,7 @@ package com.timboudreau.trackerapi;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
@@ -47,7 +47,7 @@ public class AuthorizeResource extends Page {
     private static final class Authorizer extends Acteur {
 
         @Inject
-        Authorizer(TTUser user, Event evt, DBCollection coll) throws URISyntaxException, UnsupportedEncodingException {
+        Authorizer(TTUser user, HttpEvent evt, DBCollection coll) throws URISyntaxException, UnsupportedEncodingException {
             String otherUserNameOrID = evt.getPath().getElement(3).toString();
             otherUserNameOrID = URLDecoder.decode(otherUserNameOrID, "UTF-8");
             BasicDBObject findOtherUserQuery = new BasicDBObject("name", otherUserNameOrID);

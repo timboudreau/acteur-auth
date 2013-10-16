@@ -2,7 +2,7 @@ package com.mastfrog.acteur.auth;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.auth.UserFactory.LoginState;
 import java.io.IOException;
 import java.util.Map;
@@ -74,7 +74,7 @@ public abstract class OAuthPlugin<CredentialType> {
      * @param evt An http request
      * @return The state string or null
      */
-    public abstract String stateForEvent(Event evt);
+    public abstract String stateForEvent(HttpEvent evt);
 
     /**
      * Get the redirect URL needed to transfer control to a remote OAuth
@@ -95,7 +95,7 @@ public abstract class OAuthPlugin<CredentialType> {
      * @param evt An http request
      * @return The credential or null
      */
-    public abstract CredentialType credentialForEvent(Event evt);
+    public abstract CredentialType credentialForEvent(HttpEvent evt);
 
     public abstract boolean revalidateCredential(String userName, String accessToken);
     

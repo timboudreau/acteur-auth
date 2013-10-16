@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.util.Method;
@@ -43,7 +43,7 @@ public class DeleteSurveyResource extends Page {
     private static final class DeleteSurveyActeur extends Acteur {
 
         @Inject
-        DeleteSurveyActeur(Event evt, @Named("surveys") DBCollection surveys) throws JsonProcessingException, UnsupportedEncodingException {
+        DeleteSurveyActeur(HttpEvent evt, @Named("surveys") DBCollection surveys) throws JsonProcessingException, UnsupportedEncodingException {
             try {
                 String otherUserNameOrID = evt.getPath().getElement(3).toString();
                 otherUserNameOrID = URLDecoder.decode(otherUserNameOrID, "UTF-8");

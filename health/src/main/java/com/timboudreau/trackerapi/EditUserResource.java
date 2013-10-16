@@ -3,7 +3,7 @@ package com.timboudreau.trackerapi;
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.auth.OAuthPlugins;
@@ -43,7 +43,7 @@ public class EditUserResource extends Page {
     private static class UpdateUserActeur extends Acteur {
 
         @Inject
-        UpdateUserActeur(DBCollection coll, Event evt, PasswordHasher hasher, TTUser user, OAuthPlugins pgns) throws IOException {
+        UpdateUserActeur(DBCollection coll, HttpEvent evt, PasswordHasher hasher, TTUser user, OAuthPlugins pgns) throws IOException {
             String userName = URLDecoder.decode(evt.getPath().getElement(1).toString(), "UTF-8");
             String dn = evt.getParameter(Properties.displayName);
 

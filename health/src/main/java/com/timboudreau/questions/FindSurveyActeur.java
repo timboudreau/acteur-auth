@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.mastfrog.acteur.Acteur;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.util.Streams;
 import com.mastfrog.util.streams.HashingInputStream;
@@ -27,7 +27,7 @@ import org.joda.time.DateTime;
 final class FindSurveyActeur extends Acteur {
 
     @Inject
-    public FindSurveyActeur(Page page, Event evt, @Named(value = "surveys") DBCollection questions, ObjectMapper mapper) throws JsonProcessingException, IOException {
+    public FindSurveyActeur(Page page, HttpEvent evt, @Named(value = "surveys") DBCollection questions, ObjectMapper mapper) throws JsonProcessingException, IOException {
         ObjectId id = new ObjectId(evt.getPath().getElement(3).toString());
         DBObject ob = questions.findOne(new BasicDBObject("_id", id));
         if (ob == null) {

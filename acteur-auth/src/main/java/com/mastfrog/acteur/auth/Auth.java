@@ -2,7 +2,7 @@ package com.mastfrog.acteur.auth;
 
 import com.google.inject.Inject;
 import com.mastfrog.acteur.Acteur;
-import com.mastfrog.acteur.Event;
+import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.auth.AuthenticationStrategy.FailHook;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.util.LinkedList;
@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 final class Auth extends AuthenticationActeur {
 
     @Inject
-    Auth(AuthenticationStrategy strategy, Event evt, UserFactory<?> uf, OAuthPlugins plugins) {
+    Auth(AuthenticationStrategy strategy, HttpEvent evt, UserFactory<?> uf, OAuthPlugins plugins) {
         AtomicReference<FailHook> hook = new AtomicReference<>();
         List<Object> contents = new LinkedList<>();
         Result<?> authenticationResult = strategy.authenticate(evt, hook, contents, response());
@@ -47,7 +47,7 @@ final class Auth extends AuthenticationActeur {
         }
     }
 
-    private <T> void setupCookie(Event evt, OAuthPlugins plugins, Result<?> result) {
+    private <T> void setupCookie(HttpEvent evt, OAuthPlugins plugins, Result<?> result) {
         if (!plugins.hasDisplayNameCookie(evt)) {
             plugins.createDisplayNameCookie(evt, response(), result.displayName);
         }
