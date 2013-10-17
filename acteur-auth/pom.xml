@@ -1,14 +1,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>com.mastfrog</groupId>
+    <parent>
+        <groupId>com.mastfrog</groupId>
+        <artifactId>mastfrog-parent</artifactId>
+        <version>1.3.7-SNAPSHOT</version>
+        <relativePath/>
+    </parent>
     <artifactId>acteur-auth</artifactId>
-    <version>1.3.7-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>acteur-auth</name>
-    <url>http://maven.apache.org</url>
+    <url>http://github.com/timboudreau/acteur-auth</url>
     <build>
         <plugins>
             <plugin>
@@ -20,69 +23,45 @@
                     <target>1.7</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.16</version>
+                <configuration>
+                    <parallel/>
+                    <parallelMavenExecution>false</parallelMavenExecution>
+                    <perCoreThreadCount>1</perCoreThreadCount>
+                    <threadCount>1</threadCount>
+                    <reuseForks>false</reuseForks>
+                    <systemPropertyVariables>
+                        <databaseSchema>MY_TEST_SCHEMA_${surefire.forkNumber}</databaseSchema>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>  
         </plugins>
     </build>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mastfrog.version>1.3.7-SNAPSHOT</mastfrog.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>acteur</artifactId>
-            <version>${mastfrog.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>giulius-tests</artifactId>
             <scope>test</scope>
-            <version>${mastfrog.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>netty-http-test-harness</artifactId>
             <scope>test</scope>
-            <version>${mastfrog.version}</version>
             <type>jar</type>
         </dependency>         
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <repositories>
-        <repository>
-            <id>timboudreau-builds</id>
-            <name>timboudreau.com builds</name>
-            <url>http://timboudreau.com/builds/plugin/repository/everything/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </snapshots>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>timboudreau-plugins</id>
-            <name>timboudreau.com plugins</name>
-            <url>http://timboudreau.com/builds/plugin/repository/everything/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
 </project>
