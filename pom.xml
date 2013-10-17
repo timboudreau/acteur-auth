@@ -6,17 +6,16 @@
         <artifactId>mastfrog-parent</artifactId>
         <version>1.3.7-SNAPSHOT</version>
     </parent>
-    <artifactId>health-parent</artifactId>
-    <name>Health (modules)</name>
+    <artifactId>acteur-auth-parent</artifactId>
+    <name>Acteur Authentication (modules)</name>
     <packaging>pom</packaging>
     <modules>
         <module>acteur-auth</module>
         <module>acteur-facebook-auth</module>
         <module>acteur-google-auth</module>
         <module>acteur-mongo-userstore</module>
-        <module>generic-web-api</module>
         <module>health</module>
-    <module>acteur-twitter</module>
-    <module>acteur-linkedin</module>
-  </modules>
+        <module>acteur-twitter</module>
+        <module>acteur-linkedin</module>
+    </modules>
 </project>

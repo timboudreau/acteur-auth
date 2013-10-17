@@ -3,13 +3,13 @@ package com.mastfrog.acteur.auth;
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 import com.mastfrog.acteur.HttpEvent;
 import static com.mastfrog.acteur.auth.OAuthPlugins.SETTINGS_KEY_OAUTH_COOKIE_HOST;
 import com.mastfrog.acteur.util.Headers;
 import com.mastfrog.settings.Settings;
 import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.DefaultCookie;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +75,7 @@ public final class VisitorCookies {
     }
 
     private <T> void saveCookieInfo(HttpEvent evt, UserFactory<T> users, T user, String newId) {
-        Map<String, Object> data = users.getData(user, cookieName);
+        Map<String, Object> data = new HashMap<>(users.getData(user, cookieName));
         String userAgent = evt.getHeader("User-Agent");
         if (userAgent == null) {
             userAgent = "Unknown";
