@@ -10,5 +10,5 @@ users, stores credentials and so forth.
 
 At this point, the code here should be considered experimental.
 
-See [the javadoc](http://timboudreau.com/builds) for more info.
+See [the javadoc](http://timboudreau.com/builds/job/mastfrog-parent/lastSuccessfulBuild/artifact/acteur-auth/acteur-auth/target/apidocs/index.html) for more info.
 
