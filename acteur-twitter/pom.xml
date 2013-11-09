@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.mastfrog</groupId>
@@ -10,9 +10,6 @@
     </parent>
     <artifactId>acteur-twitter</artifactId>
     <name>Acteur Twitter Auth</name>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -22,37 +19,22 @@
         <dependency>
             <groupId>org.twitter4j</groupId>
             <artifactId>twitter4j-core</artifactId>
-            <version>3.0.5-hack</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <type>jar</type>
             <groupId>com.mastfrog</groupId>
             <artifactId>acteur-auth</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <type>jar</type>
             <groupId>com.mastfrog</groupId>
             <artifactId>netty-http-client</artifactId>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>url</artifactId>
             <type>jar</type>
         </dependency>
     </dependencies>
-    <repositories>
-        <repository>
-            <id>twitter4j.org</id>
-            <name>twitter4j.org Repository</name>
-            <url>http://twitter4j.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 </project>
