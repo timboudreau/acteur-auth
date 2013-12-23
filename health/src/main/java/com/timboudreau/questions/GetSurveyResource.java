@@ -7,7 +7,7 @@ import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.util.CacheControlTypes;
-import com.mastfrog.acteur.util.Method;
+import com.mastfrog.acteur.headers.Method;
 import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import org.joda.time.Duration;
 

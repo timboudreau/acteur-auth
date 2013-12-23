@@ -8,7 +8,7 @@ import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.auth.OAuthPlugins;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
-import com.mastfrog.acteur.util.Method;
+import com.mastfrog.acteur.headers.Method;
 import com.mastfrog.acteur.util.PasswordHasher;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;

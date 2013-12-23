@@ -11,8 +11,8 @@ import com.mastfrog.acteur.Response;
 import com.mastfrog.acteur.auth.TestLoginPage.TestLoginActeur;
 import com.mastfrog.acteur.server.PathFactory;
 import com.mastfrog.acteur.util.CacheControlTypes;
-import com.mastfrog.acteur.util.Headers;
-import static com.mastfrog.acteur.util.Method.GET;
+import com.mastfrog.acteur.headers.Headers;
+import static com.mastfrog.acteur.headers.Method.GET;
 import com.mastfrog.acteur.util.PasswordHasher;
 import com.mastfrog.giulius.Dependencies;
 import com.mastfrog.settings.Settings;
@@ -171,13 +171,16 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
     }
 
     private final Host getHost(HttpEvent evt) {
-        Host host = evt.getHeader(Headers.HOST);
+        String host = evt.getHeader(Headers.HOST);
+        Host result;
         if (cookieHost != null) {
-            host = Host.parse(cookieHost);
+            result = Host.parse(cookieHost);
         } else if (host == null) {
-            host = Host.parse("fail.example");
+            result = Host.parse("fail.example");
+        } else {
+            result = Host.parse(host);
         }
-        return host;
+        return result;
     }
 
     public void createDisplayNameCookie(HttpEvent evt, Response response, String displayName) {

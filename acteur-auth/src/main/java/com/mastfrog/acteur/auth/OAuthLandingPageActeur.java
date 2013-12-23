@@ -9,7 +9,7 @@ import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.auth.OAuthPlugin.RemoteUserInfo;
 import com.mastfrog.acteur.auth.UserFactory.LoginState;
 import com.mastfrog.acteur.auth.UserFactory.Slug;
-import com.mastfrog.acteur.util.Headers;
+import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.settings.Settings;
 import com.mastfrog.url.Host;
 import com.mastfrog.url.Path;
@@ -138,7 +138,7 @@ final class OAuthLandingPageActeur extends Acteur {
         String cookieValue = plugins.encodeCookieValue(rui.userName(), slug.slug);
         DefaultCookie ck = new DefaultCookie(plugin.code(), cookieValue);
         
-        Host host = plugins.cookieHost() == null ? evt.getHeader(Headers.HOST) : Host.parse(plugins.cookieHost());
+        Host host = plugins.cookieHost() == null ? Host.parse(evt.getHeader(Headers.HOST)) : Host.parse(plugins.cookieHost());
         if (host == null) {
             // If we can't figure out our own host, we're hosed - the cookie
             // won't be saved anyway

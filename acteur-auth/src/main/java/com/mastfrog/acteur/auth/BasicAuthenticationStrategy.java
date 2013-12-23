@@ -6,7 +6,7 @@ import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Response;
 import static com.mastfrog.acteur.auth.Auth.SKIP_HEADER;
 import com.mastfrog.acteur.util.BasicCredentials;
-import com.mastfrog.acteur.util.Headers;
+import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.acteur.util.PasswordHasher;
 import com.mastfrog.acteur.util.Realm;
 import com.mastfrog.settings.Settings;

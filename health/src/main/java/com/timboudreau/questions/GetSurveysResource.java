@@ -12,7 +12,7 @@ import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.mongo.CursorWriter;
 import com.mastfrog.acteur.mongo.CursorWriter.MapFilter;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
-import com.mastfrog.acteur.util.Method;
+import com.mastfrog.acteur.headers.Method;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;

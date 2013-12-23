@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Response;
 import com.mastfrog.acteur.auth.UserFactory.Slug;
-import com.mastfrog.acteur.util.Headers;
+import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.settings.Settings;
 import io.netty.handler.codec.http.Cookie;
 import java.util.Collection;

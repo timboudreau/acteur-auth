@@ -7,8 +7,8 @@ import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.util.CacheControl;
 import com.mastfrog.acteur.util.CacheControlTypes;
-import com.mastfrog.acteur.util.Headers;
-import com.mastfrog.acteur.util.Method;
+import com.mastfrog.acteur.headers.Headers;
+import com.mastfrog.acteur.headers.Method;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.joda.time.Duration;
 
