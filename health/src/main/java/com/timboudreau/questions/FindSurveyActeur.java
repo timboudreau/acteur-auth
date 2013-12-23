@@ -36,9 +36,9 @@ final class FindSurveyActeur extends Acteur {
             setState(new ConsumedLockedState(ob));
         }
         Date lm = (Date) ob.get("lastModified");
-        page.getReponseHeaders().setLastModified(new DateTime(lm));
+        page.getResponseHeaders().setLastModified(new DateTime(lm));
         String value = mapper.writeValueAsString(ob) + '\n';
-        page.getReponseHeaders().setEtag(hash(value));
+        page.getResponseHeaders().setEtag(hash(value));
         setState(new ConsumedLockedState(value, ob, id));
     }
 

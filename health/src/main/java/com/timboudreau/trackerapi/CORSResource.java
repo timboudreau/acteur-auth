@@ -22,8 +22,7 @@ final class CORSResource extends Page {
     CORSResource(ActeurFactory af) {
         add(af.matchMethods(Method.OPTIONS));
         add(CorsHeaders.class);
-
-        getReponseHeaders().setContentLength(0);
+        getResponseHeaders().setContentLength(0);
     }
 
     private static final class CorsHeaders extends Acteur {

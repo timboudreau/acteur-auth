@@ -28,9 +28,9 @@ public class GetSurveyResource extends Page {
         add(FindSurveyActeur.class);
         add(af.sendNotModifiedIfETagHeaderMatches());
         add(af.sendNotModifiedIfIfModifiedSinceHeaderMatches());
-        getReponseHeaders().addCacheControl(CacheControlTypes.Public);
-        getReponseHeaders().addCacheControl(CacheControlTypes.must_revalidate);
-        getReponseHeaders().addCacheControl(CacheControlTypes.max_age, Duration.standardMinutes(2));
+        getResponseHeaders().addCacheControl(CacheControlTypes.Public);
+        getResponseHeaders().addCacheControl(CacheControlTypes.must_revalidate);
+        getResponseHeaders().addCacheControl(CacheControlTypes.max_age, Duration.standardMinutes(2));
         add(SurveyActeur.class);
     }
 

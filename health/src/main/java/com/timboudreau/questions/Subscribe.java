@@ -42,7 +42,7 @@ public class Subscribe extends Page {
         add(af.matchPath("^subscribe/[^/]*$"));
         add(af.matchMethods(Method.GET));
         add(PushActeur.class);
-        super.getReponseHeaders().setContentType(
+        super.getResponseHeaders().setContentType(
                 MediaType.parse("text/event-stream").withCharset(CharsetUtil.UTF_8));
     }
 

@@ -375,11 +375,11 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
 
         @Inject
         ListAuthsPage(Settings settings, DateTime systemStartTime, ActeurFactory af) {
-            getReponseHeaders().setLastModified(systemStartTime);
-            getReponseHeaders().addCacheControl(CacheControlTypes.Public);
-            getReponseHeaders().addCacheControl(CacheControlTypes.must_revalidate);
-            getReponseHeaders().addCacheControl(CacheControlTypes.max_age, Duration.standardHours(2));
-            getReponseHeaders().setExpires(DateTime.now().plus(Duration.standardHours(2)));
+            getResponseHeaders().setLastModified(systemStartTime);
+            getResponseHeaders().addCacheControl(CacheControlTypes.Public);
+            getResponseHeaders().addCacheControl(CacheControlTypes.must_revalidate);
+            getResponseHeaders().addCacheControl(CacheControlTypes.max_age, Duration.standardHours(2));
+            getResponseHeaders().setExpires(DateTime.now().plus(Duration.standardHours(2)));
             String pth = "^" + settings.getString(SETTINGS_KEY_OAUTH_TYPES_PAGE_PATH, "authtypes") + "$";
             add(af.matchMethods(GET));
             add(af.matchPath(pth));
