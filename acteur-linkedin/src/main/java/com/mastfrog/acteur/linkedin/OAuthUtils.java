@@ -1,12 +1,12 @@
 package com.mastfrog.acteur.linkedin;
 
+import com.mastfrog.acteur.headers.Method;
 import static com.mastfrog.acteur.linkedin.OAuthUtils.OAuthHeaders.oauth_consumer_key;
 import static com.mastfrog.acteur.linkedin.OAuthUtils.OAuthHeaders.oauth_signature;
 import static com.mastfrog.acteur.linkedin.OAuthUtils.OAuthHeaders.oauth_signature_method;
 import static com.mastfrog.acteur.linkedin.OAuthUtils.OAuthHeaders.oauth_timestamp;
 import static com.mastfrog.acteur.linkedin.OAuthUtils.OAuthHeaders.oauth_token;
 import static com.mastfrog.acteur.linkedin.OAuthUtils.OAuthHeaders.oauth_version;
-import com.mastfrog.acteur.util.Method;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
