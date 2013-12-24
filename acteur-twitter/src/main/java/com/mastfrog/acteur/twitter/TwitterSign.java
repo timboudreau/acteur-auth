@@ -9,8 +9,8 @@ import static com.mastfrog.acteur.twitter.TwitterSign.OAuthHeaders.oauth_signatu
 import static com.mastfrog.acteur.twitter.TwitterSign.OAuthHeaders.oauth_timestamp;
 import static com.mastfrog.acteur.twitter.TwitterSign.OAuthHeaders.oauth_token;
 import static com.mastfrog.acteur.twitter.TwitterSign.OAuthHeaders.oauth_version;
-import com.mastfrog.acteur.util.Headers;
-import com.mastfrog.acteur.util.Method;
+import com.mastfrog.acteur.headers.Headers;
+import com.mastfrog.acteur.headers.Method;
 import com.mastfrog.netty.http.client.HttpClient;
 import com.mastfrog.netty.http.client.ResponseHandler;
 import com.mastfrog.netty.http.client.StateType;

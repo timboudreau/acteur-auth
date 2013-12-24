@@ -2,11 +2,7 @@ package com.mastfrog.acteur.auth;
 
 import com.google.common.base.Optional;
 import com.mastfrog.acteur.auth.MockUserFactory.MockUser;
-import com.mastfrog.acteur.auth.OAuthPlugin;
-import com.mastfrog.acteur.auth.OAuthPlugins;
 import static com.mastfrog.acteur.auth.OAuthPlugins.DISPLAY_NAME_COOKIE_NAME;
-import com.mastfrog.acteur.auth.UserFactory;
-import com.mastfrog.acteur.auth.UserInfo;
 import com.mastfrog.acteur.headers.Headers;
 import static com.mastfrog.acteur.headers.Headers.COOKIE;
 import com.mastfrog.acteur.util.PasswordHasher;
