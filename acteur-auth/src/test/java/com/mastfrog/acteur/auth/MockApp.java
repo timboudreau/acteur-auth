@@ -1,6 +1,7 @@
 package com.mastfrog.acteur.auth;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
@@ -14,6 +15,7 @@ import com.mastfrog.acteur.State;
 import com.mastfrog.acteur.headers.HeaderValueType;
 import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.acteur.headers.Method;
+import com.mastfrog.acteur.spi.ApplicationControl;
 import com.mastfrog.acteur.util.RequestID;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -30,9 +32,10 @@ public class MockApp extends Application {
     @Inject
     Hook hook;
     final UserFactory<?> uf;
+    private final Provider<ApplicationControl> control;
 
     @Inject
-    MockApp(OAuthPlugins plugins, UserFactory<?> uf) {
+    MockApp(OAuthPlugins plugins, UserFactory<?> uf, Provider<ApplicationControl> control) {
         add(plugins.bouncePageType());
         add(plugins.landingPageType());
         add(plugins.listOAuthProvidersPageType());
@@ -41,10 +44,11 @@ public class MockApp extends Application {
         add(SanityCheckPage.class);
         add(Application.helpPageType());
         this.uf = uf;
+        this.control = control;
     }
 
     public CountDownLatch event(HttpEvent evt) {
-        CountDownLatch latch = super.onEvent(evt, evt.getChannel());
+        CountDownLatch latch = control.get().onEvent(evt, evt.getChannel());
         return latch;
     }
 
