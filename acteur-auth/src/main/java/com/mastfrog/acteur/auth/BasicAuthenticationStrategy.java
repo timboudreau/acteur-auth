@@ -46,7 +46,7 @@ class BasicAuthenticationStrategy extends AuthenticationStrategy {
     }
 
     @Override
-    protected Result<?> authenticate(HttpEvent evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response) {
+    public Result<?> authenticate(HttpEvent evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response) {
         BasicCredentials credentials = evt.getHeader(Headers.AUTHORIZATION);
         if (credentials == null) {
             onFail.set(new FailHookImpl());

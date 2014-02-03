@@ -1,7 +1,6 @@
 package com.mastfrog.acteur.auth;
 
 import com.google.inject.Inject;
-import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.auth.AuthenticationStrategy.FailHook;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -17,11 +16,10 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p/>
  * Clients such as browser-based clients which want to guarantee that the user
  * never sees a browser-based authentication popup can set the header
- * <code>X-No-Authenticate</code> to
- * <code>true</code> in their requests. This will suppress sending the
- * <code>WWW-Authenticate</code> response header that triggers this popup in
- * most browsers. Such clients must take responsibility for prompting the user
- * to login when they get an
+ * <code>X-No-Authenticate</code> to <code>true</code> in their requests. This
+ * will suppress sending the <code>WWW-Authenticate</code> response header that
+ * triggers this popup in most browsers. Such clients must take responsibility
+ * for prompting the user to login when they get an
  * <code>401 Unauthorized</code> response from web api calls.
  *
  * @author Tim Boudreau
@@ -29,7 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
 final class Auth extends AuthenticationActeur {
 
     @Inject
-    Auth(AuthenticationStrategy strategy, HttpEvent evt, UserFactory<?> uf, OAuthPlugins plugins) {
+    Auth(AuthenticationStrategy strategy, HttpEvent evt, UserFactory<?> uf, OAuthPlugins plugins, FailedAuthenticationHandler handler) {
         AtomicReference<FailHook> hook = new AtomicReference<>();
         List<Object> contents = new LinkedList<>();
         Result<?> authenticationResult = strategy.authenticate(evt, hook, contents, response());
@@ -38,7 +36,8 @@ final class Auth extends AuthenticationActeur {
             if (hookImpl != null) {
                 hookImpl.onAuthenticationFailed(evt, response());
             }
-            setState(new RespondWith(HttpResponseStatus.UNAUTHORIZED,
+            HttpResponseStatus code = handler.onFailedAuthentication(evt, plugins, uf, response());
+            setState(new RespondWith(code,
                     authenticationResult.type.toString()));
         } else {
             setupCookie(evt, plugins, authenticationResult);

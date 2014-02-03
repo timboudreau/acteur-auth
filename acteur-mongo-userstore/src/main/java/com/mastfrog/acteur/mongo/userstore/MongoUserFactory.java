@@ -52,6 +52,16 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
         DBObject user = users.findOne(query);
         return Optional.fromNullable(user);
     }
+    
+    @Override
+    public Optional<DBObject> findUserBy(String key, String value) {
+        Checks.notNull("key", key);
+        Checks.notNull("value", value);
+        Checks.mayNotContain("key", key, '$', '(', ')'); //avoid injection
+        BasicDBObject query = new BasicDBObject(key, value);
+        DBObject user = users.findOne(query);
+        return Optional.fromNullable(user);
+    }    
 
     @Override
     public Optional<String> getPasswordHash(DBObject user) {

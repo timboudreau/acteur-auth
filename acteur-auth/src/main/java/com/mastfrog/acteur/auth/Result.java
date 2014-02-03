@@ -4,7 +4,7 @@ package com.mastfrog.acteur.auth;
  *
  * @author Tim Boudreau
  */
-final class Result<UserType> {
+public final class Result<UserType> {
 
     public final UserType user;
     public final String username;

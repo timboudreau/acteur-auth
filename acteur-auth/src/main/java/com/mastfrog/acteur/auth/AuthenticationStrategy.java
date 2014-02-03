@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Tim Boudreau
  */
 @ImplementedBy(CompositeAuthenticationStrategy.class)
-abstract class AuthenticationStrategy {
+public abstract class AuthenticationStrategy {
 
     /**
      * Determine if this strategy can be tried for this event
@@ -30,7 +30,7 @@ abstract class AuthenticationStrategy {
      * @param evt An event
      * @return a result
      */
-    protected abstract Result<?> authenticate(HttpEvent evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response);
+    public abstract Result<?> authenticate(HttpEvent evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response);
     
     protected void authenticated(HttpEvent evt, Response response) {
         

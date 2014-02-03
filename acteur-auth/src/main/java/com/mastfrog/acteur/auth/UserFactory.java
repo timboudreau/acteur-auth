@@ -27,6 +27,8 @@ public abstract class UserFactory<T> {
     public final Class<T> type() {
         return type;
     }
+    
+    public abstract Optional<T> findUserBy(String key, String value);
 
     /**
      * Look up a user object by name

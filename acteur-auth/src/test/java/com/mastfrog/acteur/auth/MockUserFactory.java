@@ -191,6 +191,16 @@ public class MockUserFactory extends UserFactory<MockUser> {
         return result;
     }
 
+    @Override
+    public Optional<MockUser> findUserBy(String key, String value) {
+        for (MockUser m : this.all.values()) {
+            if (value.equals(m.get(key))) {
+                return Optional.<MockUser>of(m);
+            }
+        }
+        return Optional.absent();
+    }
+
     static class MockUser extends HashMap<String, Object> {
 
         MockUser(String name) {
@@ -207,6 +217,5 @@ public class MockUserFactory extends UserFactory<MockUser> {
         public Optional<String> optional(String key) {
             return Optional.fromNullable(getString(key));
         }
-
     }
 }

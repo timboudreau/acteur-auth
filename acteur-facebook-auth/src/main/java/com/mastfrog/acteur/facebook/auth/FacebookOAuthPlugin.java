@@ -108,6 +108,8 @@ final class FacebookOAuthPlugin extends OAuthPlugin<Token> {
         OAuthRequest req = new OAuthRequest(Verb.GET, "https://graph.facebook.com/me");
         oauthService.signRequest(credential, req);
         Response apiResponse = req.send();
+        // XXX follow with getting the user picture url:
+        // https://graph.facebook.com/[fb_user_id]?fields=picture.type(small)
         if (apiResponse.isSuccessful()) {
             RUI rui = mapper.readValue(apiResponse.getBody(), RUI.class);
             return rui;

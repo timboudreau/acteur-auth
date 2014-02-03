@@ -41,7 +41,7 @@ final class CompositeAuthenticationStrategy extends AuthenticationStrategy {
     }
 
     @Override
-    protected Result<?> authenticate(HttpEvent evt, AtomicReference<? super FailHook> hook, Collection<? super Object> scopeContents, Response response) {
+    public Result<?> authenticate(HttpEvent evt, AtomicReference<? super FailHook> hook, Collection<? super Object> scopeContents, Response response) {
         List<AtomicReference<FailHook>> fails = new ArrayList<>();
         CompositeFailHook compositeHook = new CompositeFailHook(fails);
         hook.set(compositeHook);

@@ -13,6 +13,7 @@ import com.mastfrog.acteur.server.PathFactory;
 import com.mastfrog.acteur.util.CacheControlTypes;
 import com.mastfrog.acteur.headers.Headers;
 import static com.mastfrog.acteur.headers.Method.GET;
+import com.mastfrog.acteur.preconditions.Description;
 import com.mastfrog.acteur.util.PasswordHasher;
 import com.mastfrog.giulius.Dependencies;
 import com.mastfrog.settings.Settings;
@@ -346,6 +347,9 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
         }
     }
 
+    @Description("Page oauth services redirect the user back to after they have "
+            + "logged in.  Depending on the service, the URL may have to be set"
+            + "up with them for it to work.")
     static class LandingPage extends Page {
         private final OAuthPlugins plgns;
 

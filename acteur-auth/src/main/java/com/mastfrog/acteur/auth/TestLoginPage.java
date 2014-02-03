@@ -7,11 +7,12 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
+import static com.mastfrog.acteur.auth.AuthenticationActeur.SETTINGS_KEY_ENABLE_BASIC_AUTH;
 import com.mastfrog.acteur.auth.OAuthPlugins.PluginInfo;
 import com.mastfrog.acteur.auth.UserFactory.Slug;
-import com.mastfrog.acteur.util.BasicCredentials;
 import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.acteur.headers.Method;
+import com.mastfrog.acteur.util.BasicCredentials;
 import com.mastfrog.acteur.util.PasswordHasher;
 import com.mastfrog.acteur.util.Realm;
 import com.mastfrog.settings.Settings;
@@ -47,14 +48,14 @@ final class TestLoginPage extends Page {
                 + "logout=true will log the user out (if using cookie-based "
                 + "authentication).";
     }
-    
+
     static final class TestLoginActeur extends Acteur {
 
         private final OAuthPlugins plugins;
         private final HomePageRedirector redir;
 
         @Inject
-        TestLoginActeur(HttpEvent evt, OAuthPlugins plugins, AuthenticationStrategy auth, UserFactory<?> uf, Realm realm, HomePageRedirector redir, PasswordHasher hasher) {
+        TestLoginActeur(HttpEvent evt, OAuthPlugins plugins, AuthenticationStrategy auth, UserFactory<?> uf, Realm realm, HomePageRedirector redir, Settings settings, PasswordHasher hasher) {
             this.plugins = plugins;
             this.redir = redir;
             int code = OK.code();
@@ -98,9 +99,12 @@ final class TestLoginPage extends Page {
                     }
                 }
             }
-            BasicCredentials creds = evt.getHeader(Headers.AUTHORIZATION);
-            if (creds != null) {
-                loginAs(evt, creds, uf, result, hasher);
+            BasicCredentials creds = null;
+            if (settings.getBoolean(SETTINGS_KEY_ENABLE_BASIC_AUTH, true)) {
+                creds = evt.getHeader(Headers.AUTHORIZATION);
+                if (creds != null) {
+                    loginAs(evt, creds, uf, result, hasher);
+                }
             }
             if ("true".equals(evt.getParameter("auth")) && result.identities.isEmpty()) {
                 add(Headers.WWW_AUTHENTICATE, realm);
@@ -113,7 +117,7 @@ final class TestLoginPage extends Page {
                     // can decode it from the cookie
                     if (creds != null) {
                         DefaultCookie xck = new DefaultCookie(BasicAuthenticationStrategy.CODE, "--");
-                        xck.setDomain(evt.getHeader(Headers.HOST) + "");
+                        xck.setDomain(evt.getHeader(Headers.HOST));
                         xck.setMaxAge(plugins.slugMaxAge().getStandardSeconds());
                         xck.setPath(plugins.cookieBasePath());
                         xck.setPorts(plugins.cookiePortList());
