@@ -6,6 +6,7 @@ import com.google.inject.name.Named;
 import com.google.inject.util.Providers;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
+import com.mastfrog.acteur.Closables;
 import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
@@ -50,7 +51,7 @@ public class GetSurveysResource extends Page {
 
         @Inject
         @SuppressWarnings("element-type-mismatch")
-        SurveysActeur(TTUser user, @Named("surveys") DBCollection coll, DBCollection users, ObjectMapper mapper, HttpEvent evt) {
+        SurveysActeur(TTUser user, @Named("surveys") DBCollection coll, DBCollection users, Closables clos, ObjectMapper mapper, HttpEvent evt) {
             String pathId = evt.getPath().getElement(1).toString();
             BasicDBObject query;
             if (!user.names().contains(pathId)) {
@@ -77,7 +78,7 @@ public class GetSurveysResource extends Page {
             } else {
                 setState(new RespondWith(HttpResponseStatus.OK));
 //                setResponseWriter(new ResultsWriter(cursor, mapper, evt));
-                setResponseWriter(new CursorWriter(cursor, evt, Providers.<MapFilter>of(new MapFilter() {
+                setResponseWriter(new CursorWriter(cursor, clos, evt, Providers.<MapFilter>of(new MapFilter() {
 
                     @Override
                     public Map<String, Object> filter(Map<String, Object> m) {
