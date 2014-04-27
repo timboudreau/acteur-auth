@@ -4,12 +4,13 @@ import com.google.common.base.Optional;
 import java.util.List;
 import java.util.Set;
 import org.joda.time.DateTime;
+import com.mastfrog.acteur.auth.SimpleUser;
 
 /**
  *
  * @author tim
  */
-public interface User<IdType> {
+public interface User<IdType> extends SimpleUser<IdType> {
     public List<String> names();
     public String name();
     public int version();

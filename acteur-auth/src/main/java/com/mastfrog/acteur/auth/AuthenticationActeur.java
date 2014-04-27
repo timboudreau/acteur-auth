@@ -12,6 +12,8 @@ import com.mastfrog.acteur.Acteur;
  */
 @ImplementedBy(Auth.class)
 public abstract class AuthenticationActeur extends Acteur {
+    //XXX this class stomps on the same package in acteur - fixme
+
     /**
      * Settings key for boolean property determining whether HTTP Basic
      * authentication can be used.
