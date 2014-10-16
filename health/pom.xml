@@ -4,13 +4,27 @@
     <parent>
         <groupId>com.mastfrog</groupId>
         <artifactId>mastfrog-parent</artifactId>
-        <version>1.4.18</version>
+        <version>1.4.19</version>
         <relativePath/>
     </parent>
     <artifactId>health</artifactId>
     <name>health</name>
     <description>A demo web application using acteur-auth</description>
+    <properties>
+        <enforcer.skip>true</enforcer.skip>
+    </properties>
     <dependencies>
+        <dependency>
+            <!-- XXX temporary, to solve https://github.com/google/guice/issues/846 -->
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <!-- XXX temporary, to solve https://github.com/google/guice/issues/846 -->
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>4.0-beta</version>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

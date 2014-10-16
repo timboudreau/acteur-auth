@@ -4,12 +4,14 @@
     <parent>
         <groupId>com.mastfrog</groupId>
         <artifactId>mastfrog-parent</artifactId>
-        <version>1.4.18</version>
+        <version>1.4.19</version>
         <relativePath/>
     </parent>
     <artifactId>acteur-facebook-auth</artifactId>
     <packaging>jar</packaging>
-
+    <properties>
+        <enforcer.skip>true</enforcer.skip>
+    </properties>
     <name>Acteur Facebook Auth</name>
     <build>
         <plugins>
