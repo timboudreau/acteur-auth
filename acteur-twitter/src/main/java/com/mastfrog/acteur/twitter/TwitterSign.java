@@ -30,6 +30,7 @@ import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -42,7 +43,6 @@ import java.util.concurrent.TimeUnit;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTimeUtils;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -200,7 +200,7 @@ public class TwitterSign {
 
         byte[] text = baseString.getBytes();
 
-        return new String(Base64.encodeBase64(mac.doFinal(text))).trim();
+        return new String(Base64.getEncoder().encode(mac.doFinal(text))).trim();
     }
 
     // the first step in the twitter oauth flow is to get a request token with a call to api.twitter.com/oauth/request_token
