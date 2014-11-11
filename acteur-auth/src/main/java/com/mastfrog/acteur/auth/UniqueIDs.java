@@ -98,7 +98,7 @@ public final class UniqueIDs {
     private StringBuilder shuffle() {
         StringBuilder sb = new StringBuilder(base);
         int len = sb.length();
-        for (int i = 0; i < len; i++) {
+        for (int i = 0; i < len-1; i++) {
             int pos = random.nextInt(len);
             if (pos != i) {
                 char hold = sb.charAt(i);
