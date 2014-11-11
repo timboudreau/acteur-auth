@@ -321,6 +321,7 @@ public class TwitterSign {
         client.post().setURL(url).addHeader(Headers.stringHeader("Authorization"), authorization_header_string)
                 .setBody("oauth_verifier=" + encode(pin), MediaType.parse("application/x-www-form-urlencoded").withCharset(CharsetUtil.UTF_8))
                 .on(StateType.Closed, latch)
+                .on(StateType.Timeout, latch)
                 .execute(rh);
         latch.latch.await(1, TimeUnit.MINUTES);
 
@@ -565,6 +566,7 @@ public class TwitterSign {
 //                .addHeader(Headers.stringHeader("Content-Type"), "application/x-www-form-urlencoded")
                 //                .setBody("screen_name=kablosna", MediaType.PLAIN_TEXT_UTF_8)
                 .on(StateType.Closed, latch)
+                .on(StateType.Timeout, latch)
                 .execute(rh);
         rh.await(1, TimeUnit.MINUTES);
         latch.latch.await(1, TimeUnit.MINUTES);
@@ -629,6 +631,7 @@ public class TwitterSign {
                 .addHeader(Headers.stringHeader("Content-Type"), "application/x-www-form-urlencoded")
                 //                .setBody("screen_name=kablosna", MediaType.PLAIN_TEXT_UTF_8)
                 .on(StateType.Closed, latch)
+                .on(StateType.Timeout, latch)
                 .execute(rh);
         rh.await(1, TimeUnit.MINUTES);
         latch.latch.await(1, TimeUnit.MINUTES);
@@ -665,6 +668,7 @@ public class TwitterSign {
                 .addHeader(Headers.stringHeader("Content-Type"), "application/x-www-form-urlencoded")
                 //                .setBody("screen_name=kablosna", MediaType.PLAIN_TEXT_UTF_8)
                 .on(StateType.Closed, latch)
+                .on(StateType.Timeout, latch)
                 .execute(rh);
         rh.await(1, TimeUnit.MINUTES);
         latch.latch.await(1, TimeUnit.MINUTES);
