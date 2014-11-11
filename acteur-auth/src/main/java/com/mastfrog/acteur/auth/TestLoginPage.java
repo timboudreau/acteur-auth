@@ -135,7 +135,7 @@ final class TestLoginPage extends Page {
                 Optional<String> pho = uf.getPasswordHash(user);
                 if (pho.isPresent()) {
                     String passwordHash = pho.get();
-                    String newHashed = hasher.encryptPassword(creds.password);
+                    String newHashed = hasher.hash(creds.password);
                     if (passwordHash.equals(newHashed)) {
                         String dn = uf.getUserDisplayName(user);
                         String un = uf.getUserName(user);

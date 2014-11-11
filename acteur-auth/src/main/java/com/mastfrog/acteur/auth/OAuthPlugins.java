@@ -273,7 +273,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
     public String encodeCookieValue(String username, String slug) {
         Checks.notNull("slug", slug);
         Checks.notNull("username", username);
-        String hashed = hasher.encryptPassword(username + slug + salt);
+        String hashed = hasher.hash(username + slug + salt);
         return hashed + ":" + username;
     }
 

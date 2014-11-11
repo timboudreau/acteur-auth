@@ -46,7 +46,7 @@ public class MongoUserFactoryTest {
     public void testIt(MongoDBRunner run, MongoUserFactory uf, PasswordHasher hasher) throws IOException, InterruptedException {
         assertFalse(uf.findUserByName("nobody").isPresent());
         String userName = "testUser";
-        DBObject ob = uf.newUser(userName, hasher.encryptPassword("password"),
+        DBObject ob = uf.newUser(userName, hasher.hash("password"),
                 "Test User", new HashMap<String, Object>());
         assertNotNull(ob);
         ob = uf.findUserByName(userName).get();
@@ -75,7 +75,7 @@ public class MongoUserFactoryTest {
         assertNotNull(slugValue2);
         assertEquals(slugValue, slugValue2);
 
-        assertEquals(hasher.encryptPassword("password"), uf.getPasswordHash(ob).get());
+        assertEquals(hasher.hash("password"), uf.getPasswordHash(ob).get());
         assertFalse(uf.getAccessToken(ob, "foo").isPresent());
         uf.putAccessToken(ob, "bar", "foo");
         ob = uf.findUserByName(userName).get();
