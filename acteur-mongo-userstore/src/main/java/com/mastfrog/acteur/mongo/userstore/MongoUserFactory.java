@@ -239,6 +239,7 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map<String, Object> getData(DBObject user, String name) {
         Map<String,Object> m = (Map<String,Object>) user.get("data_" + name);
         if (m == null) {

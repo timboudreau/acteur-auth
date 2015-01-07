@@ -33,6 +33,7 @@ public abstract class AnswerSpec<T> implements Iterable<Constraint<T>> {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public final List<Constraint<T>> constraints;
 
+    @SuppressWarnings("unchecked")
     public AnswerSpec(String id, Constraint<?>... constraints) {
         this.id = id;
         // hack the generics - the ease of use of vararg Constraint... is worth it

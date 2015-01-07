@@ -34,6 +34,7 @@ public final class TTUser implements User<ObjectId> {
         this.obj = obj;
     }
 
+    @SuppressWarnings("unchecked")
     public boolean authorizes(ObjectId id) {
         List<ObjectId> l = (List<ObjectId>) obj.get(AUTHORIZES);
         return l == null ? false : l.contains(id);
@@ -50,6 +51,7 @@ public final class TTUser implements User<ObjectId> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<String> names() {
         List<String> l = (List<String>) obj.get(NAME);
         return l == null ? Collections.<String>emptyList() : l;
@@ -67,6 +69,7 @@ public final class TTUser implements User<ObjectId> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<ObjectId> authorizes() {
         List<ObjectId> authorizes = (List<ObjectId>) obj.get(AUTHORIZES);
         return authorizes == null ? Collections.<ObjectId>emptyList() : authorizes;
@@ -84,12 +87,14 @@ public final class TTUser implements User<ObjectId> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Set<String> authInfoNames() {
         Map<String, Object> m = (Map<String, Object>) obj.get(AUTH_INFO);
         return m == null ? Collections.<String>emptySet() : m.keySet();
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Optional<OAuthInfo> authInfo(String serviceCode) {
         Map<String, Object> m = (Map<String, Object>) obj.get(AUTH_INFO);
         DBObject ob = (DBObject) m.get(serviceCode);

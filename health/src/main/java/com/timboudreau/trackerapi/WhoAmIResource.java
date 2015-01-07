@@ -42,6 +42,7 @@ public class WhoAmIResource extends Page {
     private static class UserInfoActeur extends Acteur {
 
         @Inject
+        @SuppressWarnings("unchecked")
         UserInfoActeur(TTUser user, DBCollection coll, HttpEvent evt, OAuthPlugins pgns) throws IOException {
             boolean other = evt.getParameter("user") != null && !user.names().contains(evt.getParameter("user"));
             add(Headers.stringHeader("UserID"), user.id().toStringMongod());

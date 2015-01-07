@@ -55,7 +55,7 @@ public class OAuthPluginsTest {
         assertEquals(parts[0], info.hashedSlug);
     }
 
-    static class SM extends ServerModule {
+    static class SM extends ServerModule<MockApp> {
 
         public SM() {
             super(MockApp.class, 5, 5, 5);

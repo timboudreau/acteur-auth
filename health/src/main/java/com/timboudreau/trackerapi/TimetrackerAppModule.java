@@ -58,7 +58,7 @@ final class TimetrackerAppModule extends AbstractModule {
         install(mongoModule);
         install(new GoogleOAuthModule());
         install(new FacebookOAuthModule());
-        install(new ActeurAuthModule(MongoUserFactory.class));
+        install(new ActeurAuthModule<MongoUserFactory>(MongoUserFactory.class));
         bind(Ini.class).asEagerSingleton();
         bind(HomePageRedirector.class).to(HPR.class);
     }
