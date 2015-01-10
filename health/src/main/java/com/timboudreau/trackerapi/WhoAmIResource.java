@@ -61,7 +61,7 @@ public class WhoAmIResource extends Page {
             if (dn != null && !other) {
                 pgns.createDisplayNameCookie(evt, response(), dn);
             }
-            setState(new RespondWith(200, m));
+            ok(m);
         }
     }
 }

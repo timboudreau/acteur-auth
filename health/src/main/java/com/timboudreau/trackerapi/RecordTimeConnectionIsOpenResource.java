@@ -74,7 +74,7 @@ final class RecordTimeConnectionIsOpenResource extends Page {
                     .append(version, 0);
             String err = buildQueryFromURLParameters(evt, toWrite);
             if (err != null) {
-                setState(new RespondWith(400, err));
+                badRequest(err);
                 return;
             }
             add(Headers.CONTENT_LENGTH, 380L);

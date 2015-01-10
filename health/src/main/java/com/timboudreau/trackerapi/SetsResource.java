@@ -56,9 +56,9 @@ public class SetsResource extends Page {
             }
             Collections.sort(l);
             if (evt.getMethod() == Method.HEAD) {
-                setState(new RespondWith(200));
+                ok();
             } else {
-                setState(new RespondWith(200, l));
+                ok(l);
             }
         }
     }

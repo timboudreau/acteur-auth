@@ -43,7 +43,7 @@ public class GetSurveyResource extends Page {
 
         @Inject
         SurveyActeur(String value) throws JsonProcessingException {
-            setState(new RespondWith(200, value));
+            ok(value);
         }
     }
 }

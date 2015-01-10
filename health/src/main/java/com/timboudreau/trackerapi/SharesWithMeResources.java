@@ -50,10 +50,10 @@ public class SharesWithMeResources extends Page {
                 return;
             }
             if (!cursor.hasNext()) {
-                setState(new RespondWith(200, "[]\n"));
+                ok("[]\n");
                 cursor.close();
             } else {
-                setState(new ConsumedLockedState(cursor));
+                next(cursor);
             }
         }
     }

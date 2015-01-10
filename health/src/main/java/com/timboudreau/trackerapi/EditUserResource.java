@@ -53,18 +53,18 @@ public class EditUserResource extends Page {
                 return;
             }
             if (dn.length() < SignUpResource.SignerUpper.MIN_USERNAME_LENGTH) {
-                setState(new RespondWith(400, "Display name '"+ dn 
+                badRequest("Display name '"+ dn 
                         + "' too short - min is " 
-                        + SignUpResource.SignerUpper.MIN_USERNAME_LENGTH));
+                        + SignUpResource.SignerUpper.MIN_USERNAME_LENGTH);
                 return;
             }
             if (dn.length() > SignUpResource.SignerUpper.MAX_USERNAME_LENGTH) {
-                setState(new RespondWith(400, "Display name too long - max is " 
-                        + SignUpResource.SignerUpper.MAX_USERNAME_LENGTH));
+                badRequest("Display name too long - max is " 
+                        + SignUpResource.SignerUpper.MAX_USERNAME_LENGTH);
                 return;
             }
             if (dn.equals(user.displayName())) {
-                setState(new RespondWith(200, Timetracker.quickJson("updated", 0)));
+                ok(Timetracker.quickJson("updated", 0));
                 return;
             }
 
@@ -79,7 +79,7 @@ public class EditUserResource extends Page {
                 pgns.createDisplayNameCookie(evt, response(), dn);
             }
 
-            setState(new RespondWith(HttpResponseStatus.ACCEPTED, Timetracker.quickJson("updated", res.getN())));
+            reply(HttpResponseStatus.ACCEPTED, Timetracker.quickJson("updated", res.getN()));
         }
     }
 }

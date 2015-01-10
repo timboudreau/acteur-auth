@@ -67,9 +67,9 @@ final class AddTimeResource extends Page {
                     return;
                 }
                 Interval interval = new Interval(startTime, endTime);
-                setState(new ConsumedLockedState(interval));
+                next(interval);
             } catch (NumberFormatException e) {
-                setState(new RespondWith(400, "Start or end is not a number: '" + evt.getParameter(start) + "' and '" + evt.getParameter(end)));
+                badRequest("Start or end is not a number: '" + evt.getParameter(start) + "' and '" + evt.getParameter(end));
             }
         }
     }
@@ -83,8 +83,8 @@ final class AddTimeResource extends Page {
             long endVal = interval.getEndMillis();
             // XXX ability to add for a different user?
             if (endVal - startVal <= 0) {
-                setState(new RespondWith(400, "Start is equal to or after end '"
-                        + interval.getStart() + "' and '" + interval.getEnd() + "'"));
+                badRequest("Start is equal to or after end '"
+                        + interval.getStart() + "' and '" + interval.getEnd() + "'");
                 return;
             }
             BasicDBObject toWrite = new BasicDBObject(type, time)
@@ -101,7 +101,7 @@ final class AddTimeResource extends Page {
 
             String err = buildQueryFromURLParameters(evt, toWrite, Properties.start, Properties.end, Properties.duration);
             if (err != null) {
-                setState(new RespondWith(400, err));
+                badRequest(err);
                 return;
             }
             if (toWrite.get(start) instanceof String) {

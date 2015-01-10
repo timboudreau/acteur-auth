@@ -48,7 +48,7 @@ public final class ModifyEventsResource extends Page {
     private static class FakeBody extends Acteur {
 
         FakeBody() {
-            setState(new ConsumedLockedState(new Body(1)));
+            next(new Body(1));
         }
     }
 

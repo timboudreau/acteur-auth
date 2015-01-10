@@ -69,7 +69,7 @@ final class TotalTimeResource extends Page {
                     ivals.add(new Interval(startTime, endTime), "" + ob.get("_id"));
                 }
             }
-            setState(new RespondWith(200, ivals.toJSON(detail, summary)));
+            ok(ivals.toJSON(detail, summary));
         }
     }
 }

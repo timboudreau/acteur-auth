@@ -17,7 +17,7 @@ public final class UserCollectionFinder extends Acteur {
     UserCollectionFinder(DB db, Settings settings) {
         String userCollectionName = settings.getString("user.collection.name", "ttusers");
         DBCollection coll = db.getCollection(userCollectionName);
-        setState(new ConsumedLockedState(coll));
+        next(coll);
     }
 
 }

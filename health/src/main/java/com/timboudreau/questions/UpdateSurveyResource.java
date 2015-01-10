@@ -45,10 +45,10 @@ public class UpdateSurveyResource extends Page {
         UserMustBeCreator(TTUser user, DBObject obj) {
             Object id = obj.get("createdBy");
             if (!user.id().equals(id) && id != null) {
-                setState(new RespondWith(HttpResponseStatus.FORBIDDEN, 
-                        "Not created by " + user.name() + " but by " + id));
+                reply(HttpResponseStatus.FORBIDDEN, 
+                        "Not created by " + user.name() + " but by " + id);
             } else {
-                setState(new ConsumedState());
+                next();
             }
         }
     }
@@ -58,10 +58,10 @@ public class UpdateSurveyResource extends Page {
         @Inject
         MustHaveSomeParameters(HttpEvent evt) {
             if (evt.getParametersAsMap().isEmpty()) {
-                setState(new RespondWith(HttpResponseStatus.BAD_REQUEST,
-                        "Must have URL parameters for what to change"));
+                reply(HttpResponseStatus.BAD_REQUEST,
+                        "Must have URL parameters for what to change");
             }
-            setState(new ConsumedState());
+            next();
         }
     }
 
@@ -81,11 +81,11 @@ public class UpdateSurveyResource extends Page {
             BasicDBObject query = new BasicDBObject("_id", id);
             DBObject ob = surveys.findOne(query);
             if (ob == null) {
-                setState(new RespondWith(HttpResponseStatus.NOT_FOUND, "No id " + id));
+                reply(HttpResponseStatus.NOT_FOUND, "No id " + id);
             } else {
                 BasicDBObject edit = createEditFrom(evt, id);
                 DBObject result = surveys.findAndModify(query, edit);
-                setState(new RespondWith(HttpResponseStatus.ACCEPTED, mapper.writeValueAsString(result)));
+                reply(HttpResponseStatus.ACCEPTED, mapper.writeValueAsString(result));
             }
         }
 

@@ -32,14 +32,15 @@ final class FindSurveyActeur extends Acteur {
         DBObject ob = questions.findOne(new BasicDBObject("_id", id));
         if (ob == null) {
             setState(new RespondWith(HttpResponseStatus.NOT_FOUND, "No id " + id));
+            return;
         } else {
-            setState(new ConsumedLockedState(ob));
+            next(ob);
         }
         Date lm = (Date) ob.get("lastModified");
         page.getResponseHeaders().setLastModified(new DateTime(lm));
         String value = mapper.writeValueAsString(ob) + '\n';
         page.getResponseHeaders().setEtag(hash(value));
-        setState(new ConsumedLockedState(value, ob, id));
+        next(value, ob, id);
     }
 
     private static String hash(String s) throws IOException {

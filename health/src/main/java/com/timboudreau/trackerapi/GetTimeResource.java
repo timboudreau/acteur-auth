@@ -77,9 +77,9 @@ class GetTimeResource extends Page {
                 }
             });
             if (!cur.hasNext()) {
-                setState(new RespondWith(OK, "[]"));
+                ok("[]");
             } else {
-                setState(new ConsumedLockedState(cur, CursorWriter.NO_FILTER));
+                next(cur, CursorWriter.NO_FILTER);
             }
         }
     }

@@ -29,13 +29,13 @@ public final class TimeCollectionFinder extends Acteur {
                     coll = new CollectionProvider(db, collectionName, true);
                     break;
                 default:
-                    setState(new RespondWith(404, "No collection " + collectionName));
+                    notFound("No collection " + collectionName);
                     return;
             }
         } else {
             coll = new CollectionProvider(db, collectionName, false);
         }
-        setState(new ConsumedLockedState(coll));
+        next(coll);
     }
 
     private static class CollectionProvider implements Provider<DBCollection> {

@@ -42,7 +42,7 @@ public class DistinctResource extends Page {
             String field = evt.getParameter("field");
             BasicDBObject cmd = new BasicDBObject("distinct", coll.getName()).append("key", field);
             CommandResult res = db.command(cmd);
-            setState(new RespondWith(200, res.get("values")));
+            ok(res.get("values"));
         }
     }
 }

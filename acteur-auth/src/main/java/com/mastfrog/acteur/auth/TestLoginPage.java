@@ -63,7 +63,7 @@ final class TestLoginPage extends Page {
                 try {
                     code = Integer.parseInt(evt.getParameter("failwith"));
                 } catch (NumberFormatException n) {
-                    setState(new RespondWith(400, "Not a number: '" + evt.getParameter("failwith")));
+                    badRequest("Not a number: '" + evt.getParameter("failwith"));
                     return;
                 }
             }
@@ -76,7 +76,7 @@ final class TestLoginPage extends Page {
                     status = HttpResponseStatus.UNAUTHORIZED;
                     add(Headers.WWW_AUTHENTICATE, realm);
                 }
-                setState(new RespondWith(status));
+                reply(status);
                 return;
             }
             Cookie[] ck = evt.getHeader(Headers.COOKIE);
@@ -108,7 +108,7 @@ final class TestLoginPage extends Page {
             }
             if ("true".equals(evt.getParameter("auth")) && result.identities.isEmpty()) {
                 add(Headers.WWW_AUTHENTICATE, realm);
-                setState(new RespondWith(HttpResponseStatus.UNAUTHORIZED, result));
+                reply(HttpResponseStatus.UNAUTHORIZED, result);
             } else {
                 if (result.identities.isEmpty()) {
                     setState(new RespondWith(code, result));
@@ -123,7 +123,7 @@ final class TestLoginPage extends Page {
                         xck.setPorts(plugins.cookiePortList());
                         add(Headers.SET_COOKIE, xck);
                     }
-                    setState(new RespondWith(200, result));
+                    ok(result);
                 }
             }
         }

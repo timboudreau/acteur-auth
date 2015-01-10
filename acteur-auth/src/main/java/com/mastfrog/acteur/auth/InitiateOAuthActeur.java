@@ -132,10 +132,10 @@ final class InitiateOAuthActeur extends Acteur {
         String redirTo = evt.getParameter(REDIRECT_ON_SUCCESS_URL_PARAMETER);
         if (redirTo != null) {
             add(Headers.LOCATION, new URI(redirTo));
-            setState(new RespondWith(HttpResponseStatus.FOUND));
+            reply(HttpResponseStatus.FOUND);
         } else {
             // Otherwise, assume that a later acteur is handling things from here
-            setState(new ConsumedLockedState(user));
+            next(user);
         }
     }
 

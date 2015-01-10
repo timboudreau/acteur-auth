@@ -37,12 +37,11 @@ final class Auth extends AuthenticationActeur {
                 hookImpl.onAuthenticationFailed(evt, response());
             }
             HttpResponseStatus code = handler.onFailedAuthentication(evt, plugins, uf, response());
-            setState(new RespondWith(code,
-                    authenticationResult.type.toString()));
+            reply(code,
+                    authenticationResult.type.toString());
         } else {
             setupCookie(evt, plugins, authenticationResult);
-            setState(new ConsumedLockedState(
-                    contents.toArray(new Object[contents.size()])));
+            next( contents.toArray(new Object[contents.size()]));
         }
     }
 

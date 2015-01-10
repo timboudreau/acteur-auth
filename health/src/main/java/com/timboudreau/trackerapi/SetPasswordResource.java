@@ -43,16 +43,16 @@ public class SetPasswordResource extends Page {
             String userName = evt.getPath().getElement(1).toString();
             String pw = evt.getContent().toString(Charset.forName("UTF-8"));
             if (pw.length() < SignUpResource.SignerUpper.MIN_PASSWORD_LENGTH) {
-                setState(new RespondWith(400, "Password too short"));
+                badRequest("Password too short");
                 return;
             }
             if (pw.length() >= SignUpResource.SignerUpper.MAX_PASSWORD_LENGTH) {
-                setState(new RespondWith(400, "Password too long"));
+                badRequest("Password too long");
                 return;
             }
             if (!user.names().contains(userName)) {
-                setState(new RespondWith(HttpResponseStatus.FORBIDDEN, user.name()
-                        + " cannot set the password for " + userName));
+                reply(HttpResponseStatus.FORBIDDEN, user.name()
+                        + " cannot set the password for " + userName);
                 return;
             }
 
@@ -67,7 +67,7 @@ public class SetPasswordResource extends Page {
 
             WriteResult res = coll.update(query, update, false, false, WriteConcern.FSYNCED);
 
-            setState(new RespondWith(200, Timetracker.quickJson("updated", res.getN())));
+            ok(Timetracker.quickJson("updated", res.getN()));
         }
     }
 }
