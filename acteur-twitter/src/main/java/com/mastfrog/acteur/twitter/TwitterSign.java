@@ -22,6 +22,7 @@ import com.mastfrog.util.thread.Receiver;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.util.CharsetUtil;
+import org.apache.commons.codec.binary.Base64;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -30,7 +31,7 @@ import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Base64;
+//import java.util.Base64;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -200,7 +201,8 @@ public class TwitterSign {
 
         byte[] text = baseString.getBytes();
 
-        return new String(Base64.getEncoder().encode(mac.doFinal(text))).trim();
+//        return new String(Base64.getEncoder().encode(mac.doFinal(text))).trim();
+       return new String(Base64.encodeBase64(mac.doFinal(text))).trim();
     }
 
     // the first step in the twitter oauth flow is to get a request token with a call to api.twitter.com/oauth/request_token
@@ -514,6 +516,7 @@ public class TwitterSign {
         }
     }
 
+    @SuppressWarnings("unchecked")
     RemoteUserInfo zgetUserInfo(String oauth_nonce, TwitterOAuthPlugin.TwitterToken credential, AuthorizationResponse auth) throws UnsupportedEncodingException, GeneralSecurityException, InterruptedException, IOException {
         System.setProperty("twitter4j.http.useSSL", "false");
         
@@ -614,6 +617,7 @@ public class TwitterSign {
         }
     }
 
+    @SuppressWarnings("unchecked")
     RemoteUserInfo ygetUserInfo(String oauth_nonce, TwitterOAuthPlugin.TwitterToken credential, AuthorizationResponse auth) throws UnsupportedEncodingException, GeneralSecurityException, InterruptedException, IOException {
         URL url = URL.builder(Protocols.HTTPS)
                 .setHost(Host.parse("api.twitter.com"))
@@ -648,6 +652,7 @@ public class TwitterSign {
         return rui;
     }
 
+    @SuppressWarnings("unchecked")
     RemoteUserInfo xgetUserInfo(String oauth_nonce, TwitterOAuthPlugin.TwitterToken credential, AuthorizationResponse auth) throws UnsupportedEncodingException, GeneralSecurityException, InterruptedException, IOException {
 
         URL url = URL.builder(Protocols.HTTPS)
