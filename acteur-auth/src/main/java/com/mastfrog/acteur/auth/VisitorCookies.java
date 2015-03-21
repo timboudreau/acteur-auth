@@ -47,8 +47,8 @@ public final class VisitorCookies {
             return Optional.absent();
         }
         for (Cookie c : ck) {
-            if (cookieName.equals(c.getName())) {
-                return Optional.of(c.getValue());
+            if (cookieName.equals(c.name())) {
+                return Optional.of(c.value());
             }
         }
         return Optional.absent();
@@ -74,6 +74,7 @@ public final class VisitorCookies {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     private <T> void saveCookieInfo(HttpEvent evt, UserFactory<T> users, T user, String newId) {
         Map<String, Object> data = new HashMap<>(users.getData(user, cookieName));
         String userAgent = evt.getHeader("User-Agent");

@@ -83,7 +83,7 @@ class BasicAuthenticationStrategy extends AuthenticationStrategy {
         boolean doCookie = cks == null || cks.length == 0;
         if (doCookie && cks != null) {
             for (Cookie ck : cks) {
-                if (CODE.equals(ck.getName())) {
+                if (CODE.equals(ck.name())) {
                     doCookie = false;
                 }
             }

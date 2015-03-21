@@ -102,7 +102,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
     }
     
     List<Integer> cookiePortList() {
-        List<Integer> l = new ArrayList(cookiePorts().length);
+        List<Integer> l = new ArrayList<>(cookiePorts().length);
         for (int i : cookiePorts()) {
             l.add(i);
         }
@@ -203,7 +203,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
             return false;
         }
         for (Cookie ck : cookies) {
-            if (DISPLAY_NAME_COOKIE_NAME.equals(ck.getName())) {
+            if (DISPLAY_NAME_COOKIE_NAME.equals(ck.name())) {
                 return true;
             }
         }
@@ -223,8 +223,8 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
             all.add(BasicAuthenticationStrategy.CODE);
             all.add(OAuthPlugins.DISPLAY_NAME_COOKIE_NAME);
             for (Cookie ck : cks) {
-                if (all.contains(ck.getName())) {
-                    DefaultCookie discardCookie = new DefaultCookie(ck.getName(), "-");
+                if (all.contains(ck.name())) {
+                    DefaultCookie discardCookie = new DefaultCookie(ck.name(), "-");
                     discardCookie.setDomain(host.toString()); //XXX use a setting?
                     discardCookie.setDiscard(true);
                     discardCookie.setPorts(cookiePortList());

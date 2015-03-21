@@ -47,6 +47,7 @@ final class InitiateOAuthActeur extends Acteur {
     private final OAuthPlugins plugins;
 
     @Inject
+    @SuppressWarnings("unchecked")
     InitiateOAuthActeur(HttpEvent evt, OAuthPlugins plugins, Settings settings, UserFactory uf, PasswordHasher hasher, Dependencies deps) throws MalformedURLException, URISyntaxException {
         this.users = uf;
         this.evt = evt;
@@ -144,7 +145,7 @@ final class InitiateOAuthActeur extends Acteur {
     }
 
     private Optional<UserInfo> parseCookie(Cookie ck) {
-        return plugins.decodeCookieValue(ck.getValue());
+        return plugins.decodeCookieValue(ck.value());
     }
 
     private void doRedirect(OAuthPlugin<?> plugin) throws MalformedURLException, URISyntaxException {
@@ -163,7 +164,7 @@ final class InitiateOAuthActeur extends Acteur {
         Cookie[] cookies = evt.getHeader(Headers.COOKIE);
         if (cookies != null) {
             for (Cookie ck : cookies) {
-                if (name.equals(ck.getName())) {
+                if (name.equals(ck.name())) {
                     return ck;
                 }
             }

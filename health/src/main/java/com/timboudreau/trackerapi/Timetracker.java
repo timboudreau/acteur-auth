@@ -137,7 +137,7 @@ public class Timetracker extends Application {
             response.headers().add(Headers.CACHE_CONTROL.name(), Headers.CACHE_CONTROL.toString(cc));
         }
         // We do JSON for everything, so save setting the content type on every page
-        int code = response.getStatus().code();
+        int code = response.status().code();
         if (code >= 200 && code < 300) {
             if (response.headers().get(Headers.CONTENT_TYPE.name()) == null) {
                 Headers.write(Headers.CONTENT_TYPE, MediaType.JSON_UTF_8, response);

@@ -154,7 +154,7 @@ public class TwitterSign {
                 sb.append(status).append("\n");
             }
             if (headers != null) {
-                for (Map.Entry<String, String> e : headers.entries()) {
+                for (Map.Entry<CharSequence, CharSequence> e : headers.entries()) {
                     sb.append(e.getKey()).append(": ").append(e.getValue()).append("\n");
                 }
             }

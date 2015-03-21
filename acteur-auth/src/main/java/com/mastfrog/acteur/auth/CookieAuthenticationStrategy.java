@@ -34,7 +34,7 @@ class CookieAuthenticationStrategy extends AuthenticationStrategy {
         }
         Result<?> res = null;
         for (Cookie ck : cookies) {
-            String name = ck.getName();
+            String name = ck.name();
             Optional<OAuthPlugin<?>> plugino = plugins.find(name);
             if (plugino.isPresent()) {
                 OAuthPlugin<?> plugin = plugino.get();
@@ -48,8 +48,9 @@ class CookieAuthenticationStrategy extends AuthenticationStrategy {
         return res == null ? new Result(ResultType.NO_CREDENTIALS, true) : res;
     }
 
+    @SuppressWarnings("unchecked")
     private <T, R> Result<?> tryToAuthenticate(OAuthPlugin<T> plugin, HttpEvent evt, Cookie cookie, UserFactory<R> users, Collection<? super Object> scopeContents, Response response) {
-        Optional<UserInfo> io = plugins.decodeCookieValue(cookie.getValue());
+        Optional<UserInfo> io = plugins.decodeCookieValue(cookie.value());
         if (io.isPresent()) {
             UserInfo info = io.get();
             Optional<R> uo = users.findUserByName(info.userName);

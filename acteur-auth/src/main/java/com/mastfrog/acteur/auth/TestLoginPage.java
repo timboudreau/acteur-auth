@@ -84,12 +84,12 @@ final class TestLoginPage extends Page {
             Result result = new Result();
             if (ck != null && ck.length > 0) {
                 for (Cookie c : ck) {
-                    cookieForName.put(c.getName(), c);
+                    cookieForName.put(c.name(), c);
                 }
                 for (PluginInfo info : plugins.getPlugins()) {
                     Cookie cookie = cookieForName.get(info.code);
                     if (cookie != null) {
-                        String val = cookie.getValue();
+                        String val = cookie.value();
                         Optional<UserInfo> ui = plugins.decodeCookieValue(val);
                         if (ui.isPresent()) {
                             OAuthPlugin<?> plugin = plugins.getPlugin(info.code);

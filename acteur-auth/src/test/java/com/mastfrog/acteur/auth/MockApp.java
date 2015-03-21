@@ -119,7 +119,8 @@ public class MockApp extends Application {
             if (response == null) {
                 return null;
             }
-            String s = response.headers().get(type.name());
+            String nm = type.name().toString();
+            CharSequence s = response.headers().get(nm);
             T result = s == null ? null : type.toValue(s);
             return result;
         }
