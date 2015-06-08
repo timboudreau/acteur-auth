@@ -11,7 +11,7 @@ import com.mastfrog.acteur.util.PasswordHasher;
 import com.mastfrog.giulius.Dependencies;
 import com.mastfrog.settings.Settings;
 import com.mastfrog.util.Strings;
-import io.netty.handler.codec.http.Cookie;
+import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -47,6 +47,7 @@ final class InitiateOAuthActeur extends Acteur {
     private final OAuthPlugins plugins;
 
     @Inject
+    @SuppressWarnings("unchecked")
     InitiateOAuthActeur(HttpEvent evt, OAuthPlugins plugins, Settings settings, UserFactory uf, PasswordHasher hasher, Dependencies deps) throws MalformedURLException, URISyntaxException {
         this.users = uf;
         this.evt = evt;
@@ -144,7 +145,7 @@ final class InitiateOAuthActeur extends Acteur {
     }
 
     private Optional<UserInfo> parseCookie(Cookie ck) {
-        return plugins.decodeCookieValue(ck.getValue());
+        return plugins.decodeCookieValue(ck.value());
     }
 
     private void doRedirect(OAuthPlugin<?> plugin) throws MalformedURLException, URISyntaxException {
@@ -160,10 +161,10 @@ final class InitiateOAuthActeur extends Acteur {
     }
 
     private Cookie findCookie(HttpEvent evt, String name) {
-        Cookie[] cookies = evt.getHeader(Headers.COOKIE);
+        Cookie[] cookies = evt.getHeader(Headers.COOKIE_B);
         if (cookies != null) {
             for (Cookie ck : cookies) {
-                if (name.equals(ck.getName())) {
+                if (name.equals(ck.name())) {
                     return ck;
                 }
             }

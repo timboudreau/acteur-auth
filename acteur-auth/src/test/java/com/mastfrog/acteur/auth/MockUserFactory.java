@@ -51,6 +51,7 @@ public class MockUserFactory extends UserFactory<MockUser> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected Slug getSlug(MockUser on, String name) {
         Map<String, Object> slugs = (Map<String, Object>) on.get("slugs");
         if (slugs == null) {
@@ -61,6 +62,7 @@ public class MockUserFactory extends UserFactory<MockUser> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void putSlug(MockUser on, Slug slug) {
         if (slug.name.equals("fake")) {
             throw new Error();
@@ -74,6 +76,7 @@ public class MockUserFactory extends UserFactory<MockUser> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Set<String> getSlugNames(MockUser on) {
         Map<String, Object> slugs = (Map<String, Object>) on.get("slugs");
         return slugs == null ? Collections.<String>emptySet() : slugs.keySet();
@@ -136,6 +139,7 @@ public class MockUserFactory extends UserFactory<MockUser> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void putAccessToken(MockUser on, String token, String serviceName) {
         Map<String, Object> tokens = (Map<String, Object>) on.get("tokens");
         if (tokens == null) {
@@ -146,6 +150,7 @@ public class MockUserFactory extends UserFactory<MockUser> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Optional<String> getAccessToken(MockUser on, String serviceName) {
         Map<String, Object> tokens = (Map<String, Object>) on.get("tokens");
         if (tokens == null) {
@@ -166,6 +171,7 @@ public class MockUserFactory extends UserFactory<MockUser> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void putData(MockUser user, String name, Map<String, Object> data) {
         Checks.notNull("data", data);
         Checks.notNull("user", user);
@@ -177,6 +183,7 @@ public class MockUserFactory extends UserFactory<MockUser> {
         dta.put(name, data);
     }
 
+    @SuppressWarnings("unchecked")
     public Map<String, Object> getData(MockUser user, String name) {
         Checks.notNull("name", name);
         Checks.notNull("user", user);

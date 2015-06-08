@@ -16,8 +16,8 @@ import com.mastfrog.acteur.util.BasicCredentials;
 import com.mastfrog.acteur.util.PasswordHasher;
 import com.mastfrog.acteur.util.Realm;
 import com.mastfrog.settings.Settings;
-import io.netty.handler.codec.http.Cookie;
-import io.netty.handler.codec.http.DefaultCookie;
+import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import java.util.HashMap;
@@ -79,17 +79,17 @@ final class TestLoginPage extends Page {
                 reply(status);
                 return;
             }
-            Cookie[] ck = evt.getHeader(Headers.COOKIE);
+            Cookie[] ck = evt.getHeader(Headers.COOKIE_B);
             Map<String, Cookie> cookieForName = new HashMap<>();
             Result result = new Result();
             if (ck != null && ck.length > 0) {
                 for (Cookie c : ck) {
-                    cookieForName.put(c.getName(), c);
+                    cookieForName.put(c.name(), c);
                 }
                 for (PluginInfo info : plugins.getPlugins()) {
                     Cookie cookie = cookieForName.get(info.code);
                     if (cookie != null) {
-                        String val = cookie.getValue();
+                        String val = cookie.value();
                         Optional<UserInfo> ui = plugins.decodeCookieValue(val);
                         if (ui.isPresent()) {
                             OAuthPlugin<?> plugin = plugins.getPlugin(info.code);
@@ -120,8 +120,8 @@ final class TestLoginPage extends Page {
                         xck.setDomain(evt.getHeader(Headers.HOST));
                         xck.setMaxAge(plugins.slugMaxAge().getStandardSeconds());
                         xck.setPath(plugins.cookieBasePath());
-                        xck.setPorts(plugins.cookiePortList());
-                        add(Headers.SET_COOKIE, xck);
+//                        xck.setPorts(plugins.cookiePortList());
+                        add(Headers.SET_COOKIE_B, xck);
                     }
                     ok(result);
                 }
@@ -139,7 +139,7 @@ final class TestLoginPage extends Page {
                     if (passwordHash.equals(newHashed)) {
                         String dn = uf.getUserDisplayName(user);
                         String un = uf.getUserName(user);
-                        Identity id = new Identity(un, dn, "login", "ba");
+                        Identity id = new Identity(un, dn, "login", BasicAuthenticationStrategy.CODE);
                         result.identities.add(id);
                         result.success = true;
                         result.homePage = redir.getRedirectURI(uf, user, evt);

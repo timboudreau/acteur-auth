@@ -7,8 +7,8 @@ import com.mastfrog.acteur.HttpEvent;
 import static com.mastfrog.acteur.auth.OAuthPlugins.SETTINGS_KEY_OAUTH_COOKIE_HOST;
 import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.settings.Settings;
-import io.netty.handler.codec.http.Cookie;
-import io.netty.handler.codec.http.DefaultCookie;
+import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.DefaultCookie;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,13 +42,13 @@ public final class VisitorCookies {
     }
 
     public Optional<String> visitorId(HttpEvent evt) {
-        Cookie[] ck = evt.getHeader(Headers.COOKIE);
+        Cookie[] ck = evt.getHeader(Headers.COOKIE_B);
         if (ck == null) {
             return Optional.absent();
         }
         for (Cookie c : ck) {
-            if (cookieName.equals(c.getName())) {
-                return Optional.of(c.getValue());
+            if (cookieName.equals(c.name())) {
+                return Optional.of(c.value());
             }
         }
         return Optional.absent();
@@ -74,6 +74,7 @@ public final class VisitorCookies {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     private <T> void saveCookieInfo(HttpEvent evt, UserFactory<T> users, T user, String newId) {
         Map<String, Object> data = new HashMap<>(users.getData(user, cookieName));
         String userAgent = evt.getHeader("User-Agent");
@@ -95,7 +96,7 @@ public final class VisitorCookies {
         DefaultCookie ck = new DefaultCookie(cookieName, newId);
         ck.setMaxAge(cookieDuration.getStandardSeconds());
         ck.setPath("/");
-        ck.setPorts(80, 443, port);
+//        ck.setPorts(80, 443, port);
         String host = cookieHost == null ? evt.getHeader("Host") : cookieHost;
         ck.setDomain(host);
         if (users != null) {

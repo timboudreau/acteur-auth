@@ -7,7 +7,7 @@ import com.mastfrog.acteur.Response;
 import com.mastfrog.acteur.auth.UserFactory.Slug;
 import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.settings.Settings;
-import io.netty.handler.codec.http.Cookie;
+import io.netty.handler.codec.http.cookie.Cookie;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -28,13 +28,13 @@ class CookieAuthenticationStrategy extends AuthenticationStrategy {
 
     @Override
     public Result<?> authenticate(HttpEvent evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response) {
-        Cookie[] cookies = evt.getHeader(Headers.COOKIE);
+        Cookie[] cookies = evt.getHeader(Headers.COOKIE_B);
         if (cookies == null || cookies.length == 0) {
             return new Result(ResultType.NO_CREDENTIALS, true);
         }
         Result<?> res = null;
         for (Cookie ck : cookies) {
-            String name = ck.getName();
+            String name = ck.name();
             Optional<OAuthPlugin<?>> plugino = plugins.find(name);
             if (plugino.isPresent()) {
                 OAuthPlugin<?> plugin = plugino.get();
@@ -48,8 +48,9 @@ class CookieAuthenticationStrategy extends AuthenticationStrategy {
         return res == null ? new Result(ResultType.NO_CREDENTIALS, true) : res;
     }
 
+    @SuppressWarnings("unchecked")
     private <T, R> Result<?> tryToAuthenticate(OAuthPlugin<T> plugin, HttpEvent evt, Cookie cookie, UserFactory<R> users, Collection<? super Object> scopeContents, Response response) {
-        Optional<UserInfo> io = plugins.decodeCookieValue(cookie.getValue());
+        Optional<UserInfo> io = plugins.decodeCookieValue(cookie.value());
         if (io.isPresent()) {
             UserInfo info = io.get();
             Optional<R> uo = users.findUserByName(info.userName);

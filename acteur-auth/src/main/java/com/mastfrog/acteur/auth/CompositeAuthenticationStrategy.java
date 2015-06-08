@@ -41,6 +41,7 @@ final class CompositeAuthenticationStrategy extends AuthenticationStrategy {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Result<?> authenticate(HttpEvent evt, AtomicReference<? super FailHook> hook, Collection<? super Object> scopeContents, Response response) {
         List<AtomicReference<FailHook>> fails = new ArrayList<>();
         CompositeFailHook compositeHook = new CompositeFailHook(fails);

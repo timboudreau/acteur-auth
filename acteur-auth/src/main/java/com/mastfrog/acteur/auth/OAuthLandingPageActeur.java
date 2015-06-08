@@ -13,9 +13,11 @@ import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.settings.Settings;
 import com.mastfrog.url.Host;
 import com.mastfrog.url.Path;
-import io.netty.handler.codec.http.Cookie;
-import io.netty.handler.codec.http.DefaultCookie;
+import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -81,6 +83,7 @@ final class OAuthLandingPageActeur extends Acteur {
         finish(plugin, evt, users, stateo.get());
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, Object> toMap(RemoteUserInfo info) throws JsonProcessingException, IOException {
         if (info instanceof Map) {
             return NbCollections.checkedMapByCopy(info, String.class, Object.class, false);
@@ -145,16 +148,19 @@ final class OAuthLandingPageActeur extends Acteur {
             host = Host.parse("fail.example");
         }
         ck.setDomain(host.toString());
-        ck.setPorts(plugins.cookiePorts());
+//        ck.setPorts(plugins.cookiePorts());
         ck.setMaxAge(plugin.getSlugMaxAge().getMillis());
         ck.setPath(plugins.cookieBasePath());
-        add(Headers.SET_COOKIE, ck);
+        
+        System.out.println("CREATE AUTH COOKIE " + plugin.code() + ": '" + ServerCookieEncoder.LAX.encode(ck) + "' strict: '" + ServerCookieEncoder.STRICT.encode(ck));
+        
+        add(Headers.SET_COOKIE_B, ck);
 
         plugins.createDisplayNameCookie(evt, response(), rui.displayName());
         
         Cookie visitorCookie = visitorCookies.associateCookieWithUser(evt, users, user);
         if (visitorCookie != null) {
-            add(Headers.SET_COOKIE, visitorCookie);
+            add(Headers.SET_COOKIE_B, visitorCookie);
         }
 
         // See if the request has a redirect already - we may have passed one

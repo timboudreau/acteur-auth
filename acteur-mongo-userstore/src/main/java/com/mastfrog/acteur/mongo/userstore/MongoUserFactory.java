@@ -234,6 +234,7 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public String getUserName(DBObject obj) {
         return ((List<String>) obj.get("name")).iterator().next();
     }
