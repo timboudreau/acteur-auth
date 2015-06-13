@@ -47,12 +47,12 @@ public class LiveAppTest {
                 .getHeader(Headers.LOCATION);
 
         String state = ((MockUserFactory) uf).states().iterator().next().state;
-        assertEquals(loc.toString(), "http://localhost:3947/redirect?state=" + state);
+        assertEquals(loc.toString(), "http://127.0.0.1:3947/redirect?state=" + state);
         assertEquals(((MockUserFactory) uf).states() + "", 1, ((MockUserFactory) uf).states().size());
         System.out.println(((MockUserFactory) uf).states());
 
         assertTrue(loc.toString(),
-                loc.toString().startsWith("http://localhost:"
+                loc.toString().startsWith("http://127.0.0.1:"
                 + 3947 + "/redirect"));
 
         CallResult res = harness.get(plugins.getLandingPageBasePath(), "fk").addQueryPair("state", state)
