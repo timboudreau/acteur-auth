@@ -42,7 +42,7 @@ public class LiveAppTest {
         URI loc = harness.get("/" + plugins.getBouncePageBasePath() + "/fk")
                 .log()
                 .go()
-                .assertStateSeen(StateType.Closed)
+                .assertStateSeen(StateType.FullContentReceived)
                 .assertStatus(SEE_OTHER)
                 .getHeader(Headers.LOCATION);
 
