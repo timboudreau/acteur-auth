@@ -12,7 +12,8 @@ import org.joda.time.DateTime;
  *
  * @author Tim Boudreau
  */
-@JsonIgnoreProperties("createdBy")
+//@JsonIgnoreProperties({"createdBy", "type"})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public final class Survey {
 
     public final ObjectId _id;
@@ -32,7 +33,7 @@ public final class Survey {
             @JsonProperty(value = "created", required = false) DateTime created,
             @JsonProperty(value = "lastModified", required = false) DateTime lastModified,
             @JsonProperty(value = "version", required = false) Integer version,
-            @JsonProperty(value = "quertions", required = true) List<Question> questions) {
+            @JsonProperty(value = "questions", required = true) List<Question> questions) {
         this._id = id;
         this.name = name;
         this.description = description;
