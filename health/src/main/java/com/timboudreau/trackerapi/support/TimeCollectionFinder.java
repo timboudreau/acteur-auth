@@ -57,9 +57,9 @@ public final class TimeCollectionFinder extends Acteur {
             if (first && ensureIndexes) {
                 first = false;
                 BasicDBObject q = new BasicDBObject(Properties.start, 1).append(Properties.end, 1);
-                coll.ensureIndex(q, collectionName + "_startEnd", first);
+                coll.createIndex(q, collectionName + "_startEnd", first);
                 q = new BasicDBObject("tags", 1);
-                coll.ensureIndex(q, new BasicDBObject("sparse", true).append("name", "tags_index"));
+                coll.createIndex(q, new BasicDBObject("sparse", true).append("name", "tags_index"));
             }
             return coll;
         }
