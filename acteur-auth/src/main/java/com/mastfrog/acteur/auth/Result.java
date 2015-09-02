@@ -30,13 +30,13 @@ public final class Result<UserType> {
         this.displayName = displayName;
     }
 
-    static Result combined(Result a, Result b) {
+    static <T> Result combined(Result<T> a, Result<T> b) {
         // We want cookie to be true if a cookie was present
         boolean ck = a.isSuccess() && a.cookie;
         if (!ck) {
             ck = b.isSuccess() && b.cookie;
         }
-        return new Result(a.user == null ? b.user : null, a.username == null ? b.username : null, a.hashedPass == null ? b.hashedPass : a.hashedPass, a.type, ck, a.displayName == null ? b.displayName : a.displayName);
+        return new Result<T>(a.user == null ? b.user : null, a.username == null ? b.username : null, a.hashedPass == null ? b.hashedPass : a.hashedPass, a.type, ck, a.displayName == null ? b.displayName : a.displayName);
     }
 
     public boolean isSuccess() {

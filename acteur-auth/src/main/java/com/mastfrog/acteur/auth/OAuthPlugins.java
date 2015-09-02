@@ -21,8 +21,8 @@ import com.mastfrog.url.Host;
 import com.mastfrog.url.Path;
 import com.mastfrog.util.Checks;
 import com.mastfrog.util.ConfigurationError;
-import io.netty.handler.codec.http.Cookie;
-import io.netty.handler.codec.http.DefaultCookie;
+import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.DefaultCookie;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -188,17 +188,17 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
         if (useDisplayNameCookie) {
             DefaultCookie displayNameCookie = new DefaultCookie(DISPLAY_NAME_COOKIE_NAME, displayName);
             displayNameCookie.setDomain(getHost(evt).toString()); //XXX use a setting?
-            displayNameCookie.setDiscard(true);
-            displayNameCookie.setPorts(cookiePortList());
+//            displayNameCookie.setDiscard(true);
+//            displayNameCookie.setPorts(cookiePortList());
             displayNameCookie.setPath(cookieBasePath());
             displayNameCookie.setMaxAge(displayNameCookieMaxAge.getStandardSeconds());
             
-            response.add(Headers.SET_COOKIE, displayNameCookie);
+            response.add(Headers.SET_COOKIE_B, displayNameCookie);
         }
     }
 
     public boolean hasDisplayNameCookie(HttpEvent evt) {
-        Cookie[] cookies = evt.getHeader(Headers.COOKIE);
+        Cookie[] cookies = evt.getHeader(Headers.COOKIE_B);
         if (cookies == null) {
             return false;
         }
@@ -213,7 +213,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
     public void logout(HttpEvent evt, Response response) {
         Checks.notNull("response", response);
         Checks.notNull("evt", evt);
-        Cookie[] cks = evt.getHeader(Headers.COOKIE);
+        Cookie[] cks = evt.getHeader(Headers.COOKIE_B);
         if (cks != null) {
             Host host = getHost(evt);
             if (host == null) {
@@ -226,11 +226,11 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
                 if (all.contains(ck.name())) {
                     DefaultCookie discardCookie = new DefaultCookie(ck.name(), "-");
                     discardCookie.setDomain(host.toString()); //XXX use a setting?
-                    discardCookie.setDiscard(true);
-                    discardCookie.setPorts(cookiePortList());
+//                    discardCookie.setDiscard(true);
+//                    discardCookie.setPorts(cookiePortList());
                     discardCookie.setPath(cookieBasePath());
                     discardCookie.setMaxAge(0);
-                    response.add(Headers.SET_COOKIE, discardCookie);
+                    response.add(Headers.SET_COOKIE_B, discardCookie);
                 }
             }
         }

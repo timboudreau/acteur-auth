@@ -10,8 +10,8 @@ import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.acteur.util.PasswordHasher;
 import com.mastfrog.acteur.util.Realm;
 import com.mastfrog.settings.Settings;
-import io.netty.handler.codec.http.Cookie;
-import io.netty.handler.codec.http.DefaultCookie;
+import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.DefaultCookie;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 import org.joda.time.Duration;
@@ -79,7 +79,7 @@ class BasicAuthenticationStrategy extends AuthenticationStrategy {
         }
         String nm = uf.getUserName(user);
         String loginCookieValue = plugins.encodeCookieValue(nm, uf.getPasswordHash(user).get() + "-");
-        Cookie[] cks = evt.getHeader(Headers.COOKIE);
+        Cookie[] cks = evt.getHeader(Headers.COOKIE_B);
         boolean doCookie = cks == null || cks.length == 0;
         if (doCookie && cks != null) {
             for (Cookie ck : cks) {
@@ -94,7 +94,7 @@ class BasicAuthenticationStrategy extends AuthenticationStrategy {
             ck.setSecure(true);
             ck.setPath(plugins.cookieBasePath());
             ck.setMaxAge(Duration.standardDays(1).getStandardSeconds());
-            response.add(Headers.SET_COOKIE, ck);
+            response.add(Headers.SET_COOKIE_B, ck);
         }
         return new Result<>(userObject, credentials.username, hash, ResultType.SUCCESS, false, dn);
     }

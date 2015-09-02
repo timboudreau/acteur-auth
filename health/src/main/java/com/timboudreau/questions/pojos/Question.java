@@ -11,7 +11,7 @@ public class Question {
 
     public final String description;
     public final String help;
-    public final AnswerSpec answerType;
+    public final AnswerSpec type;
 
     @JsonCreator
     public Question(@JsonProperty(value = "description", required = true) String description,
@@ -19,6 +19,6 @@ public class Question {
             @JsonProperty(value = "type", required = true) AnswerSpec answerType) {
         this.description = description;
         this.help = help;
-        this.answerType = answerType;
+        this.type = answerType;
     }
 }

@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
 public class OAuthPluginsTest {
 
     @Test
+    @SuppressWarnings("unchecked")
     public void sanity(UserFactory f) {
         Slug slug = f.newSlug("xx");
         Object o = f.newUser("foo", slug, "Foo", null, null);
@@ -46,6 +47,7 @@ public class OAuthPluginsTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void cookieDecoding(OAuthPlugins pg, UniqueIDs is) {
         String slug = is.newId();
         String encoded = pg.encodeCookieValue("foo@bar.com", slug);

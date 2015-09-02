@@ -7,7 +7,7 @@ import com.mastfrog.acteur.Response;
 import com.mastfrog.acteur.auth.UserFactory.Slug;
 import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.settings.Settings;
-import io.netty.handler.codec.http.Cookie;
+import io.netty.handler.codec.http.cookie.Cookie;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -28,7 +28,7 @@ class CookieAuthenticationStrategy extends AuthenticationStrategy {
 
     @Override
     public Result<?> authenticate(HttpEvent evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response) {
-        Cookie[] cookies = evt.getHeader(Headers.COOKIE);
+        Cookie[] cookies = evt.getHeader(Headers.COOKIE_B);
         if (cookies == null || cookies.length == 0) {
             return new Result(ResultType.NO_CREDENTIALS, true);
         }

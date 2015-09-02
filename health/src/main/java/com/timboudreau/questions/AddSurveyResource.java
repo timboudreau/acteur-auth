@@ -46,6 +46,7 @@ public class AddSurveyResource extends Page {
     private static final class SurveyWriter extends Acteur {
 
         @Inject
+        @SuppressWarnings("unchecked")
         private SurveyWriter(Survey survey, @Named("surveys") DBCollection collection,
                 ObjectMapper mapper, PathFactory pf, TTUser user) throws IOException, URISyntaxException {
 

@@ -51,6 +51,7 @@ public class MockUserFactory extends UserFactory<MockUser> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected Slug getSlug(MockUser on, String name) {
         Map<String, Object> slugs = (Map<String, Object>) on.get("slugs");
         if (slugs == null) {

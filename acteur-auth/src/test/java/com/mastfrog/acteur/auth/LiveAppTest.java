@@ -13,8 +13,8 @@ import com.mastfrog.netty.http.client.StateType;
 import com.mastfrog.netty.http.test.harness.TestHarness;
 import com.mastfrog.netty.http.test.harness.TestHarness.CallResult;
 import com.mastfrog.netty.http.test.harness.TestHarnessModule;
-import io.netty.handler.codec.http.Cookie;
-import io.netty.handler.codec.http.DefaultCookie;
+import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.DefaultCookie;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpResponseStatus.SEE_OTHER;
 import java.net.URI;
@@ -36,45 +36,56 @@ import org.junit.runner.RunWith;
 public class LiveAppTest {
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testOAuth(TestHarness harness, OAuthPlugins plugins, UserFactory uf) throws Throwable {
         harness.get("sanity").go().assertStatus(OK).assertContent("SUCCESS");
         URI loc = harness.get("/" + plugins.getBouncePageBasePath() + "/fk")
                 .log()
                 .go()
-                .assertStateSeen(StateType.Closed)
+                .assertStateSeen(StateType.FullContentReceived)
                 .assertStatus(SEE_OTHER)
                 .getHeader(Headers.LOCATION);
 
         String state = ((MockUserFactory) uf).states().iterator().next().state;
-        assertEquals(loc.toString(), "http://localhost:3947/redirect?state=" + state);
+        assertEquals(loc.toString(), "http://127.0.0.1:3947/redirect?state=" + state);
         assertEquals(((MockUserFactory) uf).states() + "", 1, ((MockUserFactory) uf).states().size());
         System.out.println(((MockUserFactory) uf).states());
 
         assertTrue(loc.toString(),
-                loc.toString().startsWith("http://localhost:"
+                loc.toString().startsWith("http://127.0.0.1:"
                 + 3947 + "/redirect"));
 
         CallResult res = harness.get(plugins.getLandingPageBasePath(), "fk").addQueryPair("state", state)
                 .addQueryPair("redirect", "/foo/bar").go()
                 .assertCode(302);
         res.assertHeader(Headers.LOCATION, new URI("/users/user2/index.html"));
-        Iterable<Cookie> cookies = res.getHeaders(Headers.SET_COOKIE);
+
+        System.out.println("\n\n***************\nGET COOKIES");
+        Iterable<Cookie> cookies = res.getHeaders(Headers.SET_COOKIE_B);
         assertNotNull(cookies);
         assertTrue(cookies.iterator().hasNext());
 
-        Cookie authCookie = null;
-        Cookie displayNameCookie = null;
+        System.out.println("\n\n***************\nGET FK");
+        Cookie authCookie = res.getCookieB("fk");
+        System.out.println("\n\n***************\nGET DN");
+        Cookie displayNameCookie = res.getCookieB(OAuthPlugins.DISPLAY_NAME_COOKIE_NAME);
+
         for (Cookie ck : cookies) {
-            System.out.println("COOKIE " + ck.name() + " " + ck.value());
-            if ("fk".equals(ck.name())) {
-                authCookie = ck;
-            }
+            System.out.println("COOKIE '" + ck.name() + "' '" + ck.value() + "'");
+//            if ("fk".equals(ck.name())) {
+//                authCookie = ck;
+//            }
             if (OAuthPlugins.DISPLAY_NAME_COOKIE_NAME.equals(ck.name())) {
                 displayNameCookie = ck;
             }
         }
         assertNotNull(authCookie);
         assertNotNull(displayNameCookie);
+        assertTrue(authCookie.value().endsWith("user2"));
+        assertEquals("User 2", displayNameCookie.value());
+
+        assertNotNull("A display name cookie was not found", displayNameCookie);
+        assertNotNull("A cookie named fk was not found", authCookie);
         assertTrue(authCookie.value().endsWith("user2"));
         assertEquals("User 2", displayNameCookie.value());
 
@@ -114,7 +125,7 @@ public class LiveAppTest {
         CallResult authed = harness.get("boink").addHeader(COOKIE, new Cookie[]{new DefaultCookie(authCookie.name(), authCookie.value()),
             new DefaultCookie(displayNameCookie.name(), displayNameCookie.value())}).go().assertStatus(OK);
 
-//        Iterable<Cookie> all = authed.getHeaders(Headers.SET_COOKIE);
+//        Iterable<Cookie> all = authed.getHeaders(Headers.SET_COOKIE_B);
 //        assertFalse("Should not redundantly set cookies, but got " + all, all.iterator().hasNext());
 
         CallResult testLogin = harness.get("testLogin")
@@ -131,6 +142,7 @@ public class LiveAppTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testBasicAuth(TestHarness harness, OAuthPlugins plugins, UserFactory uf, PasswordHasher hasher) throws Throwable {
         String pw = hasher.encryptPassword("password");
         MockUser user = (MockUser) uf.newUser("joe", pw, "Joe Blow", Collections.emptyMap());
