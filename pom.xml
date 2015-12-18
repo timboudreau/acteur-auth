@@ -4,10 +4,10 @@
     <parent>
         <groupId>com.mastfrog</groupId>
         <artifactId>mastfrog-parent</artifactId>
-        <version>1.6.3</version>
+        <version>1.6.4</version>
         <relativePath/>
     </parent>
-    <version>1.6.3</version>
+    <version>1.6.4</version>
     <artifactId>acteur-auth-parent</artifactId>
     <name>Acteur Authentication (modules)</name>
     <packaging>pom</packaging>
