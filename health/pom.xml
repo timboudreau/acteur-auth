@@ -1,5 +1,6 @@
-<?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.mastfrog</groupId>
@@ -10,9 +11,7 @@
     <artifactId>health</artifactId>
     <name>health</name>
     <description>A demo web application using acteur-auth</description>
-    <properties>
-        <enforcer.skip>true</enforcer.skip>
-    </properties>
+    <properties/>
     <dependencies>
         <dependency>
             <!-- XXX temporary, to solve https://github.com/google/guice/issues/846 -->
@@ -23,7 +22,6 @@
             <!-- XXX temporary, to solve https://github.com/google/guice/issues/846 -->
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <version>4.0-beta</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -33,40 +31,32 @@
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>acteur</artifactId>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>acteur-mongo</artifactId>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>acteur-mongo-userstore</artifactId>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>acteur-auth</artifactId>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>acteur-google-auth</artifactId>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>com.mastfrog</groupId>
             <artifactId>acteur-facebook-auth</artifactId>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-joda</artifactId>
-            <type>jar</type>
         </dependency>
         <dependency>
-            <type>jar</type>
             <groupId>com.mastfrog</groupId>
             <artifactId>jackson</artifactId>
         </dependency>
