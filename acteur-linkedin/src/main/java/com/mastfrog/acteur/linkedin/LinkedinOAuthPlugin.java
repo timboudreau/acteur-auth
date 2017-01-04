@@ -130,21 +130,21 @@ public class LinkedinOAuthPlugin extends OAuthPlugin<LinkedinToken> {
             client.get().setURL(tokenUrl).on(StateType.Closed, w).execute(rh);
             LinkedinAuthToken auth = rh.get();
             assert auth != null : "Exception should have been thrown if no result";
-            
+
             String reqUrl = "https://api.linkedin.com/v1/people/~?oauth2_access_token=" + auth.access_token;
             OAuthUtils utils = new OAuthUtils(this.consumerSecret, this.consumerKey);
-            
+
             AuthorizationResponse r = new AuthorizationResponse(auth.access_token, null);
-            
+
             String authHeader = utils.newSignatureBuilder().setToken(auth.access_token).buildSignature(Method.GET, "/v1/people/~", r);
             w = new Waiter();
             RH<Map> userInfo = new RH<Map>(w, Map.class);
             client.get().on(StateType.Closed, w).setURL(reqUrl).addHeader(Headers.stringHeader("Authorization"), authHeader).execute(userInfo);
+            @SuppressWarnings("unchecked")
             Map<String,Object> info = userInfo.get();
-            System.out.println("GOT BACK " + info);
-            
+
             throw new UnsupportedOperationException("No RUI implemented yet for " + info);
-            
+
         } catch (InterruptedException | GeneralSecurityException ex) {
             return Exceptions.chuck(ex);
         }

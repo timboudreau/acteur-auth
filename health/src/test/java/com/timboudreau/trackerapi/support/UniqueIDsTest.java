@@ -35,6 +35,7 @@ public class UniqueIDsTest {
 
         @Override
         protected void configure() {
+            install(new UniqueIDs.UniqueIdsModule());
             bind(String.class).annotatedWith(Names.named("application")).toInstance(UniqueIDs.class.getName());
         }
         

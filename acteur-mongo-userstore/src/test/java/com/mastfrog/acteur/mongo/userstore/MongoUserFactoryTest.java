@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.name.Names;
+import com.mastfrog.acteur.auth.UniqueIDs;
 import com.mastfrog.acteur.auth.UserFactory;
 import com.mastfrog.acteur.auth.UserFactory.LoginState;
 import com.mastfrog.acteur.auth.UserFactory.Slug;
@@ -39,7 +40,7 @@ import org.junit.runner.RunWith;
  * @author tim
  */
 @RunWith(GuiceRunner.class)
-@TestWith(M.class)
+@TestWith({M.class, UniqueIDs.UniqueIdsModule.class})
 public class MongoUserFactoryTest {
 
     @Test

@@ -27,7 +27,7 @@ import org.junit.runner.RunWith;
  * @author tim
  */
 @RunWith(GuiceRunner.class)
-@TestWith({SM.class, M.class})
+@TestWith({SM.class, M.class, UniqueIDs.UniqueIdsModule.class})
 public class OAuthPluginsTest {
 
     @Test

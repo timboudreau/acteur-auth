@@ -1,9 +1,12 @@
 package com.mastfrog.acteur.auth;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import com.mastfrog.util.ConfigurationError;
 import com.mastfrog.util.Streams;
 import com.mastfrog.util.collections.CollectionUtils;
 import java.io.ByteArrayOutputStream;
@@ -12,13 +15,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 import java.security.SecureRandom;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
-import org.joda.time.DateTimeUtils;
 
 /**
  * A source of unlikely-to-collide, hard-to-guess random url-safe strings,
@@ -26,18 +27,19 @@ import org.joda.time.DateTimeUtils;
  * cards on the system.
  *
  * @author Tim Boudreau
+ * @deprecated Moved to com.mastfrog.util
  */
 @Singleton
+@Deprecated
 public final class UniqueIDs {
 
-    private final long FIRST = DateTimeUtils.currentTimeMillis();
+    private final long FIRST = System.currentTimeMillis();
     private final AtomicLong seq = new AtomicLong(FIRST);
     private final Random random;
     private final String base;
     private final long vmid;
 
-    @Inject
-    UniqueIDs(@Named("application") Provider<String> applicationName) throws SocketException, IOException {
+    public UniqueIDs(File appfile) throws IOException {
         SecureRandom sr = new SecureRandom();
         random = new Random(sr.nextLong());
         vmid = Math.abs(sr.nextLong());
@@ -53,8 +55,6 @@ public final class UniqueIDs {
             }
         }
         baos.write(addrBytes);
-        File home = new File(System.getProperty("user.home"));
-        File appfile = new File(home, '.' + applicationName.get());
         if (appfile.exists()) {
             try (FileInputStream in = new FileInputStream(appfile)) {
                 Streams.copy(in, baos, 8);
@@ -69,6 +69,40 @@ public final class UniqueIDs {
             baos.write(bts);
         }
         base = bytesToString(baos.toByteArray());
+    }
+
+    public static final class UniqueIdsModule extends AbstractModule {
+
+        @Override
+        protected void configure() {
+            bind(UniqueIDs.class).toProvider(IdsProvider.class).in(Scopes.SINGLETON);
+        }
+
+        static class IdsProvider implements Provider<UniqueIDs> {
+
+            private final Provider<String> name;
+            private UniqueIDs ids;
+
+            @Inject
+            IdsProvider(@Named("application") Provider<String> applicationName) {
+                this.name = applicationName;
+            }
+
+            @Override
+            public UniqueIDs get() {
+                if (ids == null) {
+                    File home = new File(System.getProperty("user.home"));
+                    File appfile = new File(home, '.' + name.get());
+                    try {
+                        ids = new UniqueIDs(appfile);
+                    } catch (IOException ex) {
+                        throw new ConfigurationError(ex);
+                    }
+                }
+                return ids;
+            }
+
+        }
     }
 
     private void xor(byte[] src, byte[] dest) {
@@ -93,21 +127,6 @@ public final class UniqueIDs {
         ByteBuffer buffer = ByteBuffer.allocate(8);
         buffer.putLong(x);
         return buffer.array();
-    }
-
-    private StringBuilder shuffle() {
-        StringBuilder sb = new StringBuilder(base);
-        int len = sb.length();
-        for (int i = 0; i < len-1; i++) {
-            int pos = random.nextInt(len);
-            if (pos != i) {
-                char hold = sb.charAt(i);
-                char other = sb.charAt(pos);
-                sb.setCharAt(i, other);
-                sb.setCharAt(pos, hold);
-            }
-        }
-        return sb;
     }
 
     public String newId() {

@@ -1,9 +1,14 @@
 package com.mastfrog.acteur.auth;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
+import com.google.inject.name.Named;
+import com.mastfrog.util.ConfigurationError;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Sets up the necessary bindings for authentication
@@ -33,6 +38,7 @@ public class ActeurAuthModule<T extends UserFactory<?>> extends AbstractModule {
         // implementation type if desired
         bind(UserFactory.class).to(userFactoryType).in(Scopes.SINGLETON);
         bind(new UserFactoryTL()).toProvider(new GenericProvider(binder().getProvider(UserFactory.class)));
+        install(new UniqueIDs.UniqueIdsModule());
     }
 
     private class GenericProvider implements Provider<UserFactory<?>> {
