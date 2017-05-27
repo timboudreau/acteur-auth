@@ -5,6 +5,7 @@ import com.mastfrog.acteur.auth.MockUserFactory.MockUser;
 import static com.mastfrog.acteur.auth.OAuthPlugins.DISPLAY_NAME_COOKIE_NAME;
 import com.mastfrog.acteur.headers.Headers;
 import static com.mastfrog.acteur.headers.Headers.COOKIE_B;
+import static com.mastfrog.acteur.headers.Headers.SET_COOKIE_B;
 import com.mastfrog.acteur.util.PasswordHasher;
 import com.mastfrog.acteur.util.Realm;
 import com.mastfrog.giulius.tests.GuiceRunner;
@@ -18,6 +19,7 @@ import io.netty.handler.codec.http.cookie.DefaultCookie;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpResponseStatus.SEE_OTHER;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.Map;
 import static org.junit.Assert.assertEquals;
@@ -54,10 +56,11 @@ public class LiveAppTest {
                 loc.toString().startsWith("http://127.0.0.1:"
                 + 3947 + "/redirect"));
 
-        CallResult res = harness.get(plugins.getLandingPageBasePath(), "fk").addQueryPair("state", state)
+        CallResult res = harness.get(plugins.getLandingPageBasePath(), "fk").addQueryPair("state", state).log()
                 .addQueryPair("redirect", "/foo/bar").go()
                 .assertCode(302);
         res.assertHeader(Headers.LOCATION, new URI("/users/user2/index.html"));
+        res.assertHasHeader(SET_COOKIE_B);
 
         System.out.println("\n\n***************\nGET COOKIES");
         Iterable<Cookie> cookies = res.getHeaders(Headers.SET_COOKIE_B);
@@ -68,7 +71,6 @@ public class LiveAppTest {
         Cookie authCookie = res.getCookieB("fk");
         System.out.println("\n\n***************\nGET DN");
         Cookie displayNameCookie = res.getCookieB(OAuthPlugins.DISPLAY_NAME_COOKIE_NAME);
-
         for (Cookie ck : cookies) {
             System.out.println("COOKIE '" + ck.name() + "' '" + ck.value() + "'");
 //            if ("fk".equals(ck.name())) {
@@ -133,7 +135,6 @@ public class LiveAppTest {
         assertTrue(login.success);
         assertEquals("/users/user2/index.html", login.homePage);
         String content = testLogin.content();
-        System.out.println("CONTENT: " + content);
     }
 
     @Test
@@ -148,6 +149,5 @@ public class LiveAppTest {
                 .assertStatus(OK)
                 .assertHasCookie(OAuthPlugins.DISPLAY_NAME_COOKIE_NAME)
                 .assertCookieValue(OAuthPlugins.DISPLAY_NAME_COOKIE_NAME, "Joe Blow");
-
     }
 }

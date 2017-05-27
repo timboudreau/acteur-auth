@@ -21,11 +21,14 @@ import com.mastfrog.url.Host;
 import com.mastfrog.url.Path;
 import com.mastfrog.util.Checks;
 import com.mastfrog.util.ConfigurationError;
+import com.mastfrog.util.Exceptions;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -100,7 +103,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
     String cookieHost() {
         return cookieHost;
     }
-    
+
     List<Integer> cookiePortList() {
         List<Integer> l = new ArrayList<>(cookiePorts().length);
         for (int i : cookiePorts()) {
@@ -186,14 +189,21 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
 
     public void createDisplayNameCookie(HttpEvent evt, Response response, String displayName) {
         if (useDisplayNameCookie) {
-            DefaultCookie displayNameCookie = new DefaultCookie(DISPLAY_NAME_COOKIE_NAME, displayName);
-            displayNameCookie.setDomain(getHost(evt).toString()); //XXX use a setting?
+            try {
+//                DefaultCookie displayNameCookie = new DefaultCookie(DISPLAY_NAME_COOKIE_NAME, URLEncoder.encode(displayName, "UTF-8"));
+                DefaultCookie displayNameCookie = new DefaultCookie(DISPLAY_NAME_COOKIE_NAME, displayName);
+//                displayNameCookie.setDomain(getHost(evt).toString()); //XXX use a setting?
 //            displayNameCookie.setDiscard(true);
 //            displayNameCookie.setPorts(cookiePortList());
-            displayNameCookie.setPath(cookieBasePath());
-            displayNameCookie.setMaxAge(displayNameCookieMaxAge.getStandardSeconds());
-            
-            response.add(Headers.SET_COOKIE_B, displayNameCookie);
+//                displayNameCookie.setPath(cookieBasePath());
+//                displayNameCookie.setMaxAge(displayNameCookieMaxAge.getStandardSeconds());
+                System.out.println("DISPLAY NAME: " + displayName + " HOST " + getHost(evt));
+                System.out.println("ADD DN COOKIE " + io.netty.handler.codec.http.cookie.ClientCookieEncoder.LAX.encode(displayNameCookie));
+//                System.out.println("ADD STRICT DN COOKIE " + io.netty.handler.codec.http.cookie.ClientCookieEncoder.STRICT.encode(displayNameCookie));
+                response.add(Headers.SET_COOKIE_B, displayNameCookie);
+            } catch (Exception ex) {
+                Exceptions.chuck(ex);
+            }
         }
     }
 
@@ -244,7 +254,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
         for (OAuthPlugin<?> p : all) {
             Path path = pf.toExternalPath(pth.append(p.code()));
             Path landingPath = pf.toExternalPath(Path.parse(landingBase).append(p.code()));
-            result.add(new PluginInfo(p.code(), p.name(), path.toStringWithLeadingSlash(), 
+            result.add(new PluginInfo(p.code(), p.name(), path.toStringWithLeadingSlash(),
                     p.getLogoUrl(), landingPath.toStringWithLeadingSlash()));
         }
         return result;
@@ -339,7 +349,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
             add(af.matchPath(plgns.getBouncePageBasePath() + "/.*"));
             add(InitiateOAuthActeur.class);
         }
-        
+
         @Override
         protected String getDescription() {
             return "Redirects to an oauth provider whose code is the "
@@ -351,6 +361,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
             + "logged in.  Depending on the service, the URL may have to be set"
             + "up with them for it to work.")
     static class LandingPage extends Page {
+
         private final OAuthPlugins plgns;
 
         @Inject
@@ -360,7 +371,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
             add(af.matchPath(plgns.getLandingPageBasePath() + "/.*"));
             add(OAuthLandingPageActeur.class);
         }
-        
+
         @Override
         protected String getDescription() {
             StringBuilder sb = new StringBuilder();
@@ -368,12 +379,12 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
                 if (sb.length() != 0) {
                     sb.append(", ");
                 }
-                sb.append(plgns.getLandingPageBasePath()).append("/").append(info.code).append( " -> ").append(info.name);
+                sb.append(plgns.getLandingPageBasePath()).append("/").append(info.code).append(" -> ").append(info.name);
             }
             return "OAuth callback page - the exact service is determined "
                     + "by the last path element of the URL as follows: " + sb;
         }
-        
+
     }
 
     public static final String SETTINGS_KEY_OAUTH_TYPES_PAGE_PATH = "oauth.types.page.path";
