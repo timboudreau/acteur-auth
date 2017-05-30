@@ -3,6 +3,7 @@ package com.mastfrog.acteur.twitter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.net.MediaType;
 import com.mastfrog.acteur.auth.OAuthPlugin.RemoteUserInfo;
+import com.mastfrog.acteur.headers.HeaderValueType;
 import static com.mastfrog.acteur.twitter.TwitterSign.OAuthHeaders.oauth_consumer_key;
 import static com.mastfrog.acteur.twitter.TwitterSign.OAuthHeaders.oauth_signature;
 import static com.mastfrog.acteur.twitter.TwitterSign.OAuthHeaders.oauth_signature_method;
@@ -19,8 +20,10 @@ import com.mastfrog.url.Protocols;
 import com.mastfrog.url.URL;
 import com.mastfrog.util.Exceptions;
 import com.mastfrog.util.thread.Receiver;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.util.AsciiString;
 import io.netty.util.CharsetUtil;
 import org.apache.commons.codec.binary.Base64;
 import java.io.IOException;
@@ -257,7 +260,7 @@ public class TwitterSign {
 
         client.post()
                 .setBody("", MediaType.parse("application/x-www-form-urlencoded").withCharset(CharsetUtil.UTF_8))
-                .addHeader(Headers.stringHeader("Authorization"), authorization_header_string)
+                .addHeader(Headers.AUTHORIZATION.toStringHeader(), authorization_header_string)
                 .setURL(URL.builder().setProtocol(Protocols.HTTPS).setHost(Host.parse(twitter_endpoint_host)).setPath(twitter_endpoint_path).create().toString())
                 .on(StateType.Closed, receiver).execute(rh);
 
@@ -320,7 +323,7 @@ public class TwitterSign {
                 .setHost(Host.parse(twitter_endpoint_host))
                 .setPath(twitter_endpoint_path).create();
 
-        client.post().setURL(url).addHeader(Headers.stringHeader("Authorization"), authorization_header_string)
+        client.post().setURL(url).addHeader(Headers.AUTHORIZATION.toStringHeader(), authorization_header_string)
                 .setBody("oauth_verifier=" + encode(pin), MediaType.parse("application/x-www-form-urlencoded").withCharset(CharsetUtil.UTF_8))
                 .on(StateType.Closed, latch)
                 .on(StateType.Timeout, latch)
@@ -556,12 +559,12 @@ public class TwitterSign {
         ResponseLatch latch = new ResponseLatch();
         RH rh = new RH();
         client.get().setURL(url)
-                .addHeader(Headers.stringHeader("Authorization"), hdr)
-                .addHeader(Headers.stringHeader("X-Twitter-Client-URL"), "http://twitter4j.org/en/twitter4j-3.0.4-SNAPSHOT.xml")
-                .addHeader(Headers.stringHeader("X-Twitter-Client"), "Twitter4J")
-                .addHeader(Headers.stringHeader("Accept-Encoding"), "gzip")
-                .addHeader(Headers.stringHeader("X-Twitter-Client-Version"), "3.0.4-SNAPSHOT")
-                .addHeader(Headers.stringHeader("Accept"), "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2")
+                .addHeader(Headers.AUTHORIZATION.toStringHeader(), hdr)
+                .addHeader(TWITTER_CLIENT_URL, TWITTER_URL)
+                .addHeader(TWITTER_CLIENT, CLIENT)
+                .addHeader(TWITTER_CLIENT_VERSION, CLIENT_VERSION)
+                .addHeader(Headers.ACCEPT_ENCODING, HttpHeaderValues.GZIP)
+                .addHeader(Headers.ACCEPT, ACCEPT_PAYLOAD)
 //                .addHeader(Headers.stringHeader("Accept"), "*/*")
 //                .addHeader(Headers.stringHeader("Connection"), "keep-alive")
                 .noDateHeader()
@@ -584,6 +587,14 @@ public class TwitterSign {
         rui.putAll(new ObjectMapper().readValue(responseBody, Map.class));
         return rui;
     }
+    
+    private static final HeaderValueType<CharSequence> TWITTER_CLIENT_URL = Headers.header("X-Twitter-Client-URL");
+    private static final HeaderValueType<CharSequence> TWITTER_CLIENT = Headers.header("X-Twitter-Client");
+    private static final HeaderValueType<CharSequence> TWITTER_CLIENT_VERSION = Headers.header("X-Twitter-Client-Version");
+    private static final AsciiString TWITTER_URL = new AsciiString("http://twitter4j.org/en/twitter4j-3.0.4-SNAPSHOT.xml");
+    private static final AsciiString CLIENT = new AsciiString("Twitter4J");
+    private static final AsciiString CLIENT_VERSION = new AsciiString("3.0.4-SNAPSHOT");
+    private static final AsciiString ACCEPT_PAYLOAD = new AsciiString("text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2");
 
     RemoteUserInfo getUserInfo(String oauth_nonce, TwitterOAuthPlugin.TwitterToken credential, AuthorizationResponse auth) throws UnsupportedEncodingException, GeneralSecurityException, InterruptedException, IOException {
 //        System.setProperty("twitter4j.loggerFactory", "twitter4j.internal.logging.StdOutLogger");
@@ -630,9 +641,9 @@ public class TwitterSign {
 
         ResponseLatch latch = new ResponseLatch();
         RH rh = new RH();
-        client.get().setURL(url).addHeader(Headers.stringHeader("Authorization"), hdr)
-                .addHeader(Headers.stringHeader("Accept"), "*/*")
-                .addHeader(Headers.stringHeader("Content-Type"), "application/x-www-form-urlencoded")
+        client.get().setURL(url).addHeader(Headers.AUTHORIZATION.toStringHeader(), hdr)
+                .addHeader(Headers.ACCEPT, "*/*")
+                .addHeader(Headers.CONTENT_TYPE, MediaType.FORM_DATA)
                 //                .setBody("screen_name=kablosna", MediaType.PLAIN_TEXT_UTF_8)
                 .on(StateType.Closed, latch)
                 .on(StateType.Timeout, latch)
@@ -668,9 +679,9 @@ public class TwitterSign {
         RH rh = new RH();
 
 
-        client.get().setURL(url).addHeader(Headers.stringHeader("Authorization"), authorization_header_string)
-                .addHeader(Headers.stringHeader("Accept"), "*/*")
-                .addHeader(Headers.stringHeader("Content-Type"), "application/x-www-form-urlencoded")
+        client.get().setURL(url).addHeader(Headers.AUTHORIZATION.toStringHeader(), authorization_header_string)
+                .addHeader(Headers.ACCEPT, "*/*")
+                .addHeader(Headers.CONTENT_TYPE, MediaType.FORM_DATA)
                 //                .setBody("screen_name=kablosna", MediaType.PLAIN_TEXT_UTF_8)
                 .on(StateType.Closed, latch)
                 .on(StateType.Timeout, latch)

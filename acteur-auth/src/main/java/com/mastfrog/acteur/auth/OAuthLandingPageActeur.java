@@ -141,7 +141,7 @@ final class OAuthLandingPageActeur extends Acteur {
         String cookieValue = plugins.encodeCookieValue(rui.userName(), slug.slug);
         DefaultCookie ck = new DefaultCookie(plugin.code(), cookieValue);
         
-        Host host = plugins.cookieHost() == null ? Host.parse(evt.getHeader(Headers.HOST)) : Host.parse(plugins.cookieHost());
+        Host host = plugins.cookieHost() == null ? Host.parse(evt.getHeader(Headers.HOST).toString()) : Host.parse(plugins.cookieHost());
         if (host == null) {
             // If we can't figure out our own host, we're hosed - the cookie
             // won't be saved anyway

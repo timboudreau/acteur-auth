@@ -45,7 +45,7 @@ public class WhoAmIResource extends Page {
         @SuppressWarnings("unchecked")
         UserInfoActeur(TTUser user, DBCollection coll, HttpEvent evt, OAuthPlugins pgns) throws IOException {
             boolean other = evt.getParameter("user") != null && !user.names().contains(evt.getParameter("user"));
-            add(Headers.stringHeader("UserID"), user.id().toStringMongod());
+            add(Headers.header("UserID"), user.id().toStringMongod());
             DBObject ob = other ? coll.findOne(new BasicDBObject("name", evt.getParameter("user")), 
                     new BasicDBObject("_id", 1).append("name", 1).append("displayName", 1)) 
                     : coll.findOne(new BasicDBObject("_id", user.id()));

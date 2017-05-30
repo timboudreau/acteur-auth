@@ -42,7 +42,7 @@ public class SharesWithMeResources extends Page {
     private static class FindSharers extends Acteur {
         @Inject
         FindSharers(HttpEvent evt, TTUser user, DBCollection coll, ObjectMapper mapper) throws IOException {
-            add(Headers.stringHeader("UserID"), user.id().toStringMongod());
+            add(Headers.header("UserID"), user.id().toStringMongod());
             BasicDBObject projection = new BasicDBObject("_id", 1).append("name", 1).append("displayName", 1);
             DBCursor cursor = coll.find(new BasicDBObject("authorizes", user.id()), projection);
             if (cursor == null) {

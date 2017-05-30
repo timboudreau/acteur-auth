@@ -15,6 +15,8 @@ import com.mongodb.DBCollection;
 import com.mongodb.WriteConcern;
 import static com.timboudreau.trackerapi.Properties.*;
 import static com.timboudreau.trackerapi.RecordTimeConnectionIsOpenResource.LiveTime.buildQueryFromURLParameters;
+import static com.timboudreau.trackerapi.RecordTimeConnectionIsOpenResource.XLI;
+import static com.timboudreau.trackerapi.RecordTimeConnectionIsOpenResource.XTI;
 import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import com.timboudreau.trackerapi.support.CreateCollectionPolicy;
 import com.timboudreau.trackerapi.support.TimeCollectionFinder;
@@ -111,9 +113,9 @@ final class AddTimeResource extends Page {
             Map m = toWrite.toMap();
             ObjectId id = (ObjectId) m.get(_id);
             if (id != null) {
-                add(Headers.stringHeader("X-Tracker-ID"), id.toString());
+                add(XTI, id.toString());
                 if (evt.getParameter("localId") != null) {
-                    add(Headers.stringHeader("X-Local-ID"), evt.getParameter("localId"));
+                    add(XLI, evt.getParameter("localId"));
                 }
             }
             setState(new RespondWith(HttpResponseStatus.ACCEPTED, mapper.writeValueAsString(m)));

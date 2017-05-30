@@ -184,14 +184,14 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
     }
 
     private final Host getHost(HttpEvent evt) {
-        String host = evt.getHeader(Headers.HOST);
+        CharSequence host = evt.getHeader(Headers.HOST);
         Host result;
         if (cookieHost != null) {
             result = Host.parse(cookieHost);
         } else if (host == null) {
             result = Host.parse("fail.example");
         } else {
-            result = Host.parse(host);
+            result = Host.parse(host.toString());
         }
         return result;
     }

@@ -147,7 +147,7 @@ public class MockApp extends Application {
     static class Success extends Acteur {
 
         Success() {
-            add(Headers.stringHeader("success"), "true");
+            add(Headers.header("success"), "true");
             System.out.println("Sanity check write success");
             ok("SUCCESS");
         }
@@ -167,7 +167,7 @@ public class MockApp extends Application {
     static class SuccessAfterAuth extends Acteur {
         @Inject
         SuccessAfterAuth(MockUser user) {
-            add(Headers.stringHeader("success"), "true");
+            add(Headers.header("success"), "true");
             String result = "SUCCESS " + user;
             ok(result);
         }

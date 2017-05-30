@@ -117,7 +117,7 @@ final class TestLoginPage extends Page {
                     // can decode it from the cookie
                     if (creds != null) {
                         DefaultCookie xck = new DefaultCookie(BasicAuthenticationStrategy.CODE, "--");
-                        xck.setDomain(evt.getHeader(Headers.HOST));
+                        xck.setDomain(evt.getHeader(Headers.HOST) + "");
                         xck.setMaxAge(plugins.slugMaxAge().getStandardSeconds());
                         xck.setPath(plugins.cookieBasePath());
 //                        xck.setPorts(plugins.cookiePortList());

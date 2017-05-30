@@ -134,7 +134,7 @@ public class Timetracker extends Application {
         if (((HttpEvent)event).getMethod() != Method.OPTIONS) {
             CacheControl cc = new CacheControl(CacheControlTypes.Private).add(
                     CacheControlTypes.no_cache).add(CacheControlTypes.no_store);
-            response.headers().add(Headers.CACHE_CONTROL.name(), Headers.CACHE_CONTROL.toString(cc));
+            response.headers().add(Headers.CACHE_CONTROL.name(), Headers.CACHE_CONTROL.toCharSequence(cc));
         }
         // We do JSON for everything, so save setting the content type on every page
         int code = response.getStatus().code();

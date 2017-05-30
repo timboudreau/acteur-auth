@@ -139,7 +139,7 @@ public class LinkedinOAuthPlugin extends OAuthPlugin<LinkedinToken> {
             String authHeader = utils.newSignatureBuilder().setToken(auth.access_token).buildSignature(Method.GET, "/v1/people/~", r);
             w = new Waiter();
             RH<Map> userInfo = new RH<Map>(w, Map.class);
-            client.get().on(StateType.Closed, w).setURL(reqUrl).addHeader(Headers.stringHeader("Authorization"), authHeader).execute(userInfo);
+            client.get().on(StateType.Closed, w).setURL(reqUrl).addHeader(Headers.AUTHORIZATION.toStringHeader(), authHeader).execute(userInfo);
             @SuppressWarnings("unchecked")
             Map<String,Object> info = userInfo.get();
 

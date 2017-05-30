@@ -9,9 +9,11 @@ import com.mastfrog.acteur.Application;
 import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
+import com.mastfrog.acteur.headers.HeaderValueType;
 import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.acteur.headers.Method;
+import com.mastfrog.acteur.util.Connection;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.WriteConcern;
@@ -24,6 +26,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.util.AsciiString;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,6 +42,13 @@ import org.joda.time.Duration;
  * @author Tim Boudreau
  */
 final class RecordTimeConnectionIsOpenResource extends Page {
+
+    public static final HeaderValueType<CharSequence> RS
+            = Headers.header(AsciiString.of("X-Remote_Start"));
+    public static final HeaderValueType<CharSequence> XTI
+            = Headers.header(AsciiString.of("X-Tracker-ID"));
+    public static final HeaderValueType<CharSequence> XLI
+            = Headers.header(AsciiString.of("X-Local-ID"));
 
     @Inject
     RecordTimeConnectionIsOpenResource(ActeurFactory af) {
@@ -78,25 +88,25 @@ final class RecordTimeConnectionIsOpenResource extends Page {
                 return;
             }
             add(Headers.CONTENT_LENGTH, 380L);
-            add(Headers.stringHeader("X-Remote-Start"), created + "");
+            add(RS, created + "");
             add(Headers.DATE, new DateTime(created));
-            add(Headers.stringHeader("Connection"), "keep-alive");
-            add(Headers.stringHeader("X-Accel-Buffering"), "off");
-            add(Headers.stringHeader("Keep-Alive"), "timeout=" + Duration.standardDays(365).getStandardSeconds());
+            add(Headers.CONNECTION, Connection.keep_alive);
+            add(Headers.X_ACCEL_BUFFERING, false);
+            add(Headers.KEEP_ALIVE, Duration.standardDays(365));
             setChunked(false);
             setState(new RespondWith(HttpResponseStatus.ACCEPTED));
             setResponseBodyWriter(this);
             coll.get().insert(toWrite, WriteConcern.FSYNC_SAFE);
             ObjectId id = (ObjectId) toWrite.get(_id);
-            add(Headers.stringHeader("X-Tracker-ID"), id.toStringMongod());
+            add(XTI, id.toStringMongod());
             if (evt.getParameter("localId") != null) {
-                add(Headers.stringHeader("X-Local-ID"), evt.getParameter(localId));
+                add(XLI, evt.getParameter(localId));
             }
 
             final AtomicBoolean done = new AtomicBoolean();
             final Callable<?> c = application.getRequestScope()
                     .wrap(new PeriodicDurationUpdater(toWrite, coll, done,
-                    isRunning, created));
+                            isRunning, created));
 
             if (pings) {
                 writer.get().add(c);
