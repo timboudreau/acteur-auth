@@ -7,7 +7,9 @@ import com.google.inject.name.Named;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
+import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.util.Streams;
+import static com.mastfrog.util.Strings.sha1;
 import com.mastfrog.util.streams.HashingInputStream;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -36,17 +38,10 @@ final class FindSurveyActeur extends Acteur {
         } else {
             next(ob);
         }
-        Date lm = (Date) ob.get("lastModified");
-        page.getResponseHeaders().setLastModified(new DateTime(lm));
         String value = mapper.writeValueAsString(ob) + '\n';
-        page.getResponseHeaders().setEtag(hash(value));
+        Date lm = (Date) ob.get("lastModified");
+        add(Headers.LAST_MODIFIED, new DateTime(lm));
+        add(Headers.ETAG, sha1(value));
         next(value, ob, id);
-    }
-
-    private static String hash(String s) throws IOException {
-        HashingInputStream in = HashingInputStream.sha1(new ByteArrayInputStream(s.getBytes(CharsetUtil.UTF_8)));
-        Streams.copy(in, Streams.nullOutputStream());
-        in.close();
-        return in.getHashAsString();
     }
 }

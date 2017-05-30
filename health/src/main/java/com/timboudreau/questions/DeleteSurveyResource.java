@@ -9,9 +9,13 @@ import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
 import com.mastfrog.acteur.headers.Method;
+import static com.mastfrog.acteur.headers.Method.GET;
+import com.mastfrog.acteur.preconditions.Methods;
+import com.mastfrog.acteur.preconditions.PathRegex;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.WriteResult;
+import static com.timboudreau.questions.GetSurveyResource.SURVEY_PATTERN;
 import com.timboudreau.trackerapi.Timetracker;
 import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -23,12 +27,12 @@ import org.bson.types.ObjectId;
  *
  * @author Tim Boudreau
  */
+@Methods(GET)
+@PathRegex(SURVEY_PATTERN)
 public class DeleteSurveyResource extends Page {
 
     @Inject
     DeleteSurveyResource(ActeurFactory af) {
-        add(af.matchPath(GetSurveyResource.SURVEY_PATTERN));
-        add(af.matchMethods(Method.GET));
         add(AuthenticationActeur.class);
         add(AuthorizedChecker.class);
         add(FindSurveyActeur.class);

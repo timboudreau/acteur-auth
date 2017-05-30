@@ -6,8 +6,10 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.auth.AuthenticationActeur;
+import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.acteur.util.CacheControlTypes;
 import com.mastfrog.acteur.headers.Method;
+import com.mastfrog.acteur.util.CacheControl;
 import com.timboudreau.trackerapi.support.AuthorizedChecker;
 import org.joda.time.Duration;
 
@@ -28,9 +30,6 @@ public class GetSurveyResource extends Page {
         add(FindSurveyActeur.class);
         add(af.sendNotModifiedIfETagHeaderMatches());
         add(af.sendNotModifiedIfIfModifiedSinceHeaderMatches());
-        getResponseHeaders().addCacheControl(CacheControlTypes.Public);
-        getResponseHeaders().addCacheControl(CacheControlTypes.must_revalidate);
-        getResponseHeaders().addCacheControl(CacheControlTypes.max_age, Duration.standardMinutes(2));
         add(SurveyActeur.class);
     }
 
@@ -43,6 +42,8 @@ public class GetSurveyResource extends Page {
 
         @Inject
         SurveyActeur(String value) throws JsonProcessingException {
+            CacheControl c= new CacheControl(CacheControlTypes.Public, CacheControlTypes.must_revalidate).add(CacheControlTypes.max_age, Duration.standardMinutes(2));
+            add(Headers.CACHE_CONTROL, c);
             ok(value);
         }
     }

@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
+import com.mastfrog.acteur.CheckIfModifiedSinceHeader;
 import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.Response;
@@ -12,8 +13,16 @@ import com.mastfrog.acteur.auth.TestLoginPage.TestLoginActeur;
 import com.mastfrog.acteur.server.PathFactory;
 import com.mastfrog.acteur.util.CacheControlTypes;
 import com.mastfrog.acteur.headers.Headers;
+import static com.mastfrog.acteur.headers.Headers.CACHE_CONTROL;
+import static com.mastfrog.acteur.headers.Headers.EXPIRES;
+import static com.mastfrog.acteur.headers.Headers.LAST_MODIFIED;
 import static com.mastfrog.acteur.headers.Method.GET;
 import com.mastfrog.acteur.preconditions.Description;
+import com.mastfrog.acteur.preconditions.Methods;
+import com.mastfrog.acteur.util.CacheControl;
+import static com.mastfrog.acteur.util.CacheControlTypes.Public;
+import static com.mastfrog.acteur.util.CacheControlTypes.max_age;
+import static com.mastfrog.acteur.util.CacheControlTypes.must_revalidate;
 import com.mastfrog.acteur.util.PasswordHasher;
 import com.mastfrog.giulius.Dependencies;
 import com.mastfrog.settings.Settings;
@@ -389,19 +398,15 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
 
     public static final String SETTINGS_KEY_OAUTH_TYPES_PAGE_PATH = "oauth.types.page.path";
 
+    @Methods(GET)
     static class ListAuthsPage extends Page {
 
         @Inject
         ListAuthsPage(Settings settings, DateTime systemStartTime, ActeurFactory af) {
-            getResponseHeaders().setLastModified(systemStartTime);
-            getResponseHeaders().addCacheControl(CacheControlTypes.Public);
-            getResponseHeaders().addCacheControl(CacheControlTypes.must_revalidate);
-            getResponseHeaders().addCacheControl(CacheControlTypes.max_age, Duration.standardHours(2));
-            getResponseHeaders().setExpires(DateTime.now().plus(Duration.standardHours(2)));
             String pth = "^" + settings.getString(SETTINGS_KEY_OAUTH_TYPES_PAGE_PATH, "authtypes") + "$";
-            add(af.matchMethods(GET));
             add(af.matchPath(pth));
-            add(af.sendNotModifiedIfIfModifiedSinceHeaderMatches());
+            add(LastModifiedActeur.class);
+            add(CheckIfModifiedSinceHeader.class);
             add(ListAuthsActeur.class);
         }
 
@@ -409,11 +414,21 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
         protected String getDescription() {
             return "List OAuth authentication methods supported";
         }
+        
+        static class LastModifiedActeur extends Acteur {
+            @Inject
+            LastModifiedActeur(DateTime systemStartTime) {
+                add(LAST_MODIFIED, systemStartTime);
+                next();
+            }
+        }
 
         static class ListAuthsActeur extends Acteur {
 
             @Inject
             ListAuthsActeur(OAuthPlugins plugins) {
+                add(CACHE_CONTROL, new CacheControl(Public, must_revalidate).add(max_age, Duration.standardHours(2)));
+                add(EXPIRES, DateTime.now().plus(Duration.standardHours(2)));
                 setState(new RespondWith(OK, plugins.getPlugins()));
             }
         }

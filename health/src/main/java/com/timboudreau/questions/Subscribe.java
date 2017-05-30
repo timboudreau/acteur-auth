@@ -11,7 +11,11 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
+import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.acteur.headers.Method;
+import static com.mastfrog.acteur.headers.Method.GET;
+import com.mastfrog.acteur.preconditions.Methods;
+import com.mastfrog.acteur.preconditions.PathRegex;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -35,15 +39,13 @@ import org.joda.time.DateTimeUtils;
  *
  * @author tim
  */
+@PathRegex("^subscribe/[^/]*$")
+@Methods(GET)
 public class Subscribe extends Page {
 
     @Inject
     public Subscribe(ActeurFactory af) {
-        add(af.matchPath("^subscribe/[^/]*$"));
-        add(af.matchMethods(Method.GET));
         add(PushActeur.class);
-        super.getResponseHeaders().setContentType(
-                MediaType.parse("text/event-stream").withCharset(CharsetUtil.UTF_8));
     }
 
     @Singleton
@@ -115,6 +117,7 @@ public class Subscribe extends Page {
         PushActeur(Publisher publisher, HttpEvent evt, @Named("events") DBCollection evts, ObjectMapper mapper) throws JsonProcessingException {
             this.publisher = publisher;
             this.evt = evt;
+            add(Headers.CONTENT_TYPE, MediaType.parse("text/event-stream").withCharset(CharsetUtil.UTF_8));
             setState(new RespondWith(OK));
             setResponseBodyWriter(this);
             this.evts = evts;
