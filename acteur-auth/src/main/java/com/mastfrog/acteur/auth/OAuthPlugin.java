@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.auth.UserFactory.LoginState;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Map;
-import org.joda.time.Duration;
 
 /**
  * Takes care of talking to an OAuth provider

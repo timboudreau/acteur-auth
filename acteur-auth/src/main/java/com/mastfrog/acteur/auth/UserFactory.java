@@ -1,11 +1,12 @@
 package com.mastfrog.acteur.auth;
 
 import com.google.common.base.Optional;
+import com.mastfrog.util.time.TimeUtil;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Set;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeUtils;
-import org.joda.time.Duration;
 
 /**
  * Implements the features of a "user" object necessary for authentication
@@ -77,7 +78,7 @@ public abstract class UserFactory<T> {
 
     public final Slug newSlug(String name) {
         String nue = ids.newId();
-        return new Slug(name, nue, DateTimeUtils.currentTimeMillis());
+        return new Slug(name, nue, System.currentTimeMillis());
     }
 
     protected abstract void putSlug(T on, Slug slug);
@@ -133,11 +134,11 @@ public abstract class UserFactory<T> {
     public static class LoginState {
 
         public final String state;
-        public final DateTime created;
+        public final ZonedDateTime created;
         public final String redirectTo;
         public final boolean used;
 
-        public LoginState(String state, String redirectTo, DateTime created, boolean used) {
+        public LoginState(String state, String redirectTo, ZonedDateTime created, boolean used) {
             this.state = state;
             this.redirectTo = redirectTo;
             this.created = created;
@@ -147,7 +148,7 @@ public abstract class UserFactory<T> {
         public LoginState(String state, String redirectTo) {
             this.state = state;
             this.redirectTo = redirectTo;
-            created = new DateTime();
+            created = ZonedDateTime.now();
             this.used = false;
         }
 
@@ -176,12 +177,12 @@ public abstract class UserFactory<T> {
             this.created = created;
         }
         
-        public DateTime created() {
-            return new DateTime(created);
+        public ZonedDateTime created() {
+            return TimeUtil.fromUnixTimestamp(created);
         }
 
         public Duration age() {
-            return new Duration(created(), DateTime.now());
+            return Duration.between(Instant.ofEpochMilli(created), Instant.ofEpochMilli(System.currentTimeMillis()));
         }
         
         public String toString() {

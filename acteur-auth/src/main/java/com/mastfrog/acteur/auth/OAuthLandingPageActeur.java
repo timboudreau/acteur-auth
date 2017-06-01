@@ -13,10 +13,10 @@ import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.settings.Settings;
 import com.mastfrog.url.Host;
 import com.mastfrog.url.Path;
+import com.mastfrog.util.time.TimeUtil;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import java.io.IOException;
 import java.net.URI;
@@ -120,7 +120,7 @@ final class OAuthLandingPageActeur extends Acteur {
             // to encode into a cookie
             slug = users.getSlug(plugin.code(), user, true).get();
             // If the slug is expired, create a new one
-            if (slug.age().isLongerThan(plugin.getSlugMaxAge())) {
+            if (TimeUtil.isLonger(slug.age(), plugin.getSlugMaxAge())) {
                 // Create a new slug
                 slug = users.newSlug(plugin.code());
                 // Overwrite the old one
@@ -149,7 +149,7 @@ final class OAuthLandingPageActeur extends Acteur {
         }
         ck.setDomain(host.toString());
 //        ck.setPorts(plugins.cookiePorts());
-        ck.setMaxAge(plugin.getSlugMaxAge().getMillis());
+        ck.setMaxAge(plugin.getSlugMaxAge().getSeconds());
         ck.setPath(plugins.cookieBasePath());
         
         System.out.println("CREATE AUTH COOKIE " + plugin.code() + ": '" + ServerCookieEncoder.LAX.encode(ck) + "' strict: '" + ServerCookieEncoder.STRICT.encode(ck));

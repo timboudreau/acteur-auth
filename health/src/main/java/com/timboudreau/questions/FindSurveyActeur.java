@@ -8,19 +8,15 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.headers.Headers;
-import com.mastfrog.util.Streams;
 import static com.mastfrog.util.Strings.sha1;
-import com.mastfrog.util.streams.HashingInputStream;
+import com.mastfrog.util.time.TimeUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.util.CharsetUtil;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
 import org.bson.types.ObjectId;
-import org.joda.time.DateTime;
 
 /**
  *
@@ -40,7 +36,7 @@ final class FindSurveyActeur extends Acteur {
         }
         String value = mapper.writeValueAsString(ob) + '\n';
         Date lm = (Date) ob.get("lastModified");
-        add(Headers.LAST_MODIFIED, new DateTime(lm));
+        add(Headers.LAST_MODIFIED, TimeUtil.fromUnixTimestamp(lm.toInstant().toEpochMilli()));
         add(Headers.ETAG, sha1(value));
         next(value, ob, id);
     }

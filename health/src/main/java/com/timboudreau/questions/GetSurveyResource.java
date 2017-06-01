@@ -11,7 +11,7 @@ import com.mastfrog.acteur.util.CacheControlTypes;
 import com.mastfrog.acteur.headers.Method;
 import com.mastfrog.acteur.util.CacheControl;
 import com.timboudreau.trackerapi.support.AuthorizedChecker;
-import org.joda.time.Duration;
+import java.time.Duration;
 
 /**
  *
@@ -42,7 +42,7 @@ public class GetSurveyResource extends Page {
 
         @Inject
         SurveyActeur(String value) throws JsonProcessingException {
-            CacheControl c= new CacheControl(CacheControlTypes.Public, CacheControlTypes.must_revalidate).add(CacheControlTypes.max_age, Duration.standardMinutes(2));
+            CacheControl c= new CacheControl(CacheControlTypes.Public, CacheControlTypes.must_revalidate).add(CacheControlTypes.max_age, Duration.ofMinutes(2));
             add(Headers.CACHE_CONTROL, c);
             ok(value);
         }

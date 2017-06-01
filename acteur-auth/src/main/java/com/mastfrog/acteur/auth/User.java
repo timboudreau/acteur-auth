@@ -1,10 +1,9 @@
 package com.mastfrog.acteur.auth;
 
 import com.google.common.base.Optional;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
-import org.joda.time.DateTime;
-import com.mastfrog.acteur.auth.SimpleUser;
 
 /**
  *
@@ -24,7 +23,7 @@ public interface User<IdType> extends SimpleUser<IdType> {
     
     public interface OAuthInfo {
         public String slug();
-        public DateTime lastModified();
+        public ZonedDateTime lastModified();
         public Optional<String> savedToken();
         public String service();
     }

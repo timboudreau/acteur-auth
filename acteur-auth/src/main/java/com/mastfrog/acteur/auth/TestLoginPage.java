@@ -16,15 +16,16 @@ import com.mastfrog.acteur.util.BasicCredentials;
 import com.mastfrog.acteur.util.PasswordHasher;
 import com.mastfrog.acteur.util.Realm;
 import com.mastfrog.settings.Settings;
+import com.mastfrog.util.time.TimeUtil;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.joda.time.Duration;
 
 /**
  *
@@ -118,7 +119,7 @@ final class TestLoginPage extends Page {
                     if (creds != null) {
                         DefaultCookie xck = new DefaultCookie(BasicAuthenticationStrategy.CODE, "--");
                         xck.setDomain(evt.getHeader(Headers.HOST) + "");
-                        xck.setMaxAge(plugins.slugMaxAge().getStandardSeconds());
+                        xck.setMaxAge(plugins.slugMaxAge().getSeconds());
                         xck.setPath(plugins.cookieBasePath());
 //                        xck.setPorts(plugins.cookiePortList());
                         add(Headers.SET_COOKIE_B, xck);
@@ -160,7 +161,8 @@ final class TestLoginPage extends Page {
                     Slug slug = slugo.get();
                     Duration maxAge = with.getSlugMaxAge();
                     Duration slugAge = slug.age();
-                    if (slugAge.isShorterThan(maxAge)) {
+//                    if (slugAge.isShorterThan(maxAge)) {
+                    if (TimeUtil.isShorter(slugAge, maxAge)) {
                         String matchWith = plugins.encodeCookieValue(info.userName, slug.slug).split(":")[0];
                         if (info.hashedSlug.equals(matchWith)) {
                             String dn = uf.getUserDisplayName(obj);

@@ -15,7 +15,7 @@ import static com.mastfrog.acteur.headers.Headers.X_REQUESTED_WITH;
 import com.mastfrog.acteur.headers.Method;
 import com.mastfrog.acteur.preconditions.Methods;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import org.joda.time.Duration;
+import java.time.Duration;
 
 /**
  *
@@ -37,8 +37,8 @@ final class CORSResource extends Page {
             add(Headers.ACCESS_CONTROL_ALLOW, new Method[]{Method.GET, Method.POST, Method.PUT, Method.DELETE, Method.OPTIONS});
             add(Headers.ACCESS_CONTROL_ALLOW_HEADERS, new HeaderValueType<?>[] {CONTENT_TYPE, ACCEPT, X_REQUESTED_WITH});
             add(Headers.ACCESS_CONTROL_ALLOW_CREDENTIALS, true);
-            add(Headers.ACCESS_CONTROL_MAX_AGE, Duration.standardSeconds(600));
-            add(Headers.CACHE_CONTROL, CacheControl.$(CacheControlTypes.Public).add(CacheControlTypes.max_age, Duration.standardDays(365)));
+            add(Headers.ACCESS_CONTROL_MAX_AGE, Duration.ofSeconds(600));
+            add(Headers.CACHE_CONTROL, CacheControl.$(CacheControlTypes.Public).add(CacheControlTypes.max_age, Duration.ofDays(365)));
             add(Headers.CONTENT_LENGTH, 0L);
             setState(new RespondWith(HttpResponseStatus.NO_CONTENT));
         }

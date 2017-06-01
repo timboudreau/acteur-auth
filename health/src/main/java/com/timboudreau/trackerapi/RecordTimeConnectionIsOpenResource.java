@@ -14,6 +14,7 @@ import com.mastfrog.acteur.mongo.userstore.TTUser;
 import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.acteur.headers.Method;
 import com.mastfrog.acteur.util.Connection;
+import com.mastfrog.util.time.TimeUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.WriteConcern;
@@ -27,6 +28,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.util.AsciiString;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,8 +36,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.bson.types.ObjectId;
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
 
 /**
  *
@@ -70,7 +70,7 @@ final class RecordTimeConnectionIsOpenResource extends Page {
     static final class LiveTime extends Acteur implements ChannelFutureListener {
 
         private final BasicDBObject toWrite = new BasicDBObject(type, time);
-        private final long created = DateTime.now().getMillis();
+        private final long created = System.currentTimeMillis();
         private final AtomicBoolean isRunning = new AtomicBoolean(true);
 
         @Inject
@@ -89,10 +89,10 @@ final class RecordTimeConnectionIsOpenResource extends Page {
             }
             add(Headers.CONTENT_LENGTH, 380L);
             add(RS, created + "");
-            add(Headers.DATE, new DateTime(created));
+            add(Headers.DATE, TimeUtil.fromUnixTimestamp(created));
             add(Headers.CONNECTION, Connection.keep_alive);
             add(Headers.X_ACCEL_BUFFERING, false);
-            add(Headers.KEEP_ALIVE, Duration.standardDays(365));
+            add(Headers.KEEP_ALIVE, Duration.ofDays(365));
             setChunked(false);
             setState(new RespondWith(HttpResponseStatus.ACCEPTED));
             setResponseBodyWriter(this);
@@ -210,8 +210,8 @@ final class RecordTimeConnectionIsOpenResource extends Page {
 
             public Void call() throws Exception {
                 if (!done.get()) {
-                    long end = DateTime.now().getMillis();
-                    System.out.println("Write time " + new Duration(end - start));
+                    long end = System.currentTimeMillis();
+                    System.out.println("Write time " + Duration.ofMillis(end - start));
                     toWrite.append("end", end).append(Properties.duration, end - start).append(Properties.running, running.get());
                     coll.get().save(toWrite, WriteConcern.UNACKNOWLEDGED);
                 }

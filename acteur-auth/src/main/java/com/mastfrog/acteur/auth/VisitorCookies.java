@@ -9,12 +9,11 @@ import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.settings.Settings;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.joda.time.DateTimeUtils;
-import org.joda.time.Duration;
 
 /**
  *
@@ -35,7 +34,7 @@ public final class VisitorCookies {
     @Inject
     VisitorCookies(Settings settings, UniqueIDs ids) {
         cookieName = settings.getString(SETTINGS_KEY_COOKIE_NAME, DEFAULT_COOKIE_NAME);
-        cookieDuration = Duration.standardDays(settings.getInt(SETTINGS_KEY_COOKIE_DURATION_DAYS, 365 * 5));
+        cookieDuration = Duration.ofDays(settings.getInt(SETTINGS_KEY_COOKIE_DURATION_DAYS, 365 * 5));
         cookieHost = settings.getString(SETTINGS_KEY_OAUTH_COOKIE_HOST);
         port = settings.getInt("port", 8133); //XXX
         this.ids = ids;
@@ -57,7 +56,7 @@ public final class VisitorCookies {
     public <T> Cookie associateCookieWithUser(HttpEvent evt, UserFactory<T> users, T user) {
         Optional<String> ido = visitorId(evt);
         if (!ido.isPresent()) {
-            String newId = Long.toString(DateTimeUtils.currentTimeMillis(), 36) + '-' + ids.newRandomString(4);
+            String newId = Long.toString(System.currentTimeMillis(), 36) + '-' + ids.newRandomString(4);
             return createCookie(newId, evt, users, user);
         } else if (users != null) {
             saveCookieInfo(evt, users, user, ido.get());
@@ -68,7 +67,7 @@ public final class VisitorCookies {
     public <T> Cookie createCookieIfAbsent(HttpEvent evt, UserFactory<T> users, T user) {
         Optional<String> ido = visitorId(evt);
         if (!ido.isPresent()) {
-            String newId = Long.toString(DateTimeUtils.currentTimeMillis(), 36) + '-' + ids.newRandomString(4);
+            String newId = Long.toString(System.currentTimeMillis(), 36) + '-' + ids.newRandomString(4);
             return createCookie(newId, evt, users, user);
         }
         return null;
@@ -94,7 +93,7 @@ public final class VisitorCookies {
 
     private <T> Cookie createCookie(String newId, HttpEvent evt, UserFactory<T> users, T user) {
         DefaultCookie ck = new DefaultCookie(cookieName, newId);
-        ck.setMaxAge(cookieDuration.getStandardSeconds());
+        ck.setMaxAge(cookieDuration.getSeconds());
         ck.setPath("/");
 //        ck.setPorts(80, 443, port);
         String host = cookieHost == null ? evt.getHeader("Host") : cookieHost;

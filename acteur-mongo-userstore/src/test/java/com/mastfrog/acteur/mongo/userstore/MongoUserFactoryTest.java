@@ -15,6 +15,7 @@ import com.mastfrog.acteur.util.PasswordHasher;
 import com.mastfrog.giulius.tests.GuiceRunner;
 import com.mastfrog.giulius.tests.TestWith;
 import com.mastfrog.util.Types;
+import com.mastfrog.util.time.TimeUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -22,12 +23,12 @@ import com.mongodb.MongoClient;
 import io.netty.util.CharsetUtil;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.joda.time.DateTime;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -93,8 +94,8 @@ public class MongoUserFactoryTest {
         assertEquals(ls.redirectTo, ls2.redirectTo);
         assertEquals(ls.created, ls2.created);
 
-        DateTime now = DateTime.now();
-        uf.putSlug(ob, new Slug("gg", "xyz", now.getMillis()));
+        ZonedDateTime now = ZonedDateTime.now();
+        uf.putSlug(ob, new Slug("gg", "xyz", TimeUtil.toUnixTimestamp(now)));
         ob = uf.findUserByName(userName).get();
 
         Optional<Slug> slug3 = uf.getSlug("gg", ob, true);

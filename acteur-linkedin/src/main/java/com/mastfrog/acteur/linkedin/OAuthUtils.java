@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import org.joda.time.DateTimeUtils;
 
 /**
  *
@@ -115,7 +114,7 @@ public class OAuthUtils {
 
         SigBuilder() {
             add(oauth_version, "1.0")
-                    .add(oauth_timestamp, "" + (DateTimeUtils.currentTimeMillis() / 1000))
+                    .add(oauth_timestamp, "" + (System.currentTimeMillis() / 1000))
                     .add(oauth_consumer_key, apiKey)
                     .add(oauth_signature_method, "HMAC-SHA1");
         }

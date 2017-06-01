@@ -6,11 +6,13 @@ import com.mastfrog.acteur.auth.OAuthPlugin;
 import com.mastfrog.acteur.auth.UniqueIDs;
 import com.mastfrog.acteur.auth.UserFactory;
 import com.mastfrog.util.Checks;
+import com.mastfrog.util.time.TimeUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,7 +21,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.inject.Inject;
 import org.bson.types.ObjectId;
-import org.joda.time.DateTime;
 
 /**
  * Implements user information storage for acteur-auth over mongodb.
@@ -74,7 +75,7 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
 
         DBObject update = new BasicDBObject("$set", new BasicDBObject("pass", hash)).append("$inc",
                 new BasicDBObject("version", 1))
-                .append("$set", new BasicDBObject("lastModified", DateTime.now().getMillis()));
+                .append("$set", new BasicDBObject("lastModified", System.currentTimeMillis()));
 
         WriteResult res = users.update(query, update, false, false, WriteConcern.FSYNCED);
     }
@@ -90,7 +91,7 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
 
         DBObject slugObj = new BasicDBObject("slug", slug.slug)
                 .append("created", slug.created);
-        DBObject update = new BasicDBObject("$set", new BasicDBObject("slugs." + slug.name, slugObj).append("lastModified", DateTime.now().getMillis())).append("$inc",
+        DBObject update = new BasicDBObject("$set", new BasicDBObject("slugs." + slug.name, slugObj).append("lastModified", System.currentTimeMillis())).append("$inc",
                 new BasicDBObject("version", 1));
         WriteResult res = users.update(query, update, false, false, WriteConcern.FSYNCED);
     }
@@ -143,7 +144,7 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
         DBObject slugData = new BasicDBObject("created", slug.created).append("slug", slug.slug);
         List<String> names = new ArrayList<>(Arrays.asList(name));
         List<ObjectId> authorizes = new ArrayList<>();
-        long now = DateTime.now().getMillis();
+        long now = System.currentTimeMillis();
         BasicDBObject toWrite = new BasicDBObject("name", names)
                 .append("displayName", displayName)
                 .append("version", 0)
@@ -171,7 +172,7 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
         }
         List<ObjectId> authorizes = new ArrayList<>();
         List<String> names = new ArrayList<>(Arrays.asList(name));
-        long now = DateTime.now().getMillis();
+        long now = System.currentTimeMillis();
         DBObject toWrite = new BasicDBObject("name", names)
                 .append("displayName", displayName)
                 .append("version", 0)
@@ -188,7 +189,7 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
     @Override
     protected void saveLoginState(LoginState state) {
         DBObject writeTo = new BasicDBObject("state", state.state)
-                .append("created", state.created.getMillis())
+                .append("created", state.created.toInstant().toEpochMilli())
                 .append("redir", state.redirectTo);
         WriteResult res = loginStates.insert(writeTo);
     }
@@ -200,7 +201,7 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
         DBObject result = loginStates.findOne(query);
         if (result != null) {
             Number n = (Number) result.get("created");
-            DateTime created = new DateTime(n.longValue());
+            ZonedDateTime created = TimeUtil.fromUnixTimestamp(n.longValue());
             String redir = (String) result.get("redir");
             boolean used = Boolean.TRUE.equals(result.get("used"));
             result.put("used", true);
@@ -215,7 +216,7 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
         BasicDBObject update = new BasicDBObject("$addToSet", new BasicDBObject("authorizes", authorized));
         BasicDBObject inc = new BasicDBObject("version", 1);
         update.append("$inc", inc);
-        update.append("$set", new BasicDBObject("lastModified", DateTime.now().getMillis()));
+        update.append("$set", new BasicDBObject("lastModified", System.currentTimeMillis()));
         WriteResult res = users.update(query, update, false, false, WriteConcern.FSYNCED);
     }
 
@@ -224,7 +225,7 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
         BasicDBObject update = new BasicDBObject("$pull", new BasicDBObject("authorizes", authorized));
         BasicDBObject inc = new BasicDBObject("version", 1);
         update.append("$inc", inc);
-        update.append("$set", new BasicDBObject("lastModified", DateTime.now().getMillis()));
+        update.append("$set", new BasicDBObject("lastModified", System.currentTimeMillis()));
         WriteResult res = users.update(query, update, false, false, WriteConcern.FSYNCED);
     }
 
@@ -256,7 +257,7 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
         BasicDBObject update = new BasicDBObject("$set", new BasicDBObject(nm, new BasicDBObject(data)));
         BasicDBObject inc = new BasicDBObject("version", 1);
         update.append("$inc", inc);
-        update.append("$set", new BasicDBObject("lastModified", DateTime.now().getMillis()));
+        update.append("$set", new BasicDBObject("lastModified", System.currentTimeMillis()));
         WriteResult res = users.update(query, update, false, false, WriteConcern.ACKNOWLEDGED);
     }
 }

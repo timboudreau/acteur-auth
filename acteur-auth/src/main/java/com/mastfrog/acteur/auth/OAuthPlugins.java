@@ -11,7 +11,6 @@ import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.Response;
 import com.mastfrog.acteur.auth.TestLoginPage.TestLoginActeur;
 import com.mastfrog.acteur.server.PathFactory;
-import com.mastfrog.acteur.util.CacheControlTypes;
 import com.mastfrog.acteur.headers.Headers;
 import static com.mastfrog.acteur.headers.Headers.CACHE_CONTROL;
 import static com.mastfrog.acteur.headers.Headers.EXPIRES;
@@ -34,10 +33,10 @@ import com.mastfrog.util.Exceptions;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
+import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -45,8 +44,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
 
 /**
  * Registry of OAuth plugins
@@ -87,7 +84,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
         this.hasher = hasher;
         long displayNameCookieMaxAge = settings.getLong(SETTINGS_KEY_DISPLAY_NAME_COOKIE_MAX_AGE_DAYS, 60);
         useDisplayNameCookie = settings.getBoolean(SETTINGS_KEY_USE_DISPLAY_NAME_COOKIE, true);
-        this.displayNameCookieMaxAge = Duration.standardDays(displayNameCookieMaxAge);
+        this.displayNameCookieMaxAge = Duration.ofDays(displayNameCookieMaxAge);
         salt = settings.getString(SETTINGS_KEY_COOKIE_SALT, DEFAULT_COOKIE_SALT);
         if (deps.isProductionMode() && salt == DEFAULT_COOKIE_SALT) { // == test ok
             throw new ConfigurationError("Will not run in production mode "
@@ -96,7 +93,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
                     + "in your settings.");
         }
         this.loginRedirectURI = new URI(settings.getString(SETTINGS_KEY_LOGIN_REDIRECT, "/"));
-        this.slugMaxAge = Duration.standardHours(settings.getInt(SETTINGS_KEY_SLUG_MAX_AGE_HOURS, 3));
+        this.slugMaxAge = Duration.ofHours(settings.getInt(SETTINGS_KEY_SLUG_MAX_AGE_HOURS, 3));
         Integer runningPort = settings.getInt("port");
         // XXX may want to be able to explicitly set all the ports
         if (runningPort != null) {
@@ -402,7 +399,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
     static class ListAuthsPage extends Page {
 
         @Inject
-        ListAuthsPage(Settings settings, DateTime systemStartTime, ActeurFactory af) {
+        ListAuthsPage(Settings settings, ZonedDateTime systemStartTime, ActeurFactory af) {
             String pth = "^" + settings.getString(SETTINGS_KEY_OAUTH_TYPES_PAGE_PATH, "authtypes") + "$";
             add(af.matchPath(pth));
             add(LastModifiedActeur.class);
@@ -417,7 +414,7 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
         
         static class LastModifiedActeur extends Acteur {
             @Inject
-            LastModifiedActeur(DateTime systemStartTime) {
+            LastModifiedActeur(ZonedDateTime systemStartTime) {
                 add(LAST_MODIFIED, systemStartTime);
                 next();
             }
@@ -427,8 +424,8 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
 
             @Inject
             ListAuthsActeur(OAuthPlugins plugins) {
-                add(CACHE_CONTROL, new CacheControl(Public, must_revalidate).add(max_age, Duration.standardHours(2)));
-                add(EXPIRES, DateTime.now().plus(Duration.standardHours(2)));
+                add(CACHE_CONTROL, new CacheControl(Public, must_revalidate).add(max_age, Duration.ofHours(2)));
+                add(EXPIRES, ZonedDateTime.now().plus(Duration.ofHours(2)));
                 setState(new RespondWith(OK, plugins.getPlugins()));
             }
         }

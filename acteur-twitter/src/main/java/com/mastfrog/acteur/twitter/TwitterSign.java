@@ -47,7 +47,6 @@ import java.util.concurrent.TimeUnit;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import org.joda.time.DateTimeUtils;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -220,7 +219,7 @@ public class TwitterSign {
         String oauth_signature_method = "HMAC-SHA1";
 
         // get the timestamp
-        long ts = DateTimeUtils.currentTimeMillis();
+        long ts = System.currentTimeMillis();
         String oauth_timestamp = (new Long(ts / 1000)).toString(); // then divide by 1000 to get seconds
 
         // assemble the proper parameter string, which must be in alphabetical order, using your consumer key
@@ -455,7 +454,7 @@ public class TwitterSign {
 
         SigBuilder() {
             add(oauth_version, "1.0")
-                    .add(oauth_timestamp, "" + (DateTimeUtils.currentTimeMillis() / 1000))
+                    .add(oauth_timestamp, "" + (System.currentTimeMillis() / 1000))
                     .add(oauth_consumer_key, twitter_consumer_key)
                     .add(oauth_signature_method, "HMAC-SHA1");
         }

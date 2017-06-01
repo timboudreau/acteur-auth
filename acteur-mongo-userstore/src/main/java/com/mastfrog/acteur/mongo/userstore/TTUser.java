@@ -2,14 +2,16 @@ package com.mastfrog.acteur.mongo.userstore;
 
 import com.google.common.base.Optional;
 import com.mastfrog.acteur.auth.User;
+import com.mastfrog.util.time.TimeUtil;
 import com.mongodb.DBObject;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.bson.types.ObjectId;
-import org.joda.time.DateTime;
 
 /**
  *
@@ -117,14 +119,15 @@ public final class TTUser implements User<ObjectId> {
         }
 
         @Override
-        public DateTime lastModified() {
+        public ZonedDateTime lastModified() {
             Object o = obj.get(LAST_MODIFIED);
             if (o instanceof Date) {
-                return new DateTime((Date) o);
+//                return new DateTime((Date) o);
+                return ((Date) o).toInstant().atZone(ZoneId.systemDefault());
             } else if (o instanceof Number) {
-                return new DateTime(((Number) o).longValue());
+                return TimeUtil.fromUnixTimestamp(((Number) o).longValue());
             } else {
-                return DateTime.now();
+                return ZonedDateTime.now();
             }
         }
 

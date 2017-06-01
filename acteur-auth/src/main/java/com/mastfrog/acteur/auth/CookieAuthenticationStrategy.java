@@ -7,6 +7,7 @@ import com.mastfrog.acteur.Response;
 import com.mastfrog.acteur.auth.UserFactory.Slug;
 import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.settings.Settings;
+import com.mastfrog.util.time.TimeUtil;
 import io.netty.handler.codec.http.cookie.Cookie;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
@@ -59,7 +60,7 @@ class CookieAuthenticationStrategy extends AuthenticationStrategy {
                 Optional<Slug> slugo = users.getSlug(plugin.code(), user, false);
                 if (slugo.isPresent()) {
                     Slug slug = slugo.get();
-                    if (slug.age().isLongerThan(plugin.getSlugMaxAge())) {
+                    if (TimeUtil.isLonger(slug.age(), plugin.getSlugMaxAge())) {
                         return new Result(ResultType.EXPIRED_CREDENTIALS, info.userName, true);
                     }
                     String matchWith = plugins.encodeCookieValue(info.userName, slug.slug).split(":")[0];

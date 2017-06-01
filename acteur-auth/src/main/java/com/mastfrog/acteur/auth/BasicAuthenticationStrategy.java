@@ -12,9 +12,9 @@ import com.mastfrog.acteur.util.Realm;
 import com.mastfrog.settings.Settings;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
-import org.joda.time.Duration;
 
 /**
  *
@@ -93,7 +93,7 @@ class BasicAuthenticationStrategy extends AuthenticationStrategy {
             ck.setDomain(evt.getHeader(Headers.HOST) + "");
             ck.setSecure(true);
             ck.setPath(plugins.cookieBasePath());
-            ck.setMaxAge(Duration.standardDays(1).getStandardSeconds());
+            ck.setMaxAge(Duration.ofDays(1).getSeconds());
             response.add(Headers.SET_COOKIE_B, ck);
         }
         return new Result<>(userObject, credentials.username, hash, ResultType.SUCCESS, false, dn);

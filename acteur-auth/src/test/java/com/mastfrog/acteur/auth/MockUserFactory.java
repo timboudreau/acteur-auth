@@ -5,12 +5,12 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mastfrog.acteur.auth.MockUserFactory.MockUser;
 import com.mastfrog.util.Checks;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.joda.time.DateTime;
 
 /**
  *
@@ -213,7 +213,7 @@ public class MockUserFactory extends UserFactory<MockUser> {
         MockUser(String name) {
             this.put("name", name);
             this.put("version", 0);
-            this.put("created", new DateTime());
+            this.put("created", ZonedDateTime.now());
         }
 
         public String getString(String key) {
