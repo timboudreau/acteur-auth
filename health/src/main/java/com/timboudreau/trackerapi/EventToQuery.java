@@ -48,7 +48,7 @@ final class EventToQuery implements Provider<BasicDBObject> {
                 }
             }
             if (!found) {
-                String v = evt.getParameter(param);
+                String v = evt.urlParameter(param);
                 System.out.println("GOT PARAMETER " + v);
                 if (v != null) {
                     try {
@@ -63,7 +63,7 @@ final class EventToQuery implements Provider<BasicDBObject> {
             }
         }
 
-        for (Map.Entry<String, String> e : evt.getParametersAsMap().entrySet()) {
+        for (Map.Entry<String, String> e : evt.urlParametersAsMap().entrySet()) {
             switch (e.getKey()) {
                 case duration:
                 case end:
@@ -99,11 +99,11 @@ final class EventToQuery implements Provider<BasicDBObject> {
     protected BasicDBObject onQueryConstructed(HttpEvent evt, BasicDBObject obj) {
         if (!obj.isEmpty()) {
             obj.put(Properties.type.toString(), Properties.time.toString());
-            String idparam = evt.getParameter(_id);
+            String idparam = evt.urlParameter(_id);
             if (idparam != null) {
                 obj.put(_id, new ObjectId(idparam));
             }
-            String uid = evt.getParameter(by);
+            String uid = evt.urlParameter(by);
             if (uid != null) {
                 obj.put("by", new ObjectId(uid));
             }
@@ -124,7 +124,7 @@ final class EventToQuery implements Provider<BasicDBObject> {
         }
 
         boolean process(BasicDBObject ob, String name, HttpEvent evt) {
-            String val = evt.getParameter(name);
+            String val = evt.urlParameter(name);
             if (val != null) {
                 try {
                     val = URLDecoder.decode(val, "UTF-8");

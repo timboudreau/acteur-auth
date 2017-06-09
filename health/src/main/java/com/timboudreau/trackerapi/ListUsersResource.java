@@ -44,7 +44,7 @@ class ListUsersResource extends Page {
 
         @Inject
         UF(DBCollection coll, HttpEvent evt) {
-            final boolean simple = "true".equals(evt.getParameter("simple"));
+            final boolean simple = "true".equals(evt.urlParameter("simple"));
             cursor = simple ? coll.find(new BasicDBObject(), new BasicDBObject("_id", 1).append("name", 1).append("displayName", 1).append("created", 1)) : coll.find();
             setState(new ConsumedLockedState(cursor, new CursorWriter.MapFilter() {
 

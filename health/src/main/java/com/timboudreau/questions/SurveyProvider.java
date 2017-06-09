@@ -29,7 +29,7 @@ final class SurveyProvider implements Provider<Survey> {
         try {
             HttpEvent e = evt.get();
             ContentConverter c = cvt.get();
-            return c.toObject(e.getContent(), e.getHeader(Headers.CONTENT_TYPE), Survey.class);
+            return c.toObject(e.content(), e.header(Headers.CONTENT_TYPE), Survey.class);
         } catch (IOException ex) {
             return Exceptions.chuck(ex);
         }

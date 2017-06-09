@@ -48,7 +48,7 @@ public class AuthorizeResource extends Page {
 
         @Inject
         Authorizer(TTUser user, HttpEvent evt, DBCollection coll) throws URISyntaxException, UnsupportedEncodingException {
-            String otherUserNameOrID = evt.getPath().getElement(3).toString();
+            String otherUserNameOrID = evt.path().getElement(3).toString();
             otherUserNameOrID = URLDecoder.decode(otherUserNameOrID, "UTF-8");
             BasicDBObject findOtherUserQuery = new BasicDBObject("name", otherUserNameOrID);
             DBObject otherUser = coll.findOne(findOtherUserQuery);
@@ -74,8 +74,8 @@ public class AuthorizeResource extends Page {
             
             WriteResult res = coll.update(query, update, false, false, WriteConcern.FSYNCED);
             HttpResponseStatus status = HttpResponseStatus.ACCEPTED;
-            if (evt.getParameter("redir") != null) {
-                URI uri = new URI(evt.getParameter("redir"));
+            if (evt.urlParameter("redir") != null) {
+                URI uri = new URI(evt.urlParameter("redir"));
                 add(Headers.LOCATION, uri);
                 status = HttpResponseStatus.SEE_OTHER;
             }

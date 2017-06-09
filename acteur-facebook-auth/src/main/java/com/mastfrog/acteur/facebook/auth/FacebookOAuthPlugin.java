@@ -93,12 +93,12 @@ final class FacebookOAuthPlugin extends OAuthPlugin<Token> {
 
     @Override
     public String stateForEvent(HttpEvent evt) {
-        return evt.getParameter("state");
+        return evt.urlParameter("state");
     }
 
     @Override
     public Token credentialForEvent(HttpEvent evt) {
-        String code = evt.getParameter("code");
+        String code = evt.urlParameter("code");
 //        return new Token(code, this.appSecret);
         return getCredentialForCode(code);
     }

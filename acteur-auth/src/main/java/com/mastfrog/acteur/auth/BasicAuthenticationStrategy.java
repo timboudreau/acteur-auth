@@ -41,13 +41,13 @@ class BasicAuthenticationStrategy extends AuthenticationStrategy {
 
     @Override
     protected boolean isEnabled(HttpEvent evt) {
-//        return !"true".equals(evt.getHeader(SKIP_HEADER));
+//        return !"true".equals(evt.header(SKIP_HEADER));
         return true;
     }
 
     @Override
     public Result<?> authenticate(HttpEvent evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response) {
-        BasicCredentials credentials = evt.getHeader(Headers.AUTHORIZATION);
+        BasicCredentials credentials = evt.header(Headers.AUTHORIZATION);
         if (credentials == null) {
             onFail.set(new FailHookImpl());
             return new Result<>(ResultType.NO_CREDENTIALS, false);
@@ -79,7 +79,7 @@ class BasicAuthenticationStrategy extends AuthenticationStrategy {
         }
         String nm = uf.getUserName(user);
         String loginCookieValue = plugins.encodeCookieValue(nm, uf.getPasswordHash(user).get() + "-");
-        Cookie[] cks = evt.getHeader(Headers.COOKIE_B);
+        Cookie[] cks = evt.header(Headers.COOKIE_B);
         boolean doCookie = cks == null || cks.length == 0;
         if (doCookie && cks != null) {
             for (Cookie ck : cks) {
@@ -90,7 +90,7 @@ class BasicAuthenticationStrategy extends AuthenticationStrategy {
         }
         if (doCookie) {
             DefaultCookie ck = new DefaultCookie(CODE, loginCookieValue);
-            ck.setDomain(evt.getHeader(Headers.HOST) + "");
+            ck.setDomain(evt.header(Headers.HOST) + "");
             ck.setSecure(true);
             ck.setPath(plugins.cookieBasePath());
             ck.setMaxAge(Duration.ofDays(1).getSeconds());
@@ -103,7 +103,7 @@ class BasicAuthenticationStrategy extends AuthenticationStrategy {
 
         @Override
         public void onAuthenticationFailed(HttpEvent evt, Response response) {
-            if ("true".equals(evt.getHeader(SKIP_HEADER)) || !sendAuthHeader) {
+            if ("true".equals(evt.header(SKIP_HEADER)) || !sendAuthHeader) {
                 return;
             }
             response.add(Headers.WWW_AUTHENTICATE, realm);

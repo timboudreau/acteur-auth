@@ -82,8 +82,8 @@ public class TwitterOAuthPlugin extends OAuthPlugin<TwitterToken> {
 
     @Override
     public TwitterToken credentialForEvent(HttpEvent evt) {
-        String token = evt.getParameter("oauth_token");
-        String verifier = evt.getParameter("oauth_verifier");
+        String token = evt.urlParameter("oauth_token");
+        String verifier = evt.urlParameter("oauth_verifier");
         return new TwitterToken(token, verifier);
     }
 

@@ -40,8 +40,8 @@ public class SetPasswordResource extends Page {
 
         @Inject
         SetPasswordActeur(DBCollection coll, HttpEvent evt, PasswordHasher hasher, TTUser user) throws IOException {
-            String userName = evt.getPath().getElement(1).toString();
-            String pw = evt.getContent().toString(Charset.forName("UTF-8"));
+            String userName = evt.path().getElement(1).toString();
+            String pw = evt.content().toString(Charset.forName("UTF-8"));
             if (pw.length() < SignUpResource.SignerUpper.MIN_PASSWORD_LENGTH) {
                 badRequest("Password too short");
                 return;

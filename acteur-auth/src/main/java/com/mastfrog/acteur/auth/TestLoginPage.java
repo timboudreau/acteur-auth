@@ -60,18 +60,18 @@ final class TestLoginPage extends Page {
             this.plugins = plugins;
             this.redir = redir;
             int code = OK.code();
-            if (evt.getParameter("failwith") != null) {
+            if (evt.urlParameter("failwith") != null) {
                 try {
-                    code = Integer.parseInt(evt.getParameter("failwith"));
+                    code = Integer.parseInt(evt.urlParameter("failwith"));
                 } catch (NumberFormatException n) {
-                    badRequest("Not a number: '" + evt.getParameter("failwith"));
+                    badRequest("Not a number: '" + evt.urlParameter("failwith"));
                     return;
                 }
             }
-            if ("true".equals(evt.getParameter("logout"))) {
+            if ("true".equals(evt.urlParameter("logout"))) {
                 plugins.logout(evt, response());
                 HttpResponseStatus status = HttpResponseStatus.NO_CONTENT;
-                if (evt.getHeader(Headers.AUTHORIZATION) != null) {
+                if (evt.header(Headers.AUTHORIZATION) != null) {
                     // Force the browser to think its stored credentials
                     // are invalid if using basic auth
                     status = HttpResponseStatus.UNAUTHORIZED;
@@ -80,7 +80,7 @@ final class TestLoginPage extends Page {
                 reply(status);
                 return;
             }
-            Cookie[] ck = evt.getHeader(Headers.COOKIE_B);
+            Cookie[] ck = evt.header(Headers.COOKIE_B);
             Map<String, Cookie> cookieForName = new HashMap<>();
             Result result = new Result();
             if (ck != null && ck.length > 0) {
@@ -102,12 +102,12 @@ final class TestLoginPage extends Page {
             }
             BasicCredentials creds = null;
             if (settings.getBoolean(SETTINGS_KEY_ENABLE_BASIC_AUTH, true)) {
-                creds = evt.getHeader(Headers.AUTHORIZATION);
+                creds = evt.header(Headers.AUTHORIZATION);
                 if (creds != null) {
                     loginAs(evt, creds, uf, result, hasher);
                 }
             }
-            if ("true".equals(evt.getParameter("auth")) && result.identities.isEmpty()) {
+            if ("true".equals(evt.urlParameter("auth")) && result.identities.isEmpty()) {
                 add(Headers.WWW_AUTHENTICATE, realm);
                 reply(HttpResponseStatus.UNAUTHORIZED, result);
             } else {
@@ -118,7 +118,7 @@ final class TestLoginPage extends Page {
                     // can decode it from the cookie
                     if (creds != null) {
                         DefaultCookie xck = new DefaultCookie(BasicAuthenticationStrategy.CODE, "--");
-                        xck.setDomain(evt.getHeader(Headers.HOST) + "");
+                        xck.setDomain(evt.header(Headers.HOST) + "");
                         xck.setMaxAge(plugins.slugMaxAge().getSeconds());
                         xck.setPath(plugins.cookieBasePath());
 //                        xck.setPorts(plugins.cookiePortList());

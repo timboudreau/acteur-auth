@@ -152,7 +152,7 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
 
     @Override
     public String stateForEvent(HttpEvent evt) {
-        return evt.getParameter("state");
+        return evt.urlParameter("state");
     }
 
     @Override
@@ -162,7 +162,7 @@ final class GoogleOAuthPlugin extends OAuthPlugin<GoogleCredential> {
 
     @Override
     public GoogleCredential credentialForEvent(HttpEvent evt) {
-        String code = evt.getParameter("code");
+        String code = evt.urlParameter("code");
         if (code == null) {
             return null;
         }

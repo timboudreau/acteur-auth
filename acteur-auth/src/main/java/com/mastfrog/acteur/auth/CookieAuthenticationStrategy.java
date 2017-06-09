@@ -29,7 +29,7 @@ class CookieAuthenticationStrategy extends AuthenticationStrategy {
 
     @Override
     public Result<?> authenticate(HttpEvent evt, AtomicReference<? super FailHook> onFail, Collection<? super Object> scopeContents, Response response) {
-        Cookie[] cookies = evt.getHeader(Headers.COOKIE_B);
+        Cookie[] cookies = evt.header(Headers.COOKIE_B);
         if (cookies == null || cookies.length == 0) {
             return new Result(ResultType.NO_CREDENTIALS, true);
         }

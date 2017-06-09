@@ -55,7 +55,7 @@ final class InitiateOAuthActeur extends Acteur {
         // We expect the type code - a two letter code identifying the OAuth service
         // we'll call, based on OAuthPlugin.code() - used in the cookie and to store
         // slugs in the db
-        String type = evt.getPath().getLastElement().toString();
+        String type = evt.path().getLastElement().toString();
         // Find an OAuth plugin matching the URL pattern
         Optional<OAuthPlugin<?>> oplugin = plugins.find(type);
         if (!oplugin.isPresent()) {
@@ -130,7 +130,7 @@ final class InitiateOAuthActeur extends Acteur {
 
     private <T> void finish(HttpEvent evt, T user) throws URISyntaxException {
         // If the original request had a redirect parameter, redirect to that
-        String redirTo = evt.getParameter(REDIRECT_ON_SUCCESS_URL_PARAMETER);
+        String redirTo = evt.urlParameter(REDIRECT_ON_SUCCESS_URL_PARAMETER);
         if (redirTo != null) {
             add(Headers.LOCATION, new URI(redirTo));
             reply(HttpResponseStatus.FOUND);
@@ -149,7 +149,7 @@ final class InitiateOAuthActeur extends Acteur {
     }
 
     private void doRedirect(OAuthPlugin<?> plugin) throws MalformedURLException, URISyntaxException {
-        String redir = evt.getParameter(REDIRECT_ON_SUCCESS_URL_PARAMETER);
+        String redir = evt.urlParameter(REDIRECT_ON_SUCCESS_URL_PARAMETER);
 //        if (redir == null) {
 //            redir = plugins.loginRedirect().toString();
 //        }
@@ -161,7 +161,7 @@ final class InitiateOAuthActeur extends Acteur {
     }
 
     private Cookie findCookie(HttpEvent evt, String name) {
-        Cookie[] cookies = evt.getHeader(Headers.COOKIE_B);
+        Cookie[] cookies = evt.header(Headers.COOKIE_B);
         if (cookies != null) {
             for (Cookie ck : cookies) {
                 if (name.equals(ck.name())) {

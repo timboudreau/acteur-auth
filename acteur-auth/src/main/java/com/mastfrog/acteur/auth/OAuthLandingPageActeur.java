@@ -48,7 +48,7 @@ final class OAuthLandingPageActeur extends Acteur {
         // The URL should be in the form $BASE/$CODE
         // For cases such as Twitter, which does not send state as part of the
         // URL, we encode it as the last path parameter
-        String pluginType = evt.getPath().getElement(base.size()).toString();
+        String pluginType = evt.path().getElement(base.size()).toString();
         // Try to find a plugin matching this code
         Optional<OAuthPlugin<?>> plugino = plugins.find(pluginType);
         
@@ -61,11 +61,11 @@ final class OAuthLandingPageActeur extends Acteur {
         // Get the random string we sent to the OAuth service, which identifies
         // valid requests
         String state = plugin.stateForEvent(evt);
-        if (evt.getPath().size() > base.size() + 1) {
-            state = evt.getPath().getLastElement().toString();
+        if (evt.path().size() > base.size() + 1) {
+            state = evt.path().getLastElement().toString();
         }
         if (state == null) {
-            setState(new RespondWith(HttpResponseStatus.BAD_REQUEST, "No state in url " + evt.getRequest()));
+            setState(new RespondWith(HttpResponseStatus.BAD_REQUEST, "No state in url " + evt.request()));
             return;
         }
         // Look it up and make sure it's legitimate - if not, someone might be
@@ -141,7 +141,7 @@ final class OAuthLandingPageActeur extends Acteur {
         String cookieValue = plugins.encodeCookieValue(rui.userName(), slug.slug);
         DefaultCookie ck = new DefaultCookie(plugin.code(), cookieValue);
         
-        Host host = plugins.cookieHost() == null ? Host.parse(evt.getHeader(Headers.HOST).toString()) : Host.parse(plugins.cookieHost());
+        Host host = plugins.cookieHost() == null ? Host.parse(evt.header(Headers.HOST).toString()) : Host.parse(plugins.cookieHost());
         if (host == null) {
             // If we can't figure out our own host, we're hosed - the cookie
             // won't be saved anyway

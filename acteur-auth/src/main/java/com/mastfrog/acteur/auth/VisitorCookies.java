@@ -41,7 +41,7 @@ public final class VisitorCookies {
     }
 
     public Optional<String> visitorId(HttpEvent evt) {
-        Cookie[] ck = evt.getHeader(Headers.COOKIE_B);
+        Cookie[] ck = evt.header(Headers.COOKIE_B);
         if (ck == null) {
             return Optional.absent();
         }
@@ -76,7 +76,7 @@ public final class VisitorCookies {
     @SuppressWarnings("unchecked")
     private <T> void saveCookieInfo(HttpEvent evt, UserFactory<T> users, T user, String newId) {
         Map<String, Object> data = new HashMap<>(users.getData(user, cookieName));
-        String userAgent = evt.getHeader("User-Agent");
+        String userAgent = evt.header("User-Agent");
         if (userAgent == null) {
             userAgent = "Unknown";
         }
@@ -96,7 +96,7 @@ public final class VisitorCookies {
         ck.setMaxAge(cookieDuration.getSeconds());
         ck.setPath("/");
 //        ck.setPorts(80, 443, port);
-        String host = cookieHost == null ? evt.getHeader("Host") : cookieHost;
+        String host = cookieHost == null ? evt.header("Host") : cookieHost;
         ck.setDomain(host);
         if (users != null) {
             saveCookieInfo(evt, users, user, newId);

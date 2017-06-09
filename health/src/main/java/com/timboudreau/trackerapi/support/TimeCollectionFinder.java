@@ -19,9 +19,9 @@ public final class TimeCollectionFinder extends Acteur {
     @Inject
     TimeCollectionFinder(Provider<DB> db, HttpEvent evt, TTUser u, CreateCollectionPolicy create) {
         Provider<DBCollection> coll;
-        String userNameInURL = evt.getPath().getElement(1).toString();
+        String userNameInURL = evt.path().getElement(1).toString();
 
-        String category = evt.getPath().getElement(3).toString();
+        String category = evt.path().getElement(3).toString();
         String collectionName = new StringBuilder(userNameInURL).append('_').append(category).toString().intern();
         if (!db.get().collectionExists(collectionName)) {
             switch (create) {

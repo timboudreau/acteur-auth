@@ -25,7 +25,7 @@ public class AuthorizedChecker extends Acteur {
 
     @Inject
     AuthorizedChecker(HttpEvent evt, TTUser user, DB db, Settings settings, @Named("users") DBCollection coll) {
-        Path pth = evt.getPath();
+        Path pth = evt.path();
         String userNameInURL = pth.getElement(1).toString();
         userNameInURL = URLDecoder.decode(userNameInURL);
         if (pth.size() >= 2 && "users".equals(pth.getElement(0).toString())) {

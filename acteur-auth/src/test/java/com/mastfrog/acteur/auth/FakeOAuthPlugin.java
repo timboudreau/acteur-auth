@@ -31,7 +31,7 @@ class FakeOAuthPlugin extends OAuthPlugin<FakeCredential> {
 
     @Override
     public String stateForEvent(HttpEvent evt) {
-        return evt.getParameter("state");
+        return evt.urlParameter("state");
     }
 
     @Override

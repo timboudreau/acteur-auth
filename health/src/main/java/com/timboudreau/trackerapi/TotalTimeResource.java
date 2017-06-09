@@ -52,11 +52,11 @@ final class TotalTimeResource extends Page {
             query.remove(detail);
 
             boolean detail = true;
-            if (evt.getParameter(Properties.detail) != null && "false".equals(evt.getParameter(Properties.detail))) {
+            if (evt.urlParameter(Properties.detail) != null && "false".equals(evt.urlParameter(Properties.detail))) {
                 detail = false;
             }
             boolean summary = true;
-            if (evt.getParameter(Properties.summary) != null && "false".equals(evt.getParameter(Properties.summary))) {
+            if (evt.urlParameter(Properties.summary) != null && "false".equals(evt.urlParameter(Properties.summary))) {
                 summary = false;
             }
 

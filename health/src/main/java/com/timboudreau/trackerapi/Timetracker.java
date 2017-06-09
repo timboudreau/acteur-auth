@@ -131,7 +131,7 @@ public class Timetracker extends Application {
     protected HttpResponse decorateResponse(Event<?> event, Page page, Acteur action, HttpResponse response) {
         response.headers().add("Server", getName());
         // Do no-cache cache control headers for everything
-        if (((HttpEvent)event).getMethod() != Method.OPTIONS) {
+        if (((HttpEvent)event).method() != Method.OPTIONS) {
             CacheControl cc = new CacheControl(CacheControlTypes.Private).add(
                     CacheControlTypes.no_cache).add(CacheControlTypes.no_store);
             response.headers().add(Headers.CACHE_CONTROL.name(), Headers.CACHE_CONTROL.toCharSequence(cc));

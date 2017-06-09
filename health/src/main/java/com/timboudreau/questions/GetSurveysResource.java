@@ -52,7 +52,7 @@ public class GetSurveysResource extends Page {
         @Inject
         @SuppressWarnings("element-type-mismatch")
         SurveysActeur(TTUser user, @Named("surveys") DBCollection coll, DBCollection users, Closables clos, ObjectMapper mapper, HttpEvent evt) {
-            String pathId = evt.getPath().getElement(1).toString();
+            String pathId = evt.path().getElement(1).toString();
             BasicDBObject query;
             if (!user.names().contains(pathId)) {
                 BasicDBObject nameQuery = new BasicDBObject(Properties.name, pathId);

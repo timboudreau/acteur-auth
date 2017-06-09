@@ -67,7 +67,7 @@ public class LinkedinOAuthPlugin extends OAuthPlugin<LinkedinToken> {
 
     @Override
     public String stateForEvent(HttpEvent evt) {
-        return evt.getParameter("state");
+        return evt.urlParameter("state");
     }
 
     @Override
@@ -88,11 +88,11 @@ public class LinkedinOAuthPlugin extends OAuthPlugin<LinkedinToken> {
 
     @Override
     public LinkedinToken credentialForEvent(HttpEvent evt) {
-        System.out.println("EVENT IS " + evt.getPath());
-        System.out.println("Credential for event " + evt.getParametersAsMap());
+        System.out.println("EVENT IS " + evt.path());
+        System.out.println("Credential for event " + evt.urlParametersAsMap());
 
-        String token = evt.getParameter("code");
-        String state = evt.getParameter("state");
+        String token = evt.urlParameter("code");
+        String state = evt.urlParameter("state");
         return new LinkedinToken(token, state);
     }
 

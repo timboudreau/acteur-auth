@@ -27,7 +27,7 @@ public class SkewResource extends Page {
         add(af.matchPath("^skew$"));
         add(af.matchMethods(Method.GET));
         add(AuthenticationActeur.class);
-        Optional<Long> l = evt.getLongParameter("time");
+        Optional<Long> l = evt.longUrlParameter("time");
         Map<String, Object> m = new HashMap<>();
         m.put("received", now);
         if (l.isPresent()) {

@@ -99,8 +99,8 @@ final class RecordTimeConnectionIsOpenResource extends Page {
             coll.get().insert(toWrite, WriteConcern.FSYNC_SAFE);
             ObjectId id = (ObjectId) toWrite.get(_id);
             add(XTI, id.toStringMongod());
-            if (evt.getParameter("localId") != null) {
-                add(XLI, evt.getParameter(localId));
+            if (evt.urlParameter("localId") != null) {
+                add(XLI, evt.urlParameter(localId));
             }
 
             final AtomicBoolean done = new AtomicBoolean();
@@ -111,7 +111,7 @@ final class RecordTimeConnectionIsOpenResource extends Page {
             if (pings) {
                 writer.get().add(c);
             }
-            evt.getChannel().closeFuture().addListener(new ChannelFutureListener() {
+            evt.channel().closeFuture().addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     System.out.println("Write recorded time on connection closed");
@@ -151,11 +151,11 @@ final class RecordTimeConnectionIsOpenResource extends Page {
 
         static String buildQueryFromURLParameters(final HttpEvent evt, BasicDBObject toWrite, String... ignore) {
             Arrays.sort(ignore);
-            if (evt.getParametersAsMap().size() > AddTimeResource.MAX_PROPERTIES) {
+            if (evt.urlParametersAsMap().size() > AddTimeResource.MAX_PROPERTIES) {
                 return "Too many URL parameters - max is "
                         + AddTimeResource.MAX_PROPERTIES;
             }
-            for (Map.Entry<String, String> e : evt.getParametersAsMap().entrySet()) {
+            for (Map.Entry<String, String> e : evt.urlParametersAsMap().entrySet()) {
                 switch (e.getKey()) {
                     case start:
                     case end:

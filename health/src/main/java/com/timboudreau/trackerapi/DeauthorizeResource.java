@@ -45,7 +45,7 @@ public class DeauthorizeResource extends Page {
 
         @Inject
         Authorizer(TTUser user, HttpEvent evt, DBCollection coll) throws UnsupportedEncodingException {
-            String otherUserNameOrID = evt.getPath().getElement(3).toString();
+            String otherUserNameOrID = evt.path().getElement(3).toString();
             otherUserNameOrID = URLDecoder.decode(otherUserNameOrID, "UTF-8");
             BasicDBObject findOtherUserQuery = new BasicDBObject("name", otherUserNameOrID);
             DBObject otherUser = coll.findOne(findOtherUserQuery);

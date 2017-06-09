@@ -57,7 +57,7 @@ public class UpdateSurveyResource extends Page {
 
         @Inject
         MustHaveSomeParameters(HttpEvent evt) {
-            if (evt.getParametersAsMap().isEmpty()) {
+            if (evt.urlParametersAsMap().isEmpty()) {
                 reply(HttpResponseStatus.BAD_REQUEST,
                         "Must have URL parameters for what to change");
             }
@@ -75,9 +75,9 @@ public class UpdateSurveyResource extends Page {
         @Inject
         UpdateSurveyActeur(HttpEvent evt, DBObject obj, @Named("surveys") DBCollection surveys,
                 ObjectMapper mapper) throws JsonProcessingException, UnsupportedEncodingException {
-            String userId = evt.getPath().getElement(3).toString();
+            String userId = evt.path().getElement(3).toString();
             userId = URLDecoder.decode(userId, "UTF-8");
-            ObjectId id = new ObjectId(evt.getPath().getElement(3).toString());
+            ObjectId id = new ObjectId(evt.path().getElement(3).toString());
             BasicDBObject query = new BasicDBObject("_id", id);
             DBObject ob = surveys.findOne(query);
             if (ob == null) {
@@ -90,7 +90,7 @@ public class UpdateSurveyResource extends Page {
         }
 
         private BasicDBObject createEditFrom(HttpEvent evt, ObjectId id) {
-            Map<String, Object> m = new HashMap<String, Object>(evt.getParametersAsMap());
+            Map<String, Object> m = new HashMap<String, Object>(evt.urlParametersAsMap());
 
             BasicDBObject result = new BasicDBObject();
             BasicDBObject set = new BasicDBObject();

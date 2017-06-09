@@ -26,7 +26,7 @@ final class FindSurveyActeur extends Acteur {
 
     @Inject
     public FindSurveyActeur(Page page, HttpEvent evt, @Named(value = "surveys") DBCollection questions, ObjectMapper mapper) throws JsonProcessingException, IOException {
-        ObjectId id = new ObjectId(evt.getPath().getElement(3).toString());
+        ObjectId id = new ObjectId(evt.path().getElement(3).toString());
         DBObject ob = questions.findOne(new BasicDBObject("_id", id));
         if (ob == null) {
             setState(new RespondWith(HttpResponseStatus.NOT_FOUND, "No id " + id));

@@ -48,7 +48,7 @@ public class MockApp extends Application {
     }
 
     public CountDownLatch event(HttpEvent evt) {
-        CountDownLatch latch = control.get().onEvent(evt, evt.getChannel());
+        CountDownLatch latch = control.get().onEvent(evt, evt.channel());
         return latch;
     }
 

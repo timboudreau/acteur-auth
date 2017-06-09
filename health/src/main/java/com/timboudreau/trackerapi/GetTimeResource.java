@@ -56,7 +56,7 @@ class GetTimeResource extends Page {
         @Inject
         public TimeGetter2(DBCollection collection, BasicDBObject query, HttpEvent evt) {
             query.put(type, time);
-            String fields = evt.getParameter("fields");
+            String fields = evt.urlParameter("fields");
             DBObject projection = null;
             if (fields != null) {
                 projection = new BasicDBObject();
@@ -66,11 +66,11 @@ class GetTimeResource extends Page {
             }
             final DBCursor cur = projection == null ? collection.find(query)
                     : collection.find(query, projection);
-            if (evt.getMethod() == Method.HEAD) {
+            if (evt.method() == Method.HEAD) {
                 setState(new RespondWith(cur.hasNext() ? OK : NO_CONTENT));
                 return;
             }
-            evt.getChannel().closeFuture().addListener(new ChannelFutureListener() {
+            evt.channel().closeFuture().addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     cur.close();
@@ -99,7 +99,7 @@ class GetTimeResource extends Page {
             this.mapper = mapper;
             this.evt = evt;
             query.put(type, time);
-            String fields = evt.getParameter("fields");
+            String fields = evt.urlParameter("fields");
             DBObject projection = null;
             if (fields != null) {
                 projection = new BasicDBObject();
@@ -108,7 +108,7 @@ class GetTimeResource extends Page {
                 }
             }
             cur = projection == null ? collection.find(query) : collection.find(query, projection);
-            evt.getChannel().closeFuture().addListener(new ChannelFutureListener() {
+            evt.channel().closeFuture().addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     cur.close();
@@ -118,7 +118,7 @@ class GetTimeResource extends Page {
             if (!cur.hasNext()) {
                 setMessage("[]");
             } else {
-                if (evt.getMethod() != Method.HEAD && evt.getChannel().isOpen()) {
+                if (evt.method() != Method.HEAD && evt.channel().isOpen()) {
                     setResponseBodyWriter(this);
                 }
             }
@@ -131,7 +131,7 @@ class GetTimeResource extends Page {
             }
             if (!cur.hasNext()) {
                 future = future.channel().write(closeBracket.copy());
-                if (!evt.isKeepAlive()) {
+                if (!evt.requestsConnectionStayOpen()) {
                     future.addListener(ChannelFutureListener.CLOSE);
                 }
                 return;

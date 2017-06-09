@@ -49,13 +49,13 @@ public class DeleteSurveyResource extends Page {
         @Inject
         DeleteSurveyActeur(HttpEvent evt, @Named("surveys") DBCollection surveys) throws JsonProcessingException, UnsupportedEncodingException {
             try {
-                String otherUserNameOrID = evt.getPath().getElement(3).toString();
+                String otherUserNameOrID = evt.path().getElement(3).toString();
                 otherUserNameOrID = URLDecoder.decode(otherUserNameOrID, "UTF-8");
                 ObjectId id = new ObjectId(otherUserNameOrID);
                 WriteResult res = surveys.remove(new BasicDBObject("_id", id));
                 setState(new RespondWith(HttpResponseStatus.OK, Timetracker.quickJson("deleted", res.getN())));
             } catch (IllegalArgumentException e) {
-                setState(new RespondWith(HttpResponseStatus.BAD_REQUEST, "Not a valid ID: " + evt.getPath().getElement(3)));
+                setState(new RespondWith(HttpResponseStatus.BAD_REQUEST, "Not a valid ID: " + evt.path().getElement(3)));
             }
         }
     }

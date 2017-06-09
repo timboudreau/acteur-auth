@@ -37,7 +37,7 @@ public final class ModifyEventsResource extends Page {
         add(AuthenticationActeur.class);
         add(CreateCollectionPolicy.DONT_CREATE.toActeur());
         add(TimeCollectionFinder.class);
-        if (evt.getMethod() != Method.DELETE) {
+        if (evt.method() != Method.DELETE) {
             add(af.injectRequestBodyAsJSON(Body.class));
         } else {
             add(FakeBody.class);
@@ -62,9 +62,9 @@ public final class ModifyEventsResource extends Page {
         @Inject
         public Modifier(HttpEvent evt, DBCollection collection, BasicDBObject query, Body something) throws IOException {
             query.put(type, time);
-            boolean isDelete = evt.getMethod() == Method.DELETE;
+            boolean isDelete = evt.method() == Method.DELETE;
             DBObject modification = new BasicDBObject(isDelete ? "$unset"
-                    : "$set", new BasicDBObject(evt.getPath().getLastElement().toString(),
+                    : "$set", new BasicDBObject(evt.path().getLastElement().toString(),
                     something.object)).append("$inc", new BasicDBObject("version", 1));
             WriteResult res = collection.update(query, modification, false, true, WriteConcern.ACKNOWLEDGED);
             String resultJson = Timetracker.quickJson("updated", res.getN());

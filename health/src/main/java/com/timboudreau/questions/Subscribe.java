@@ -126,7 +126,7 @@ public class Subscribe extends Page {
 
         @Override
         public void operationComplete(ChannelFuture future) throws Exception {
-            String eventType = evt.getPath().getElement(1).toString();
+            String eventType = evt.path().getElement(1).toString();
 
             BasicDBObject query = new BasicDBObject("type", eventType);
 

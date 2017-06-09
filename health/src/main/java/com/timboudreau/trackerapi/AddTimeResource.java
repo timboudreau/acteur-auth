@@ -59,8 +59,8 @@ final class AddTimeResource extends Page {
         CheckParameters(HttpEvent evt) {
             System.out.println("AddTimeResource checkParameters");
             try {
-                DateTime startTime = new DateTime(evt.getLongParameter(start).get());
-                DateTime endTime = new DateTime(evt.getLongParameter(end).get());
+                DateTime startTime = new DateTime(evt.longUrlParameter(start).get());
+                DateTime endTime = new DateTime(evt.longUrlParameter(end).get());
                 DateTime now = DateTime.now();
                 DateTime twentyYearsAgo = now.minus(Duration.standardDays(365 * 20));
                 if (twentyYearsAgo.isAfter(startTime)) {
@@ -71,7 +71,7 @@ final class AddTimeResource extends Page {
                 Interval interval = new Interval(startTime, endTime);
                 next(interval);
             } catch (NumberFormatException e) {
-                badRequest("Start or end is not a number: '" + evt.getParameter(start) + "' and '" + evt.getParameter(end));
+                badRequest("Start or end is not a number: '" + evt.urlParameter(start) + "' and '" + evt.urlParameter(end));
             }
         }
     }
@@ -114,8 +114,8 @@ final class AddTimeResource extends Page {
             ObjectId id = (ObjectId) m.get(_id);
             if (id != null) {
                 add(XTI, id.toString());
-                if (evt.getParameter("localId") != null) {
-                    add(XLI, evt.getParameter("localId"));
+                if (evt.urlParameter("localId") != null) {
+                    add(XLI, evt.urlParameter("localId"));
                 }
             }
             setState(new RespondWith(HttpResponseStatus.ACCEPTED, mapper.writeValueAsString(m)));

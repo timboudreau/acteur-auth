@@ -72,15 +72,15 @@ class SignUpResource extends Page {
             this.evt = evt;
             add(Headers.CONTENT_TYPE, MediaType.JSON_UTF_8);
 
-            String userName = URLDecoder.decode(evt.getPath().getElement(1).toString(),
+            String userName = URLDecoder.decode(evt.path().getElement(1).toString(),
                     "UTF-8");
 
             nue = new BasicDBObject(name, new String[]{userName})
-                    .append(displayName, evt.getParameter(displayName))
+                    .append(displayName, evt.urlParameter(displayName))
                     .append(created, DateTime.now().getMillis())
                     .append(version, 0).append("authorizes", new ObjectId[0]);
 
-            if (!(evt.getRequest() instanceof FullHttpRequest)) {
+            if (!(evt.request() instanceof FullHttpRequest)) {
                 if (userName.length() > MAX_USERNAME_LENGTH) {
                     setState(new RespondWith(HttpResponseStatus.INTERNAL_SERVER_ERROR,
                             "Not a " + FullHttpRequest.class.getName()));
@@ -101,8 +101,8 @@ class SignUpResource extends Page {
                         "A user named '" + userName + "' already exists"));
                 return;
             }
-            evt.getChannel().read();
-            FullHttpRequest req = (FullHttpRequest) evt.getRequest();
+            evt.channel().read();
+            FullHttpRequest req = (FullHttpRequest) evt.request();
             ByteBuf inbound = req.content();
             int count;
             do {
@@ -137,7 +137,7 @@ class SignUpResource extends Page {
             m.remove("slugs");
             setState(new RespondWith(CREATED, m));
 
-            publisher.publish("signup", new BasicDBObject("name", evt.getParameter(displayName)));
+            publisher.publish("signup", new BasicDBObject("name", evt.urlParameter(displayName)));
 //            } else {
 //                setState(new RespondWith(HttpResponseStatus.INTERNAL_SERVER_ERROR, "No write"));
 //            }
@@ -150,7 +150,7 @@ class SignUpResource extends Page {
             m.remove(origPass);
             future = future.channel().write(
                     Unpooled.wrappedBuffer(mapper.writeValueAsBytes(m)));
-            if (!evt.isKeepAlive()) {
+            if (!evt.requestsConnectionStayOpen()) {
                 future.addListener(CLOSE);
             }
         }

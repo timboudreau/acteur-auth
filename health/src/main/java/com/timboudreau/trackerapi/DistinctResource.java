@@ -39,7 +39,7 @@ public class DistinctResource extends Page {
 
         @Inject
         DistinctFinder(HttpEvent evt, DB db, DBCollection coll) {
-            String field = evt.getParameter("field");
+            String field = evt.urlParameter("field");
             BasicDBObject cmd = new BasicDBObject("distinct", coll.getName()).append("key", field);
             CommandResult res = db.command(cmd);
             ok(res.get("values"));

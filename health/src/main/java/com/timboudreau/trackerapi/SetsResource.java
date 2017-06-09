@@ -48,14 +48,14 @@ public class SetsResource extends Page {
         @Inject
         ListSetsActeur(HttpEvent evt, DB db, TTUser user, ObjectMapper mapper) throws IOException {
             List<String> l = new ArrayList<>();
-            String pfix = new StringBuilder(evt.getPath().getElement(1).toString()).append('_').toString();
+            String pfix = new StringBuilder(evt.path().getElement(1).toString()).append('_').toString();
             for (String coll : db.getCollectionNames()) {
                 if (coll.startsWith(pfix)) {
                     l.add(coll.substring(pfix.length()));
                 }
             }
             Collections.sort(l);
-            if (evt.getMethod() == Method.HEAD) {
+            if (evt.method() == Method.HEAD) {
                 ok();
             } else {
                 ok(l);
