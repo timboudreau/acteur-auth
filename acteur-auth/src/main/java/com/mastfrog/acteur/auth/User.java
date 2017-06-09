@@ -11,11 +11,16 @@ import java.util.Set;
  */
 public interface User<IdType> extends SimpleUser<IdType> {
     public List<String> names();
+    @Override
     public String name();
+    @Override
     public int version();
+    @Override
     public IdType id();
+    @Override
     public String idAsString();
     public List<IdType> authorizes();
+    @Override
     public String displayName();
     public String hashedPassword();
     public Set<String> authInfoNames();

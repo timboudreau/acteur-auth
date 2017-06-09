@@ -152,14 +152,17 @@ public abstract class UserFactory<T> {
             this.used = false;
         }
 
+        @Override
         public boolean equals(Object o) {
             return o instanceof LoginState && ((LoginState) o).state.equals(state);
         }
 
+        @Override
         public int hashCode() {
             return state.hashCode();
         }
 
+        @Override
         public String toString() {
             return state;
         }
@@ -185,6 +188,7 @@ public abstract class UserFactory<T> {
             return Duration.between(Instant.ofEpochMilli(created), Instant.ofEpochMilli(System.currentTimeMillis()));
         }
         
+        @Override
         public String toString() {
             return name + '=' + slug + " (" + created + ")";
         }

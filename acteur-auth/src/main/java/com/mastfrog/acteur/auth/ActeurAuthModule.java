@@ -45,7 +45,7 @@ public class ActeurAuthModule<T extends UserFactory<?>> extends AbstractModule {
 
         private final Provider<UserFactory> p;
 
-        public GenericProvider(Provider<UserFactory> p) {
+        GenericProvider(Provider<UserFactory> p) {
             this.p = p;
         }
 

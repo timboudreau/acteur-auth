@@ -20,12 +20,12 @@ final class CompositeAuthenticationStrategy extends AuthenticationStrategy {
 
     private final List<AuthenticationStrategy> all = new ArrayList<>();
 
-    public CompositeAuthenticationStrategy(AuthenticationStrategy delegate) {
+    CompositeAuthenticationStrategy(AuthenticationStrategy delegate) {
         all.add(delegate);
     }
 
     @Inject
-    public CompositeAuthenticationStrategy(BasicAuthenticationStrategy basic, CookieAuthenticationStrategy cookie, Settings settings) {
+     CompositeAuthenticationStrategy(BasicAuthenticationStrategy basic, CookieAuthenticationStrategy cookie, Settings settings) {
         if (settings.getBoolean(Auth.SETTINGS_KEY_ENABLE_COOKIE_AUTH, true)) {
             add(cookie);
         }
@@ -79,7 +79,7 @@ final class CompositeAuthenticationStrategy extends AuthenticationStrategy {
 
         private final List<AtomicReference<FailHook>> all;
 
-        public CompositeFailHook(List<AtomicReference<FailHook>> all) {
+        CompositeFailHook(List<AtomicReference<FailHook>> all) {
             this.all = all;
         }
 

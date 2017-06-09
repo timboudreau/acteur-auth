@@ -34,7 +34,7 @@ import java.util.Map;
 final class TestLoginPage extends Page {
 
     @Inject
-    public TestLoginPage(Settings settings, ActeurFactory af) {
+     TestLoginPage(Settings settings, ActeurFactory af) {
         String pattern = settings.getString("login.test.page.pattern", "^testLogin$");
         add(af.matchPath(pattern));
         add(af.matchMethods(Method.GET, Method.POST, Method.PUT));

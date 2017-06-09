@@ -334,14 +334,17 @@ public final class OAuthPlugins implements Iterable<OAuthPlugin<?>> {
             this.landingPagePath = landingPagePath;
         }
 
+        @Override
         public boolean equals(Object o) {
             return o instanceof PluginInfo && ((PluginInfo) o).code.equals(code);
         }
 
+        @Override
         public int hashCode() {
             return code.hashCode();
         }
 
+        @Override
         public String toString() {
             return name + ':' + code + ':' + loginPagePath + ':' + landingPagePath;
         }

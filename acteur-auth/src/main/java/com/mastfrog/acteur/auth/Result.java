@@ -36,7 +36,7 @@ public final class Result<UserType> {
         if (!ck) {
             ck = b.isSuccess() && b.cookie;
         }
-        return new Result<T>(a.user == null ? b.user : null, a.username == null ? b.username : null, a.hashedPass == null ? b.hashedPass : a.hashedPass, a.type, ck, a.displayName == null ? b.displayName : a.displayName);
+        return new Result<>(a.user == null ? b.user : null, a.username == null ? b.username : null, a.hashedPass == null ? b.hashedPass : a.hashedPass, a.type, ck, a.displayName == null ? b.displayName : a.displayName);
     }
 
     public boolean isSuccess() {

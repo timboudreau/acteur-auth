@@ -36,7 +36,7 @@ public final class VisitorCookies {
         cookieName = settings.getString(SETTINGS_KEY_COOKIE_NAME, DEFAULT_COOKIE_NAME);
         cookieDuration = Duration.ofDays(settings.getInt(SETTINGS_KEY_COOKIE_DURATION_DAYS, 365 * 5));
         cookieHost = settings.getString(SETTINGS_KEY_OAUTH_COOKIE_HOST);
-        port = settings.getInt("port", 8133); //XXX
+        port = settings.getInt("port", 8_133); //XXX
         this.ids = ids;
     }
 

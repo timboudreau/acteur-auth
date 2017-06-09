@@ -22,7 +22,7 @@ public abstract class HomePageRedirector {
     static class DefaultHomePageRedirector extends HomePageRedirector {
         private final String path;
         @Inject
-        public DefaultHomePageRedirector(Settings settings) {
+         DefaultHomePageRedirector(Settings settings) {
             this.path = settings.getString(SETTINGS_KEY_OAUTH_LANDING_PAGE_REDIRECT, "/");
         }
 
