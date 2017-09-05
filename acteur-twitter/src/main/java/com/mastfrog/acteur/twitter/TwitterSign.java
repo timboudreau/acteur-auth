@@ -25,7 +25,6 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.util.AsciiString;
 import io.netty.util.CharsetUtil;
-import org.apache.commons.codec.binary.Base64;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -34,7 +33,7 @@ import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-//import java.util.Base64;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -203,8 +202,7 @@ public class TwitterSign {
 
         byte[] text = baseString.getBytes();
 
-//        return new String(Base64.getEncoder().encode(mac.doFinal(text))).trim();
-       return new String(Base64.encodeBase64(mac.doFinal(text))).trim();
+        return new String(Base64.getEncoder().encode(mac.doFinal(text))).trim();
     }
 
     // the first step in the twitter oauth flow is to get a request token with a call to api.twitter.com/oauth/request_token
