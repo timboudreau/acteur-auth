@@ -19,7 +19,6 @@ import io.netty.handler.codec.http.cookie.DefaultCookie;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpResponseStatus.SEE_OTHER;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.Map;
 import static org.junit.Assert.assertEquals;
@@ -43,6 +42,7 @@ public class LiveAppTest {
         URI loc = harness.get("/" + plugins.getBouncePageBasePath() + "/fk")
                 .log()
                 .go()
+                .await()
                 .assertStateSeen(StateType.FullContentReceived)
                 .assertStatus(SEE_OTHER)
                 .getHeader(Headers.LOCATION);
