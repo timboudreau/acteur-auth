@@ -13,6 +13,7 @@ import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.settings.Settings;
 import com.mastfrog.url.Host;
 import com.mastfrog.url.Path;
+import com.mastfrog.util.collections.CollectionUtils;
 import com.mastfrog.util.time.TimeUtil;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
@@ -23,7 +24,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.Map;
-import org.openide.util.NbCollections;
 
 /**
  *
@@ -86,7 +86,7 @@ final class OAuthLandingPageActeur extends Acteur {
     @SuppressWarnings("unchecked")
     private Map<String, Object> toMap(RemoteUserInfo info) throws JsonProcessingException, IOException {
         if (info instanceof Map) {
-            return NbCollections.checkedMapByCopy(info, String.class, Object.class, false);
+            return CollectionUtils.checkedMapByFilter(info, String.class, Object.class);
         }
         String s = mapper.writeValueAsString(info);
         return mapper.readValue(s, Map.class);
