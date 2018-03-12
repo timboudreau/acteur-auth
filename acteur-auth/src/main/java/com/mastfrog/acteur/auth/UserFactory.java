@@ -2,9 +2,12 @@ package com.mastfrog.acteur.auth;
 
 import com.google.common.base.Optional;
 import com.mastfrog.util.time.TimeUtil;
+import static com.mastfrog.util.time.TimeUtil.GMT;
+import static com.mastfrog.util.time.TimeUtil.nowGMT;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.util.Map;
 import java.util.Set;
 
@@ -141,14 +144,14 @@ public abstract class UserFactory<T> {
         public LoginState(String state, String redirectTo, ZonedDateTime created, boolean used) {
             this.state = state;
             this.redirectTo = redirectTo;
-            this.created = created;
+            this.created = created.withZoneSameInstant(GMT).with(ChronoField.MICRO_OF_DAY, 0);
             this.used = used;
         }
 
         public LoginState(String state, String redirectTo) {
             this.state = state;
             this.redirectTo = redirectTo;
-            created = ZonedDateTime.now();
+            created = nowGMT();
             this.used = false;
         }
 

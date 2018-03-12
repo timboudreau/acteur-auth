@@ -36,6 +36,7 @@ import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -212,7 +213,7 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
     @Override
     protected void saveLoginState(LoginState state) {
         DBObject writeTo = new BasicDBObject("state", state.state)
-                .append("created", state.created.toInstant().toEpochMilli())
+                .append("created", TimeUtil.toUnixTimestamp(state.created.with(ChronoField.MICRO_OF_SECOND, 0)))
                 .append("redir", state.redirectTo);
         WriteResult res = loginStates.insert(writeTo);
     }
@@ -224,7 +225,7 @@ public final class MongoUserFactory extends UserFactory<DBObject> {
         DBObject result = loginStates.findOne(query);
         if (result != null) {
             Number n = (Number) result.get("created");
-            ZonedDateTime created = TimeUtil.fromUnixTimestamp(n.longValue());
+            ZonedDateTime created = TimeUtil.fromUnixTimestamp(n.longValue()).with(ChronoField.MICRO_OF_SECOND, 0);
             String redir = (String) result.get("redir");
             boolean used = Boolean.TRUE.equals(result.get("used"));
             result.put("used", true);
