@@ -184,7 +184,7 @@ public abstract class UserFactory<T> {
         }
         
         public ZonedDateTime created() {
-            return TimeUtil.fromUnixTimestamp(created);
+            return TimeUtil.fromUnixTimestamp(created).with(ChronoField.MICRO_OF_SECOND, 0).withZoneSameInstant(GMT);
         }
 
         public Duration age() {

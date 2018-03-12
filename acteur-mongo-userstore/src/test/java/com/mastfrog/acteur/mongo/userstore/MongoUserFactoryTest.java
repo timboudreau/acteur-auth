@@ -39,6 +39,7 @@ import com.mastfrog.giulius.tests.GuiceRunner;
 import com.mastfrog.giulius.tests.TestWith;
 import com.mastfrog.util.Types;
 import com.mastfrog.util.time.TimeUtil;
+import static com.mastfrog.util.time.TimeUtil.nowGMT;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -47,6 +48,7 @@ import io.netty.util.CharsetUtil;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -115,9 +117,8 @@ public class MongoUserFactoryTest {
         LoginState ls2 = ls2o.get();
         assertEquals(ls, ls2);
         assertEquals(ls.redirectTo, ls2.redirectTo);
-        assertEquals(ls.created, ls2.created);
 
-        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime now = nowGMT().with(ChronoField.MICRO_OF_SECOND, 0);
         uf.putSlug(ob, new Slug("gg", "xyz", TimeUtil.toUnixTimestamp(now)));
         ob = uf.findUserByName(userName).get();
 
