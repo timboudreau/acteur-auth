@@ -8,7 +8,6 @@ import com.mastfrog.acteur.ActeurFactory;
 import com.mastfrog.acteur.Application;
 import com.mastfrog.acteur.Event;
 import com.mastfrog.acteur.HttpEvent;
-import com.mastfrog.acteur.ImplicitBindings;
 import com.mastfrog.acteur.auth.MockUserFactory.MockUser;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.State;
@@ -17,6 +16,8 @@ import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.acteur.headers.Method;
 import com.mastfrog.acteur.spi.ApplicationControl;
 import com.mastfrog.acteur.util.RequestID;
+import com.mastfrog.giulius.annotations.SettingsDefaults;
+import com.mastfrog.giulius.annotations.SettingsDefaults.KV;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.util.concurrent.CountDownLatch;
@@ -26,7 +27,9 @@ import java.util.concurrent.CountDownLatch;
  * @author tim
  */
 @Singleton
-@ImplicitBindings(MockUser.class)
+@SuppressWarnings("deprecation")
+@com.mastfrog.acteur.ImplicitBindings(MockUser.class)
+@SettingsDefaults(@KV(name="realm", value="Users"))
 public class MockApp extends Application {
 
     @Inject
