@@ -7,7 +7,6 @@ import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.util.Exceptions;
 import com.timboudreau.questions.pojos.Survey;
-import java.io.IOException;
 
 /**
  *
@@ -30,7 +29,7 @@ final class SurveyProvider implements Provider<Survey> {
             HttpEvent e = evt.get();
             ContentConverter c = cvt.get();
             return c.toObject(e.content(), e.header(Headers.CONTENT_TYPE), Survey.class);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             return Exceptions.chuck(ex);
         }
     }
