@@ -37,7 +37,6 @@ import com.mastfrog.acteur.mongo.userstore.MongoUserFactoryTest.M;
 import com.mastfrog.acteur.util.PasswordHasher;
 import com.mastfrog.giulius.tests.GuiceRunner;
 import com.mastfrog.giulius.tests.TestWith;
-import com.mastfrog.util.Types;
 import com.mastfrog.util.time.TimeUtil;
 import static com.mastfrog.util.time.TimeUtil.nowGMT;
 import com.mongodb.BasicDBObject;
@@ -80,7 +79,7 @@ public class MongoUserFactoryTest {
         assertNotNull(ob);
         TTUser u = (TTUser) uf.toUserObject(ob);
         assertNotNull(u);
-        assertTrue(Types.list(ob.get("name").getClass()), ob.get("name") instanceof List);
+        assertTrue(ob.get("name").getClass().getName(), ob.get("name") instanceof List);
         assertEquals(userName, ((List) ob.get("name")).get(0));
         assertEquals("Test User", ob.get("displayName"));
         assertEquals(0, ob.get("version"));

@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.auth.FakeOAuthPlugin.FakeCredential;
 import com.mastfrog.url.URL;
-import com.mastfrog.util.Checks;
+import com.mastfrog.util.preconditions.Checks;
 import java.util.HashMap;
 import java.util.Map;
 

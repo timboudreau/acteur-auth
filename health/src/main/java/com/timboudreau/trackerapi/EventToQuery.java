@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.util.Providers;
 import com.mastfrog.acteur.HttpEvent;
-import com.mastfrog.util.Exceptions;
+import com.mastfrog.util.preconditions.Exceptions;
 import com.mongodb.BasicDBObject;
 import java.util.LinkedList;
 import java.util.List;

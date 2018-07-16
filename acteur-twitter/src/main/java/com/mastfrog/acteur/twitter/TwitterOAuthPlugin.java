@@ -17,7 +17,7 @@ import com.mastfrog.acteur.twitter.TwitterOAuthPlugin.TwitterToken;
 import com.mastfrog.netty.http.client.HttpClient;
 import com.mastfrog.settings.Settings;
 import com.mastfrog.url.Path;
-import com.mastfrog.util.Exceptions;
+import com.mastfrog.util.preconditions.Exceptions;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Map;

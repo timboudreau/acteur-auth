@@ -8,7 +8,7 @@ import com.mastfrog.acteur.Acteur;
 import com.mastfrog.acteur.HttpEvent;
 import com.mastfrog.acteur.Page;
 import com.mastfrog.acteur.headers.Headers;
-import static com.mastfrog.util.Strings.sha1;
+import static com.mastfrog.util.strings.Strings.sha1;
 import com.mastfrog.util.time.TimeUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;

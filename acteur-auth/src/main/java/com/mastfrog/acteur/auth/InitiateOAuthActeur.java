@@ -10,7 +10,7 @@ import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.acteur.util.PasswordHasher;
 import com.mastfrog.giulius.Dependencies;
 import com.mastfrog.settings.Settings;
-import com.mastfrog.util.Strings;
+import com.mastfrog.util.strings.Strings;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.net.MalformedURLException;

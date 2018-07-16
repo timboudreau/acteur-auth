@@ -28,7 +28,7 @@ import com.google.inject.name.Named;
 import com.mastfrog.acteur.auth.OAuthPlugin;
 import com.mastfrog.acteur.auth.UniqueIDs;
 import com.mastfrog.acteur.auth.UserFactory;
-import com.mastfrog.util.Checks;
+import com.mastfrog.util.preconditions.Checks;
 import com.mastfrog.util.time.TimeUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;

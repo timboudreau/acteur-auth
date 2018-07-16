@@ -18,7 +18,7 @@ import com.mastfrog.netty.http.client.StateType;
 import com.mastfrog.url.Host;
 import com.mastfrog.url.Protocols;
 import com.mastfrog.url.URL;
-import com.mastfrog.util.Exceptions;
+import com.mastfrog.util.preconditions.Exceptions;
 import com.mastfrog.util.thread.Receiver;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;

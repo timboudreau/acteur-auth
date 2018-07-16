@@ -4,7 +4,7 @@ import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mastfrog.acteur.auth.MockUserFactory.MockUser;
-import com.mastfrog.util.Checks;
+import com.mastfrog.util.preconditions.Checks;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashMap;
