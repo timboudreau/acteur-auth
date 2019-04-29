@@ -15,7 +15,6 @@
         <module>acteur-facebook-auth</module>
         <module>acteur-google-auth</module>
         <module>acteur-mongo-userstore</module>
-        <module>health</module>
         <module>acteur-twitter</module>
         <module>acteur-linkedin</module>
     </modules>

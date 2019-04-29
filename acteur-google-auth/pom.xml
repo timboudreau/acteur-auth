@@ -9,6 +9,9 @@
     </parent>
     <artifactId>acteur-google-auth</artifactId>
     <name>Acteur Google Auth</name>
+    <properties>
+        <enforcer.skip>true</enforcer.skip>
+    </properties>
     <build>
         <plugins>
             <plugin>
