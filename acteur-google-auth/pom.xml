@@ -8,6 +8,7 @@
         <relativePath/>
     </parent>
     <artifactId>acteur-google-auth</artifactId>
+    <url>https://github.com/timboudreau/acteur-auth</url>
     <name>Acteur Google Auth</name>
     <properties>
         <enforcer.skip>true</enforcer.skip>
@@ -53,10 +54,11 @@
         <url>https://github.com/timboudreau/acteur-auth/issues</url>
     </issueManagement>
     <scm>
-        <url>https://github.com/timboudreau/acteur-auth</url>
+        <url>https://github.com/timboudreau/acteur-auth.git</url>
         <connection>scm:git:https://github.com/timboudreau/acteur-auth.git</connection>
         <developerConnection>git@github.com/timboudreau/acteur-auth.git</developerConnection>
     </scm>
+    
     <organization>
         <name>Mastfrog Technologies</name>
         <url>https://mastfrog.com</url>
@@ -64,7 +66,8 @@
     <licenses>
         <license>
             <name>MIT</name>
-            <url>http://opensource.org/licenses/MIT</url>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
         </license>
     </licenses>
     <developers>
