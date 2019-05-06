@@ -48,7 +48,10 @@
             <artifactId>google-http-client-jackson2</artifactId>
         </dependency>
     </dependencies>
-    <url>https://github.com/timboudreau/acteur-auth</url>
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com/timboudreau/acteur-auth/issues</url>
+    </issueManagement>
     <scm>
         <url>https://github.com/timboudreau/acteur-auth</url>
         <connection>scm:git:https://github.com/timboudreau/acteur-auth.git</connection>
