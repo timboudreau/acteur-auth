@@ -36,6 +36,7 @@ import com.mastfrog.acteur.mongo.MongoModule;
 import com.mastfrog.acteur.mongo.userstore.MongoUserFactoryTest.M;
 import com.mastfrog.acteur.util.PasswordHasher;
 import com.mastfrog.giulius.tests.GuiceRunner;
+import com.mastfrog.giulius.tests.IfBinaryAvailable;
 import com.mastfrog.giulius.tests.TestWith;
 import com.mastfrog.util.time.TimeUtil;
 import static com.mastfrog.util.time.TimeUtil.nowGMT;
@@ -66,6 +67,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(GuiceRunner.class)
 @TestWith({M.class, UniqueIDs.UniqueIdsModule.class})
+@IfBinaryAvailable("mongod")
 public class MongoUserFactoryTest {
 
     @Test
