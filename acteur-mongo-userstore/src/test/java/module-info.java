@@ -20,4 +20,7 @@ open module com.mastfrog.acteur.mongo.userstore {
     // Sibling com.mastfrog/url-3.0.0-dev
     requires com.mastfrog.url;
 
+    // Inferred from test-source-scan
+    requires transitive junit;
+
 }

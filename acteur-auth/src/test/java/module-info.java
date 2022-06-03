@@ -28,4 +28,7 @@ open module com.mastfrog.acteur.auth {
     // Inferred from source scan
     requires com.mastfrog.time;
 
+    // Inferred from test-source-scan
+    requires transitive junit;
+
 }
