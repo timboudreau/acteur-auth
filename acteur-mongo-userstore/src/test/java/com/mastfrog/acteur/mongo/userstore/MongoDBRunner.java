@@ -24,8 +24,8 @@
 package com.mastfrog.acteur.mongo.userstore;
 
 import com.google.inject.Inject;
-import com.mastfrog.giulius.ShutdownHookRegistry;
 import com.mastfrog.settings.MutableSettings;
+import com.mastfrog.shutdown.hooks.ShutdownHookRegistry;
 import java.io.File;
 import java.io.IOException;
 

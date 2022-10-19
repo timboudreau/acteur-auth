@@ -1,7 +1,6 @@
 package com.mastfrog.acteur.twitter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.net.MediaType;
 import com.mastfrog.acteur.auth.OAuthPlugin.RemoteUserInfo;
 import com.mastfrog.acteur.headers.HeaderValueType;
 import static com.mastfrog.acteur.twitter.TwitterSign.OAuthHeaders.oauth_consumer_key;
@@ -12,6 +11,7 @@ import static com.mastfrog.acteur.twitter.TwitterSign.OAuthHeaders.oauth_token;
 import static com.mastfrog.acteur.twitter.TwitterSign.OAuthHeaders.oauth_version;
 import com.mastfrog.acteur.headers.Headers;
 import com.mastfrog.acteur.headers.Method;
+import com.mastfrog.mime.MimeType;
 import com.mastfrog.netty.http.client.HttpClient;
 import com.mastfrog.netty.http.client.ResponseHandler;
 import com.mastfrog.netty.http.client.StateType;
@@ -256,7 +256,7 @@ public class TwitterSign {
         RH rh = new RH();
 
         client.post()
-                .setBody("", MediaType.parse("application/x-www-form-urlencoded").withCharset(CharsetUtil.UTF_8))
+                .setBody("", MimeType.FORM_DATA)
                 .addHeader(Headers.AUTHORIZATION.toStringHeader(), authorization_header_string)
                 .setURL(URL.builder().setProtocol(Protocols.HTTPS).setHost(Host.parse(twitter_endpoint_host)).setPath(twitter_endpoint_path).create().toString())
                 .on(StateType.Closed, receiver).execute(rh);
@@ -321,7 +321,7 @@ public class TwitterSign {
                 .setPath(twitter_endpoint_path).create();
 
         client.post().setURL(url).addHeader(Headers.AUTHORIZATION.toStringHeader(), authorization_header_string)
-                .setBody("oauth_verifier=" + encode(pin), MediaType.parse("application/x-www-form-urlencoded").withCharset(CharsetUtil.UTF_8))
+                .setBody("oauth_verifier=" + encode(pin), MimeType.FORM_DATA)
                 .on(StateType.Closed, latch)
                 .on(StateType.Timeout, latch)
                 .execute(rh);
@@ -562,12 +562,7 @@ public class TwitterSign {
                 .addHeader(TWITTER_CLIENT_VERSION, CLIENT_VERSION)
                 .addHeader(Headers.ACCEPT_ENCODING, HttpHeaderValues.GZIP)
                 .addHeader(Headers.ACCEPT, ACCEPT_PAYLOAD)
-//                .addHeader(Headers.stringHeader("Accept"), "*/*")
-//                .addHeader(Headers.stringHeader("Connection"), "keep-alive")
                 .noDateHeader()
-//                .noConnectionHeader()
-//                .addHeader(Headers.stringHeader("Content-Type"), "application/x-www-form-urlencoded")
-                //                .setBody("screen_name=kablosna", MediaType.PLAIN_TEXT_UTF_8)
                 .on(StateType.Closed, latch)
                 .on(StateType.Timeout, latch)
                 .execute(rh);
@@ -640,7 +635,7 @@ public class TwitterSign {
         RH rh = new RH();
         client.get().setURL(url).addHeader(Headers.AUTHORIZATION.toStringHeader(), hdr)
                 .addHeader(Headers.ACCEPT, "*/*")
-                .addHeader(Headers.CONTENT_TYPE, MediaType.FORM_DATA)
+                .addHeader(Headers.CONTENT_TYPE, MimeType.FORM_DATA)
                 //                .setBody("screen_name=kablosna", MediaType.PLAIN_TEXT_UTF_8)
                 .on(StateType.Closed, latch)
                 .on(StateType.Timeout, latch)
@@ -678,7 +673,7 @@ public class TwitterSign {
 
         client.get().setURL(url).addHeader(Headers.AUTHORIZATION.toStringHeader(), authorization_header_string)
                 .addHeader(Headers.ACCEPT, "*/*")
-                .addHeader(Headers.CONTENT_TYPE, MediaType.FORM_DATA)
+                .addHeader(Headers.CONTENT_TYPE, MimeType.FORM_DATA)
                 //                .setBody("screen_name=kablosna", MediaType.PLAIN_TEXT_UTF_8)
                 .on(StateType.Closed, latch)
                 .on(StateType.Timeout, latch)
